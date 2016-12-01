@@ -1,0 +1,110 @@
+buildscript {
+    ext.anko_version = '0.9'
+    ext.junit_platform_ver = '1.0.0-M2'
+    ext.spek_version = '1.0.89'
+    ext.t4j_version = '4.0.5'
+    repositories {
+        jcenter()
+    }
+    dependencies {
+        classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
+    }
+}
+
+apply plugin: 'com.android.application'
+apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-android-extensions'
+
+android {
+    compileSdkVersion 25
+    buildToolsVersion "$android_build_tool_ver"
+
+    signingConfigs {
+        release {
+            storeFile file('../release.jks')
+            storePassword ""
+            keyAlias "AndroidReleaseKey"
+            keyPassword ""
+        }
+
+        debug {
+            storeFile file('../debug.jks')
+            storePassword "android"
+            keyAlias "AndroidDebugKey"
+            keyPassword "android"
+        }
+    }
+
+    defaultConfig {
+        applicationId "net.ketc.numeri3"
+        minSdkVersion 23
+        targetSdkVersion 25
+        versionCode 0
+        versionName "alpha-0"
+        signingConfig signingConfigs.debug
+    }
+    buildTypes {
+        release {
+            minifyEnabled false
+            proguardFiles getDefaultProguardFile('proguard-android.txt'), 'proguard-rules.pro'
+            signingConfig signingConfigs.release
+        }
+
+        debug {
+            signingConfig signingConfigs.debug
+        }
+    }
+
+    lintOptions {
+        disable 'InvalidPackage'
+    }
+
+}
+
+dependencies {
+    compile fileTree(dir: 'libs', include: ['*.jar'])
+    //android-support
+    compile "com.android.support:appcompat-v7:$android_build_tool_ver"
+    compile "com.android.support:design:$android_build_tool_ver"
+    compile "com.android.support:recyclerview-v7:$android_build_tool_ver"
+    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+
+    //kotlin
+    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+
+    //anko
+    compile "org.jetbrains.anko:anko-sdk15:$anko_version"
+    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    compile "org.jetbrains.anko:anko-design:$anko_version"
+    compile "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+
+    //rx
+    compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+
+    //twitter4j
+    compile "org.twitter4j:twitter4j-core:$t4j_version"
+    compile "org.twitter4j:twitter4j-stream:$t4j_version"
+
+    //test
+    testCompile "org.jetbrains.spek:spek-api:$spek_version"
+    testCompile "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
+    testCompile "org.junit.platform:junit-platform-runner:$junit_platform_ver"
+    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testCompile 'junit:junit:4.12'
+}
+
+configurations.all {
+    resolutionStrategy {
+        force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+    }
+}
+
+gradle.taskGraph.whenReady { taskGraph ->
+    if (taskGraph.hasTask(':app:assembleRelease')) {
+        def storePasswordValue = new String(System.console().readPassword("Enter store password: "))
+        def keyPasswordValue = new String(System.console().readPassword("Enter key password: "))
+
+        android.signingConfigs.release.storePassword = storePasswordValue
+        android.signingConfigs.release.keyPassword = keyPasswordValue
+    }
+}
