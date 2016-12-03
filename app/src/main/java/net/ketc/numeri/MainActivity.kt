@@ -1,4 +1,4 @@
-package net.ketc.app
+package net.ketc.numeri
 
 import android.content.Context
 import android.content.res.Configuration
