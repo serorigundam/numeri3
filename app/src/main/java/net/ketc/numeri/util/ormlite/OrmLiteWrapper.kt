@@ -67,8 +67,12 @@ fun <R> transaction(handle: () -> R) = connect {
     r ?: throw InternalError()
 }
 
-fun createTable(vararg table: KClass<out Entity<*>>) = connect { connectionSource ->
-    table.forEach {
+/**
+ * create tables
+ * @param tables tables
+ */
+fun createTable(vararg tables: KClass<out Entity<*>>) = connect { connectionSource ->
+    tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
 }
