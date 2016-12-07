@@ -3,6 +3,7 @@ buildscript {
     ext.junit_platform_ver = '1.0.0-M2'
     ext.spek_version = '1.0.89'
     ext.t4j_version = '4.0.5'
+    ext.dagger_version = '2.8'
     repositories {
         jcenter()
     }
@@ -61,6 +62,10 @@ android {
 
 }
 
+kapt {
+    generateStubs = true
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     //android-support
@@ -80,10 +85,21 @@ dependencies {
 
     //rx
     compile 'io.reactivex.rxjava2:rxjava:2.0.1'
+    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
 
     //twitter4j
     compile "org.twitter4j:twitter4j-core:$t4j_version"
     compile "org.twitter4j:twitter4j-stream:$t4j_version"
+
+    //dagger
+    compile "com.google.dagger:dagger:$dagger_version"
+    compile "com.google.dagger:dagger-android:$dagger_version"
+    kapt "com.google.dagger:dagger-compiler:$dagger_version"
+    provided 'org.glassfish:javax.annotation:10.0-b28'
+
+    //ormLite
+    compile 'com.j256.ormlite:ormlite-core:5.0'
+    compile 'com.j256.ormlite:ormlite-android:5.0'
 
     //test
     testCompile "org.jetbrains.spek:spek-api:$spek_version"
