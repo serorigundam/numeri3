@@ -1,4 +1,4 @@
-package net.ketc.numeri.log.util
+package net.ketc.numeri.util.log
 
 import android.util.Log
 

@@ -1,4 +1,4 @@
-package net.ketc.numeri.ormlite.util
+package net.ketc.numeri.util.ormlite
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase

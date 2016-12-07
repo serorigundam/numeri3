@@ -1,4 +1,4 @@
-package net.ketc.numeri.rx.util
+package net.ketc.numeri.util.rx
 
 import io.reactivex.Scheduler
 import io.reactivex.Single

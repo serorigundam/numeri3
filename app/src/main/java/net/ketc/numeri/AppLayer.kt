@@ -5,7 +5,7 @@ import android.content.Context
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import net.ketc.numeri.ormlite.util.DataBaseHelper
+import net.ketc.numeri.util.ormlite.DataBaseHelper
 import javax.inject.Singleton
 
 @Module
