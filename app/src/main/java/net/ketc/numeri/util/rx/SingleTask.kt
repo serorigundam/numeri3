@@ -17,7 +17,7 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
     }
 
     /**
-     * Sets the callback function called when the task succeeds.
+     * sets the callback function called when the task succeeds.
      * Then execute the task.
      * @param success callback function called when the task succeeds.
      * @return Disposable
@@ -35,7 +35,7 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
     }
 
     /**
-     * Sets the callback function called when an error occurs.
+     * sets the callback function called when an error occurs.
      * @param error function called when an error occurs.
      * @return An instance of itself.
      */
