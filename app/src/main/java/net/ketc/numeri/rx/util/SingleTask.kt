@@ -5,21 +5,24 @@ import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
 
-interface Task {
-    infix fun error(error: (Throwable) -> Unit): Task
-}
-
-class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: Scheduler, private val autoDisposable: AutoDisposable?, private val task: () -> T) : Task {
-    private var success: ((T) -> Unit)? = null
+/**
+ *SingleTask
+ */
+class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: Scheduler, private val autoDisposable: AutoDisposable?, private val task: () -> T) {
     private var error: ((Throwable) -> Unit)? = null
 
-    infix fun success(success: (T) -> Unit): Disposable {
-        this.success = success
-        val single = Single.create<T> { emitter ->
-            val t = task()
-            emitter.onSuccess(t)
-        }
+    private val single = Single.create<T> { emitter ->
+        val t = task()
+        emitter.onSuccess(t)
+    }
 
+    /**
+     * Sets the callback function called when the task succeeds.
+     * Then execute the task.
+     * @param success callback function called when the task succeeds.
+     * @return Disposable
+     */
+    infix fun success(success: (T) -> Unit): Disposable {
         val disposable = single.subscribeOn(subscribeOn)
                 .observeOn(observeOn)
                 .subscribe(success) {
@@ -31,7 +34,12 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
         return disposable
     }
 
-    override infix fun error(error: (Throwable) -> Unit): SingleTask<T> {
+    /**
+     * Sets the callback function called when an error occurs.
+     * @param error function called when an error occurs.
+     * @return An instance of itself.
+     */
+    infix fun error(error: (Throwable) -> Unit): SingleTask<T> {
         this.error = error
         return this
     }

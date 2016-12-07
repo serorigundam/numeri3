@@ -8,10 +8,10 @@ import java.util.*
 interface AutoDisposable {
     fun addDisposable(disposable: Disposable)
     fun removeDisposable(disposable: Disposable)
-    fun disposeDisposable()
+    fun dispose()
     fun Disposable.autoDispose() = addDisposable(this)
     /**
-     * このメソッドを使用した場合[autoDispose]を呼ぶ必要はありません。
+     * You do not need to call [autoDispose] when using this method.
      */
     fun <T> singleTask(scheduler: Scheduler, observeOn: Scheduler = AndroidSchedulers.mainThread(), task: () -> T) = SingleTask(scheduler, observeOn, this, task)
 
@@ -34,7 +34,7 @@ class AutoDisposableImpl : AutoDisposable {
         disposableList.remove(disposable)
     }
 
-    override fun disposeDisposable() {
+    override fun dispose() {
         disposableList.forEach(Disposable::dispose)
     }
 }

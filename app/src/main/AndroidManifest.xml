@@ -4,6 +4,7 @@
     package="net.ketc.numeri">
 
     <application
+        android:name=".Numeri"
         android:allowBackup="false"
         android:icon="@mipmap/ic_launcher"
         android:label="@string/app_name"
