@@ -11,7 +11,7 @@ interface AutoDisposable {
     fun dispose()
     fun Disposable.autoDispose() = addDisposable(this)
     /**
-     * You do not need to call [autoDispose] when using this method.
+     * do not need to call [autoDispose] when using this method.
      */
     fun <T> singleTask(scheduler: Scheduler, observeOn: Scheduler = AndroidSchedulers.mainThread(), task: () -> T) = SingleTask(scheduler, observeOn, this, task)
 
