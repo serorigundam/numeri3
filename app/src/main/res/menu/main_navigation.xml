@@ -1,7 +1,52 @@
 <?xml version="1.0" encoding="utf-8"?>
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
-    <item
-        android:id="@+id/action"
-        android:icon="@mipmap/ic_launcher_round"
-        android:title="hoge" />
+    <group android:id="@+id/main_menu">
+        <item
+            android:id="@+id/action"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+
+        <item
+            android:id="@+id/action1"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action2"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action3"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action4"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action5"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action6"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action7"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action8"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action9"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+        <item
+            android:id="@+id/action0"
+            android:icon="@mipmap/ic_launcher_round"
+            android:title="hoge" />
+    </group>
+
+
 </menu>
