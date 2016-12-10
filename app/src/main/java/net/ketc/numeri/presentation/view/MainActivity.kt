@@ -73,7 +73,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        presenter.onNewIntent(intent.getParcelableExtra(INTENT_OAUTH))
+        val oauthIntent = intent.getParcelableExtra<Intent>(INTENT_OAUTH) ?: return
+        presenter.onNewIntent(oauthIntent)
     }
 
     override fun onOptionsItemSelected(item: MenuItem?): Boolean {
