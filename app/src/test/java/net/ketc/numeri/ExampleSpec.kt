@@ -14,4 +14,5 @@ class ExampleSpec : Spek({
             assertEquals(4, 2 + 2)
         }
     }
+
 })
