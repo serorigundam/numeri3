@@ -11,7 +11,7 @@ import java.io.Serializable
 import java.sql.SQLException
 import javax.inject.Inject
 import kotlin.reflect.KClass
-import net.ketc.numeri.Injectors
+import net.ketc.numeri.inject
 
 private val DB_VERSION = 1
 private val DB_NAME = "numeri.db"
@@ -24,7 +24,8 @@ class DataBaseHelper private constructor() {
     lateinit var application: Context
 
     init {
-        Injectors.appComponent.inject(this)
+        inject()
+
         helper = object : OrmLiteSqliteOpenHelper(application, DB_NAME, null, DB_VERSION) {
             override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
             }
@@ -41,7 +42,12 @@ class DataBaseHelper private constructor() {
 }
 
 
-fun <E : Entity<ID>, ID : Serializable> dao(tableClass: KClass<E>) = DataBaseHelper.INSTANCE.helper.getDao<Dao<E, ID>, E>(tableClass.java)
+object DaoFactoryHolder {
+    fun <E : Entity<ID>, ID : Serializable> getDao(tableClass: KClass<E>): Dao<E, ID> = DataBaseHelper.INSTANCE.helper.getDao<Dao<E, ID>, E>(tableClass.java)
+}
+
+
+fun <E : Entity<ID>, ID : Serializable> dao(tableClass: KClass<E>): Dao<E, ID> = DaoFactoryHolder.getDao(tableClass)
 
 fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createAll(data: Collection<E>) = data.forEach { create(it) }
 
@@ -77,10 +83,22 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = connect { connectionSour
     }
 }
 
+/**
+ * drop table
+ * @param table table
+ */
+fun <E : Entity<ID>, ID : Serializable> dropTable(table: KClass<E>) = connect { connectionSource ->
+    TableUtils.dropTable<E, ID>(connectionSource, table.java, true)
+}
+
+object ConnectionSourceHolder {
+    var connectionSource: ConnectionSource = DataBaseHelper.INSTANCE.helper.connectionSource
+}
+
 private inline fun <R> connect(func: (ConnectionSource) -> R): R {
     var connectionSource: ConnectionSource? = null
     try {
-        connectionSource = DataBaseHelper.INSTANCE.helper.getConnectionSource()
+        connectionSource = ConnectionSourceHolder.connectionSource
         return func(connectionSource)
     } catch (e: Exception) {
         e.printStackTrace()
