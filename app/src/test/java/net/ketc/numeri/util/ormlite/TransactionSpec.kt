@@ -11,9 +11,16 @@ import kotlin.test.assertEquals
 
 @RunWith(JUnitPlatform::class)
 class TransactionSpec : Spek({
+
     describe("transaction") {
-        it("create table and insert test") {
+        beforeEach {
+            dropTable(ClientToken::class)
             createTable(ClientToken::class)
+        }
+        afterEach {
+            dropTable(ClientToken::class)
+        }
+        it("create table and insert test") {
             transaction {
                 val dao = dao(ClientToken::class)
                 dao.create(createClientToken(0, "", ""))
@@ -22,9 +29,6 @@ class TransactionSpec : Spek({
             }
         }
 
-        afterEach {
-            dropTable(ClientToken::class)
-        }
     }
 
 })
