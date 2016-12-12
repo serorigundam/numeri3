@@ -20,7 +20,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.TwitterUser
-import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.MainPresenter
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.log.v
@@ -120,25 +119,24 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         }
     }
 
-    override fun addAccount(twitterClient: TwitterClient) {
-        val holder = AccountItemViewHolder(ctx, twitterClient)
+    override fun addAccount(twitterUser: TwitterUser) {
+        val holder = AccountItemViewHolder(ctx, twitterUser)
         accountItemViewHolderList.add(holder)
         accountsLinear.addView(holder.view)
     }
 
     override fun updateAccount(user: TwitterUser) {
-        val clientHolder = accountItemViewHolderList.find { it.twitterClient.user == user }
+        val clientHolder = accountItemViewHolderList.find { it.twitterUser == user }
                 ?: throw IllegalArgumentException("nonexistent user was passed")
         clientHolder.update()
     }
 
-    class AccountItemViewHolder(ctx: Context, val twitterClient: TwitterClient) {
-        val view: View = createAccountItem(ctx, twitterClient.user.name, twitterClient.user.screenName)
+    class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser) {
+        val view: View = createAccountItem(ctx, twitterUser.name, twitterUser.screenName)
 
         fun update() {
-            val user = twitterClient.user
-            view.find<TextView>(R.id.screen_name_text).text = user.screenName
-            view.find<TextView>(R.id.user_name_text).text = user.name
+            view.find<TextView>(R.id.screen_name_text).text = twitterUser.screenName
+            view.find<TextView>(R.id.user_name_text).text = twitterUser.name
         }
 
         companion object {
@@ -194,7 +192,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
 interface MainActivityInterface : ActivityInterface {
     var addAccountButtonEnabled: Boolean
-    fun addAccount(twitterClient: TwitterClient)
+    fun addAccount(twitterUser: TwitterUser)
     fun updateAccount(user: TwitterUser)
 }
 
@@ -202,7 +200,6 @@ class OauthActivity : AppCompatActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        v(toString(), "hoge")
         startActivity<MainActivity>(MainActivity.INTENT_OAUTH to intent)
         finish()
     }

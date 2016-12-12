@@ -5,6 +5,7 @@ import io.reactivex.Flowable
 import io.reactivex.disposables.Disposables
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.domain.model.TwitterUserImpl
+import net.ketc.numeri.domain.service.TwitterClient
 import twitter4j.User
 import java.util.*
 
@@ -39,6 +40,13 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
         emitter.setDisposable(Disposables.fromAction {
             updateCallbacks.remove(callback)
         })
-    }, BackpressureStrategy.BUFFER)
-
+    }, BackpressureStrategy.BUFFER)!!
 }
+
+fun User.convertAndCache() = TwitterUserCache.put(this)
+
+fun TwitterClient.user(): TwitterUser = TwitterUserCache.get(id).run {
+    this ?: this@user.twitter.showUser(this@user.id).convertAndCache()
+}
+
+fun TwitterClient.withUser(): Pair<TwitterClient, TwitterUser> = this to user()

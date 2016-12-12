@@ -5,6 +5,8 @@ import android.net.Uri
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.cache.TwitterUserCache
+import net.ketc.numeri.domain.model.cache.convertAndCache
+import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.presentation.view.MainActivityInterface
 import net.ketc.numeri.util.rx.MySchedulers
@@ -24,13 +26,12 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
     override fun initialize() {
         super.initialize()
         singleTask(MySchedulers.twitter) {
-            oAuthService.clients()
+            oAuthService.clients().map { it.withUser() }
         }.error {
             ctx.toast("認証失敗")
-        }.success { clients ->
-            clients.forEach {
-                activity.addAccount(it)
-            }
+        }.success { pair ->
+            pair.map { it.second }
+                    .forEach { activity.addAccount(it) }
         }
 
         TwitterUserCache.userUpdateFlowable
@@ -65,7 +66,8 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         if (oauthVerifier == null || !(data?.toString()?.startsWith("$scheme://$host") ?: true))
             return
         singleTask(MySchedulers.twitter) {
-            oAuthService.createClient(oauthVerifier)
+            val client = oAuthService.createTwitterClient(oauthVerifier)
+            client.twitter.showUser(client.id).convertAndCache()
         }.error {
             it.printStackTrace()
             ctx.toast("認証用URLの生成に失敗")

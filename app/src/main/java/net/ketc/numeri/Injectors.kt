@@ -24,6 +24,7 @@ object Injectors {
     val appComponent: AppComponent by lazy {
         DaggerAppComponent.builder()
                 .appModule(AppModule(application))
+                .twitterAppModule(TwitterAppModule())
                 .build()
     }
 
