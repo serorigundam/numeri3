@@ -8,7 +8,13 @@ import net.ketc.numeri.util.ormlite.createTable
 class Numeri : Application() {
     override fun onCreate() {
         super.onCreate()
-        Injectors.setApplication(this)
+        cApplication = this
         createTable(*entities)
+    }
+
+    companion object {
+        private var cApplication: Application? = null
+        val application: Application
+            get() = cApplication!!
     }
 }

@@ -120,11 +120,17 @@ configurations.all {
 }
 
 gradle.taskGraph.whenReady { taskGraph ->
-    if (taskGraph.hasTask(':app:assembleRelease')) {
-        def storePasswordValue = new String(System.console().readPassword("Enter store password: "))
-        def keyPasswordValue = new String(System.console().readPassword("Enter key password: "))
-
-        android.signingConfigs.release.storePassword = storePasswordValue
-        android.signingConfigs.release.keyPassword = keyPasswordValue
+    def packageRelease = ":app:packageRelease"
+    if (taskGraph.hasTask(packageRelease)) {
+        taskGraph.allTasks.find { it.name == "packageRelease" }.doFirst {
+            def properties = new Properties()
+            def stream = new FileInputStream(rootDir.path + "/signing.properties")
+            properties.load(stream)
+            stream.close()
+            def storePasswordValue = properties.getProperty("storePassword")
+            def keyPasswordValue = properties.getProperty("keyPassword")
+            android.signingConfigs.release.storePassword = storePasswordValue
+            android.signingConfigs.release.keyPassword = keyPasswordValue
+        }
     }
 }

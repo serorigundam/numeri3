@@ -7,6 +7,7 @@ import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.misc.TransactionManager
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
+import net.ketc.numeri.Numeri
 import java.io.Serializable
 import java.sql.SQLException
 import javax.inject.Inject
@@ -20,13 +21,10 @@ class DataBaseHelper private constructor() {
 
     val helper: OrmLiteSqliteOpenHelper
 
-    @Inject
-    lateinit var application: Context
-
     init {
         inject()
 
-        helper = object : OrmLiteSqliteOpenHelper(application, DB_NAME, null, DB_VERSION) {
+        helper = object : OrmLiteSqliteOpenHelper(Numeri.application, DB_NAME, null, DB_VERSION) {
             override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
             }
 

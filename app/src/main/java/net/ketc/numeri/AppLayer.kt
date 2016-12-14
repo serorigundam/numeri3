@@ -1,7 +1,5 @@
 package net.ketc.numeri
 
-import android.app.Application
-import android.content.Context
 import dagger.Component
 import dagger.Module
 import dagger.Provides
@@ -14,15 +12,11 @@ import net.ketc.numeri.util.twitter.TwitterAppImpl
 import javax.inject.Singleton
 
 @Module
-class AppModule(private val application: Application) {
+class AppModule {
 
     @Provides
     @Singleton
-    fun provideApplicationContext(): Context = application.applicationContext
-
-    @Provides
-    @Singleton
-    fun provideTwitterApp(): TwitterApp = TwitterAppImpl(application)
+    fun provideTwitterApp(): TwitterApp = TwitterAppImpl(Numeri.application)
 
 }
 

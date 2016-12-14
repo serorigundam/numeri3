@@ -37,7 +37,7 @@ class OAuthServiceSpec : Spek({
             assertEquals(client1.id, clients1[1].id)
         }
 
-        it("hoge") {
+        it("delete client") {
             oAuthService.createAuthorizationURL()
             val client = oAuthService.createTwitterClient("oauthVerifier")
             val clients = oAuthService.clients()
