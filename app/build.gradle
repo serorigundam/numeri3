@@ -61,7 +61,7 @@ android {
         main.java.srcDirs += 'src/main/kotlin'
         test.java.srcDirs += 'src/test/kotlin'
     }
-    
+
     lintOptions {
         disable 'InvalidPackage'
     }
@@ -108,13 +108,9 @@ dependencies {
     compile 'com.j256.ormlite:ormlite-android:5.0'
 
     //test
-    testCompile "org.jetbrains.spek:spek-api:$spek_version"
-    testCompile "org.jetbrains.spek:spek-junit-platform-engine:$spek_version"
-    testCompile "org.junit.platform:junit-platform-runner:$junit_platform_ver"
     testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testCompile 'junit:junit:4.12'
-    testCompile 'com.j256.ormlite:ormlite-jdbc:5.0'
-    testCompile 'com.h2database:h2:1.4.193'
+    testCompile 'org.robolectric:robolectric:3.1.4'
     kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 }
 
