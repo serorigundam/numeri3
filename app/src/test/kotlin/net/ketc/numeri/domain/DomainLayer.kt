@@ -3,11 +3,9 @@ package net.ketc.numeri.domain
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import net.ketc.numeri.TestInjectors
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.OAuthServiceImpl
-import net.ketc.numeri.domain.service.OAuthServiceSpecDependency
-import net.ketc.numeri.presentation.presenter.MainPresenter
+import net.ketc.numeri.domain.service.OAuthServiceTest
 import javax.inject.Singleton
 
 @Module
@@ -21,10 +19,5 @@ class TestDomainModule() {
 @Singleton
 @Component(modules = arrayOf(TestDomainModule::class))
 interface TestDomainComponent {
-    fun inject(oAuthServiceSpecDependency: OAuthServiceSpecDependency)
-}
-
-
-fun OAuthServiceSpecDependency.inject() {
-    TestInjectors.testDomainComponent.inject(this)
+    fun inject(oAuthServiceSpecDependency: OAuthServiceTest)
 }
