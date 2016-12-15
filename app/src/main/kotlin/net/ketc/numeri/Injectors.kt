@@ -5,10 +5,13 @@ import net.ketc.numeri.domain.DomainComponent
 import net.ketc.numeri.domain.DomainModule
 
 object Injectors {
+
+    var test = true
+
     val appComponent: AppComponent by lazy {
         DaggerAppComponent.builder()
-                .appModule(AppModule())
-                .twitterAppModule(TwitterAppModule())
+                .appModule(if (test) TestAppModule() else AppModule())
+                .twitterAppModule(if (test) TestTwitterAppModule() else TwitterAppModule())
                 .build()
     }
 

@@ -4,7 +4,6 @@ import net.ketc.numeri.domain.entity.ClientToken
 import net.ketc.numeri.domain.entity.createClientToken
 import net.ketc.numeri.inject
 import net.ketc.numeri.util.twitter.TwitterApp
-import net.ketc.numeri.util.ormlite.dao
 import net.ketc.numeri.util.ormlite.transaction
 import net.ketc.numeri.util.toImmutableList
 import net.ketc.numeri.util.twitter.OAuthSupportFactory
@@ -66,14 +65,14 @@ class OAuthServiceImpl : OAuthService {
     }
 
     override fun createTwitterClient(oauthVerifier: String): TwitterClient = transaction {
-        val oAuthSupport = (this.oAuthSupport ?: throw IllegalStateException("authentication has not started"))
+        val oAuthSupport = this@OAuthServiceImpl.oAuthSupport ?: throw AuthenticationNotStartedException()
         val oAuthAccessToken: AccessToken = oAuthSupport.getOAuthAccessToken(oauthVerifier)
         val dao = dao(ClientToken::class)
-        if (dao.queryForId(oAuthAccessToken.userId) != null)
-            throw IllegalStateException("saved user")
+        dao.queryForId(oAuthAccessToken.userId)?.run { throw TriedSaveSavedUserTokenException() }
         val token = createClientToken(oAuthAccessToken).apply {
             dao.create(this)
         }
+        this@OAuthServiceImpl.oAuthSupport = null
         TwitterClientImpl(twitterApp, token).apply { clients.add(this) }
     }
 
@@ -86,9 +85,11 @@ class OAuthServiceImpl : OAuthService {
 
     override fun deleteClient(twitterClient: TwitterClient) {
         reentrantLock.withLock {
-            clients.remove(twitterClient)
-            val dao = dao(ClientToken::class)
-            dao.deleteById(twitterClient.id)
+            transaction {
+                clients.remove(twitterClient)
+                val dao = dao(ClientToken::class)
+                dao.deleteById(twitterClient.id)
+            }
         }
     }
 
@@ -104,3 +105,6 @@ class OAuthServiceImpl : OAuthService {
         }
     }
 }
+
+class TriedSaveSavedUserTokenException : IllegalStateException("tried to save a saved user token")
+class AuthenticationNotStartedException : IllegalStateException("authentication has not started")

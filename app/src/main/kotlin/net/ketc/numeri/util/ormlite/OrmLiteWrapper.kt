@@ -2,6 +2,7 @@ package net.ketc.numeri.util.ormlite
 
 import android.content.Context
 import android.database.sqlite.SQLiteDatabase
+import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.misc.TransactionManager
@@ -10,42 +11,21 @@ import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
 import java.io.Serializable
 import java.sql.SQLException
-import javax.inject.Inject
 import kotlin.reflect.KClass
-import net.ketc.numeri.inject
 
-private val DB_VERSION = 1
-private val DB_NAME = "numeri.db"
+class DataBaseHelper(context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME, null, DB_VERSION) {
+    override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
+    }
 
-class DataBaseHelper private constructor() {
-
-    val helper: OrmLiteSqliteOpenHelper
-
-    init {
-        inject()
-
-        helper = object : OrmLiteSqliteOpenHelper(Numeri.application, DB_NAME, null, DB_VERSION) {
-            override fun onCreate(database: SQLiteDatabase?, connectionSource: ConnectionSource?) {
-            }
-
-            override fun onUpgrade(database: SQLiteDatabase?, connectionSource: ConnectionSource?, oldVersion: Int, newVersion: Int) {
-            }
-        }
+    override fun onUpgrade(database: SQLiteDatabase?, connectionSource: ConnectionSource?, oldVersion: Int, newVersion: Int) {
     }
 
     companion object {
-        val INSTANCE = DataBaseHelper()
+        private val DB_VERSION = 1
+        private val DB_NAME = "numeri.db"
     }
 
 }
-
-
-object DaoFactoryHolder {
-    fun <E : Entity<ID>, ID : Serializable> getDao(tableClass: KClass<E>): Dao<E, ID> = DataBaseHelper.INSTANCE.helper.getDao<Dao<E, ID>, E>(tableClass.java)
-}
-
-
-fun <E : Entity<ID>, ID : Serializable> dao(tableClass: KClass<E>): Dao<E, ID> = DaoFactoryHolder.getDao(tableClass)
 
 fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createAll(data: Collection<E>) = data.forEach { create(it) }
 
@@ -58,24 +38,47 @@ interface Entity<out ID : Serializable> : Serializable {
     val id: ID
 }
 
+class Transaction(private val helper: DataBaseHelper) {
+    fun <E : Entity<ID>, ID : Serializable> dao(tableClass: KClass<E>): Dao<E, ID> = helper.getDao(tableClass.java)
+}
+
+object DataBaseHelperFactory {
+    var create: () -> DataBaseHelper = { getHelper() }
+}
+
+fun getHelper(context: Context = Numeri.application): DataBaseHelper = OpenHelperManager.getHelper(context, DataBaseHelper::class.java)
+
 /**
  * this method performs operations related to Database
  *
  * @param handle handle
  */
-fun <R> transaction(handle: () -> R) = connect {
-    var r: R? = null
-    TransactionManager.callInTransaction(it) {
-        r = handle()
+inline fun <R> transaction(crossinline handle: Transaction.() -> R) = dataBaseConnect { connectionSource, helper ->
+    var throwable: Throwable? = null
+    try {
+        return@dataBaseConnect TransactionManager.callInTransaction(connectionSource) {
+            try {
+                handle(Transaction(helper))
+            } catch (e: Throwable) {
+                throwable = e
+                throw e
+            }
+        }!!
+    } catch (e: SQLException) {
+        throwable?.run {
+            if (this !is SQLException) {
+                throw this
+            }
+        }
+        throw e
     }
-    r ?: throw InternalError()
 }
 
 /**
  * create tables
  * @param tables tables
  */
-fun createTable(vararg tables: KClass<out Entity<*>>) = connect { connectionSource ->
+fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connectionSource, helper ->
     tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
@@ -85,23 +88,21 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = connect { connectionSour
  * drop table
  * @param table table
  */
-fun <E : Entity<ID>, ID : Serializable> dropTable(table: KClass<E>) = connect { connectionSource ->
-    TableUtils.dropTable<E, ID>(connectionSource, table.java, true)
+fun <E : Entity<ID>, ID : Serializable> clearTable(table: KClass<E>) = dataBaseConnect { connectionSource, helper ->
+    TableUtils.clearTable(connectionSource, table.java)
 }
 
-object ConnectionSourceHolder {
-    var connectionSource: ConnectionSource = DataBaseHelper.INSTANCE.helper.connectionSource
-}
-
-private inline fun <R> connect(func: (ConnectionSource) -> R): R {
+inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R {
+    val helper = DataBaseHelperFactory.create()
     var connectionSource: ConnectionSource? = null
     try {
-        connectionSource = ConnectionSourceHolder.connectionSource
-        return func(connectionSource)
+        connectionSource = helper.connectionSource
+        return func(connectionSource, helper)
     } catch (e: Exception) {
         e.printStackTrace()
-        throw RuntimeException(e)
+        throw e
     } finally {
+        OpenHelperManager.releaseHelper()
         if (connectionSource != null) {
             try {
                 connectionSource.close()

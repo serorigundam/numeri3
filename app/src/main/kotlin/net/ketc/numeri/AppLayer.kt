@@ -3,29 +3,27 @@ package net.ketc.numeri
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import net.ketc.numeri.util.twitter.TwitterApp
 import net.ketc.numeri.domain.service.OAuthServiceImpl
 import net.ketc.numeri.util.ormlite.DataBaseHelper
-import net.ketc.numeri.util.twitter.OAuthSupportFactory
-import net.ketc.numeri.util.twitter.OAuthSupportFactoryImpl
-import net.ketc.numeri.util.twitter.TwitterAppImpl
+import net.ketc.numeri.util.twitter.*
+import twitter4j.auth.OAuthSupport
 import javax.inject.Singleton
 
 @Module
-class AppModule {
+open class AppModule {
 
     @Provides
     @Singleton
-    fun provideTwitterApp(): TwitterApp = TwitterAppImpl(Numeri.application)
+    open fun provideTwitterApp(): TwitterApp = TwitterAppImpl(Numeri.application)
 
 }
 
 @Module
-class TwitterAppModule() {
+open class TwitterAppModule() {
 
     @Provides
     @Singleton
-    fun provideOAuthSupportFactory(): OAuthSupportFactory = OAuthSupportFactoryImpl()
+    open fun provideOAuthSupportFactory(): OAuthSupportFactory = OAuthSupportFactoryImpl()
 }
 
 @Singleton
@@ -43,4 +41,20 @@ fun DataBaseHelper.inject() {
 
 fun OAuthServiceImpl.inject() {
     Injectors.appComponent.inject(this)
+}
+
+class TestAppModule : AppModule() {
+
+    override fun provideTwitterApp(): TwitterApp = object : TwitterApp {
+        override val apiSecret: String = "secret"
+        override val apiKey: String = "key"
+        override val callbackUrl: String = "callback"
+    }
+}
+
+class TestTwitterAppModule : TwitterAppModule() {
+
+    override fun provideOAuthSupportFactory(): OAuthSupportFactory = object : OAuthSupportFactory {
+        override fun create(): OAuthSupport = DummyOAuthSupport()
+    }
 }
