@@ -2,6 +2,7 @@ package net.ketc.numeri.util.ormlite
 
 import net.ketc.numeri.domain.entity.ClientToken
 import net.ketc.numeri.domain.entity.createClientToken
+import net.ketc.numeri.setLogStream
 import net.ketc.numeri.setOnMemoryDB
 import org.junit.After
 import org.junit.Before
@@ -14,6 +15,7 @@ import kotlin.test.assertEquals
 class TransactionTest {
     @Before
     fun beforeEach() {
+        setLogStream()
         setOnMemoryDB()
         createTable(ClientToken::class)
     }

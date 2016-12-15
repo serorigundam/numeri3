@@ -23,6 +23,7 @@ class OAuthServiceTest {
 
     @Before
     fun beforeEach() {
+        setLogStream()
         setOnMemoryDB()
         createTable(ClientToken::class)
     }
