@@ -115,9 +115,8 @@ class MainActivityUI : AnkoComponent<MainActivity> {
     private fun ViewManager.navigationContent() = relativeLayout {
         id = R.id.navigation_content
         visibility = View.GONE
-        lparams(matchParent, matchParent) {
-            topMargin = dip(168)
-        }
+        topPadding = dip(168)
+        lparams(matchParent, matchParent)
 
         relativeLayout {
             lparams(matchParent, matchParent)

@@ -9,8 +9,11 @@ import com.j256.ormlite.misc.TransactionManager
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
+import net.ketc.numeri.util.log.d
 import java.io.Serializable
 import java.sql.SQLException
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 import kotlin.reflect.KClass
 
 class DataBaseHelper(context: Context) : OrmLiteSqliteOpenHelper(context, DB_NAME, null, DB_VERSION) {
@@ -92,23 +95,28 @@ fun <E : Entity<ID>, ID : Serializable> clearTable(table: KClass<E>) = dataBaseC
     TableUtils.clearTable(connectionSource, table.java)
 }
 
+val dataBaseConnectLock = ReentrantLock()
+
 inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R {
-    val helper = DataBaseHelperFactory.create()
-    var connectionSource: ConnectionSource? = null
-    try {
-        connectionSource = helper.connectionSource
-        return func(connectionSource, helper)
-    } catch (e: Exception) {
-        e.printStackTrace()
-        throw e
-    } finally {
-        OpenHelperManager.releaseHelper()
-        if (connectionSource != null) {
-            try {
-                connectionSource.close()
-            } catch (e: SQLException) {
-                e.printStackTrace()
+    d("database connect lock", "hold count = ${dataBaseConnectLock.holdCount}")
+    return dataBaseConnectLock.withLock {
+        val helper = DataBaseHelperFactory.create()
+        var connectionSource: ConnectionSource? = null
+        try {
+            connectionSource = helper.connectionSource
+            func(connectionSource, helper)
+        } catch (e: Exception) {
+            e.printStackTrace()
+            throw e
+        } finally {
+            connectionSource?.run {
+                try {
+                    this.close()
+                } catch (e: SQLException) {
+                    e.printStackTrace()
+                }
             }
+            OpenHelperManager.releaseHelper()
         }
     }
 }

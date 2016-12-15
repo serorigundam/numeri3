@@ -31,7 +31,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             ctx.toast("認証失敗")
         }.success { pair ->
             pair.map { it.second }
-                    .forEach { activity.addAccount(it) }
+                    .forEach { activity.addAccount(it, this) }
         }
 
         TwitterUserCache.userUpdateFlowable
@@ -72,7 +72,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             it.printStackTrace()
             ctx.toast("認証用URLの生成に失敗")
         }.success {
-            activity.addAccount(it)
+            activity.addAccount(it, this)
         }
     }
 

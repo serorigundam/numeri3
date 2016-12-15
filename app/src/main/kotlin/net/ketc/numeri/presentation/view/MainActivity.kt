@@ -21,8 +21,10 @@ import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.MainPresenter
+import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.log.v
+import net.ketc.numeri.util.rx.AutoDisposable
 import org.jetbrains.anko.*
 import java.util.*
 
@@ -119,8 +121,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         }
     }
 
-    override fun addAccount(twitterUser: TwitterUser) {
-        val holder = AccountItemViewHolder(ctx, twitterUser)
+    override fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable) {
+        val holder = AccountItemViewHolder(ctx, twitterUser, autoDisposable)
         accountItemViewHolderList.add(holder)
         accountsLinear.addView(holder.view)
     }
@@ -131,16 +133,21 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         clientHolder.update()
     }
 
-    class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser) {
-        val view: View = createAccountItem(ctx, twitterUser.name, twitterUser.screenName)
+    class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser, val autoDisposable: AutoDisposable) {
+        val view: View = createAccountItem(ctx)
+
+        init {
+            update()
+        }
 
         fun update() {
             view.find<TextView>(R.id.screen_name_text).text = twitterUser.screenName
             view.find<TextView>(R.id.user_name_text).text = twitterUser.name
+            view.find<ImageView>(R.id.icon_image).download(twitterUser.iconUrl, autoDisposable)
         }
 
         companion object {
-            private fun createAccountItem(ctx: Context, userName: String, screenName: String) = ctx.relativeLayout {
+            private fun createAccountItem(ctx: Context) = ctx.relativeLayout {
                 lparams(matchParent, wrapContent) {
                     padding = dimen(R.dimen.margin_medium)
                     gravity = Gravity.CENTER_VERTICAL
@@ -161,7 +168,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
                     lines = 1
                     textColor = ctx.getColor(ctx.getResourceId(android.R.attr.textColorPrimary))
                     textSizeDimen = R.dimen.text_size_medium
-                    text = userName
                 }.lparams {
                     marginEnd = dimen(R.dimen.margin_medium)
                     sameTop(R.id.icon_image)
@@ -172,7 +178,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
                     ellipsize = TextUtils.TruncateAt.END
                     lines = 1
                     textSizeDimen = R.dimen.text_size_medium
-                    text = screenName
                 }.lparams {
                     marginEnd = dimen(R.dimen.margin_medium)
                     sameBottom(R.id.icon_image)
@@ -192,7 +197,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
 interface MainActivityInterface : ActivityInterface {
     var addAccountButtonEnabled: Boolean
-    fun addAccount(twitterUser: TwitterUser)
+    fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
 }
 
