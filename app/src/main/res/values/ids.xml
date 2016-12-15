@@ -2,4 +2,13 @@
 <resources>
     <item name="toolbar" type="id" />
     <item name="drawer" type="id" />
+    <item name="navigation" type="id" />
+    <item name="icon_image" type="id" />
+    <item name="show_account_relative" type="id" />
+    <item name="show_account_indicator" type="id" />
+    <item name="user_name_text" type="id" />
+    <item name="screen_name_text" type="id" />
+    <item name="navigation_content" type="id" />
+    <item name="add_account_button" type="id" />
+    <item name="accounts_linear" type="id" />
 </resources>

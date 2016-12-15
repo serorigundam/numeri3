@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <dimen name="margin_small">8dp</dimen>
+    <dimen name="margin_medium">16dp</dimen>
+    <dimen name="margin_large">24dp</dimen>
+
+    <dimen name="margin_text_small">4dp</dimen>
+    <dimen name="margin_text_medium">8dp</dimen>
+    <dimen name="margin_text_large">12dp</dimen>
+
+    <dimen name="text_size_small">12sp</dimen>
+    <dimen name="text_size_medium">16sp</dimen>
+    <dimen name="text_size_large">20sp</dimen>
+
+    <dimen name="button_size_small">24dp</dimen>
+
+    <dimen name="image_icon">40dp</dimen>
+    <dimen name="image_icon_large">64dp</dimen>
+
+    <dimen name="app_bar_height">240dp</dimen>
+    <dimen name="app_bar_standard_height">56dp</dimen>
+</resources>
