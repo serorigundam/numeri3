@@ -28,7 +28,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().map { it.withUser() }
         }.error {
-            ctx.toast("認証失敗")
+            ctx.toast(ctx.getString(R.string.authentication_failure))
         }.success { pair ->
             pair.map { it.second }
                     .forEach { activity.addAccount(it, this) }
@@ -51,7 +51,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         }.error {
             activity.addAccountButtonEnabled = true
             it.printStackTrace()
-            ctx.toast("認証用URLの生成に失敗")
+            ctx.toast(ctx.getString(R.string.failed_generate_authentication_url))
         }.success {
             activity.addAccountButtonEnabled = true
             ctx.startActivity(it)
@@ -70,7 +70,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             client.twitter.showUser(client.id).convertAndCache()
         }.error {
             it.printStackTrace()
-            ctx.toast("認証用URLの生成に失敗")
+            ctx.toast(ctx.getString(R.string.authentication_failure))
         }.success {
             activity.addAccount(it, this)
         }
