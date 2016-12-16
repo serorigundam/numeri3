@@ -1,0 +1,18 @@
+package net.ketc.numeri.domain.model
+
+import net.ketc.numeri.domain.model.cache.Cacheable
+
+interface Tweet : Cacheable<Long> {
+    val user: TwitterUser
+    val createdAt: String
+    val text: String
+    val quotedTweet: Tweet?
+    val retweetedTweet: Tweet?
+    val source: String
+    val favoriteCount: Int
+    val retweetCount: Int
+    val hashtags: List<String>
+    val urlEntities: List<UrlEntity>
+    val mediaEntities: List<MediaEntity>
+    val userMentionEntities: List<UserMentionEntity>
+}
