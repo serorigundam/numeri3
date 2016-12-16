@@ -19,22 +19,22 @@ abstract class TweetStateCache<State : Serializable> {
         }
     }
 
-    fun setState(twitterClient: TwitterClient, tweet: Tweet, initializedState: State) {
+    fun setState(twitterClient: TwitterClient, tweet: Tweet, changeState: State) {
         val stateMap = orPut(twitterClient.id)
         val state = stateMap[tweet.id]
         if (state != null)
             throw IllegalStateException()
-        stateMap.put(tweet.id, initializedState)
+        stateMap.put(tweet.id, changeState)
     }
 
     fun changeState(twitterClient: TwitterClient, tweet: Tweet, state: State) {
-        val stateMap = map[tweet.id] ?: throw IllegalStateException()
+        val stateMap = map[twitterClient.id] ?: throw IllegalStateException()
         stateMap[tweet.id] ?: throw IllegalStateException()
         stateMap.put(tweet.id, state)
     }
 
     fun getState(twitterClient: TwitterClient, tweet: Tweet): State {
-        val stateMap = map[tweet.id] ?: throw IllegalStateException()
+        val stateMap = map[twitterClient.id] ?: throw IllegalStateException()
         return (stateMap[tweet.id] ?: throw IllegalStateException())
     }
 
@@ -49,3 +49,11 @@ abstract class TweetStateCache<State : Serializable> {
 
 object FavoriteStateCache : TweetStateCache<Boolean>()
 object RetweetStateCache : TweetStateCache<Boolean>()
+
+fun TwitterClient.isFavorite(tweet: Tweet) = FavoriteStateCache.getState(this, tweet)
+fun TwitterClient.setFavorite(tweet: Tweet) = FavoriteStateCache.changeState(this, tweet, true)
+fun TwitterClient.setUnFavorite(tweet: Tweet) = FavoriteStateCache.changeState(this, tweet, false)
+
+fun TwitterClient.isRetweeted(tweet: Tweet) = RetweetStateCache.getState(this, tweet)
+fun TwitterClient.setRetweet(tweet: Tweet) = RetweetStateCache.changeState(this, tweet, true)
+fun TwitterClient.setUnRetweet(tweet: Tweet) = RetweetStateCache.changeState(this, tweet, false)

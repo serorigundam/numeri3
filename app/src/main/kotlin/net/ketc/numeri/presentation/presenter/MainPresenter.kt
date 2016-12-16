@@ -5,7 +5,7 @@ import android.net.Uri
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.cache.TwitterUserCache
-import net.ketc.numeri.domain.model.cache.convertAndCache
+import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.presentation.view.MainActivityInterface
@@ -31,7 +31,9 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             ctx.toast(ctx.getString(R.string.authentication_failure))
         }.success { pair ->
             pair.map { it.second }
-                    .forEach { activity.addAccount(it, this) }
+                    .forEach {
+                        activity.addAccount(it, this)
+                    }
         }
 
         TwitterUserCache.userUpdateFlowable
@@ -67,7 +69,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             return
         singleTask(MySchedulers.twitter) {
             val client = oAuthService.createTwitterClient(oauthVerifier)
-            client.twitter.showUser(client.id).convertAndCache()
+            client.twitter.showUser(client.id).convertAndCacheOrGet()
         }.error {
             it.printStackTrace()
             ctx.toast(ctx.getString(R.string.authentication_failure))
@@ -75,5 +77,4 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             activity.addAccount(it, this)
         }
     }
-
 }

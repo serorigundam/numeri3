@@ -25,6 +25,7 @@ object TweetFactory {
     }
 }
 
+fun Status.convertAndCacheOrGet(twitterClient: TwitterClient) = TweetFactory.create(twitterClient, this)
 
 private object TweetCache : ConversionCache<Status, Tweet, Long> {
     private val map = LinkedHashMap<Long, Tweet>()
