@@ -3,10 +3,10 @@ package net.ketc.numeri.presentation.presenter
 import android.content.Context
 import android.os.Bundle
 import io.reactivex.disposables.Disposable
-import net.ketc.numeri.presentation.view.ActivityInterface
+import net.ketc.numeri.presentation.view.activity.ActivityInterface
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.AutoDisposableImpl
-import net.ketc.numeri.presentation.view.ApplicationActivity
+import net.ketc.numeri.presentation.view.activity.ApplicationActivity
 
 /**
  * Presenter

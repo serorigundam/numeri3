@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view
+package net.ketc.numeri.presentation.view.activity
 
 import android.content.Context
 import android.os.Bundle

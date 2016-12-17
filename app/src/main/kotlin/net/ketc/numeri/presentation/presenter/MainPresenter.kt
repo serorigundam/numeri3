@@ -8,7 +8,7 @@ import net.ketc.numeri.domain.model.cache.TwitterUserCache
 import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
-import net.ketc.numeri.presentation.view.MainActivityInterface
+import net.ketc.numeri.presentation.view.activity.MainActivityInterface
 import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.rx.twitterThread
 import org.jetbrains.anko.toast
