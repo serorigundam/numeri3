@@ -6,6 +6,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.misc.TransactionManager
+import com.j256.ormlite.stmt.Where
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
@@ -36,6 +37,11 @@ fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createOrUpdateAll(data: Colle
 
 fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createIfNotExistsAll(data: Collection<E>) = data.forEach { createIfNotExists(it) }
 
+fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.delete(where: Where<E, ID>.() -> Unit) {
+    val deleteBuilder = deleteBuilder()
+    where(deleteBuilder.where())
+    deleteBuilder.delete()
+}
 
 interface Entity<out ID : Serializable> : Serializable {
     val id: ID
