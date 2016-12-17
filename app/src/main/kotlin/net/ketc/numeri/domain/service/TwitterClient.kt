@@ -10,7 +10,7 @@ import twitter4j.conf.ConfigurationBuilder
 interface TwitterClient {
     val twitter: Twitter
     val id: Long
-
+    val stream: StreamFlowableHolder
 }
 
 
@@ -27,4 +27,6 @@ class TwitterClientImpl(twitterApp: TwitterApp, token: ClientToken) : TwitterCli
                 .build()
         twitter = TwitterFactory(configuration).instance
     }
+
+    override val stream: StreamFlowableHolder by lazy { StreamFlowableHolderImpl(twitterApp, this) }
 }
