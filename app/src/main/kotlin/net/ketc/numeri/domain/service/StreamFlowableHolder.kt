@@ -74,6 +74,7 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         streamObserver.add(adapter)
         emitter.setDisposable(Disposables.fromAction { streamObserver.remove(adapter) })
     }, BackpressureStrategy.BUFFER)!!.onBackpressureBuffer().streamThread()
+
     override val onFollowFlowable = Flowable.create<UserNotice>({ emitter ->
         val adapter = object : AbstractStreamAdapter() {
             override fun onFollow(notice: UserNotice) {
