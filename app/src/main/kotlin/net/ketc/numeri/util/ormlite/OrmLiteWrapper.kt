@@ -97,8 +97,10 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connec
  * drop table
  * @param table table
  */
-fun <E : Entity<ID>, ID : Serializable> clearTable(table: KClass<E>) = dataBaseConnect { connectionSource, helper ->
-    TableUtils.clearTable(connectionSource, table.java)
+fun clearTable(vararg table: KClass<out Entity<*>>) = dataBaseConnect { connectionSource, helper ->
+    table.forEach {
+        TableUtils.clearTable(connectionSource, it.java)
+    }
 }
 
 val dataBaseConnectLock = ReentrantLock()

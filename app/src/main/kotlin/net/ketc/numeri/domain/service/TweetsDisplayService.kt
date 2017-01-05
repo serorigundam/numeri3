@@ -29,18 +29,27 @@ interface TweetsDisplayService {
 class TweetsDisplayServiceImpl : TweetsDisplayService {
     private val displayGroupList = ArrayList<ArrayList<Display>>()
 
+    init {
+        getAllDisplays()
+    }
+
     override fun createGroup(twitterClient: TwitterClient, type: TimeLineType): Unit = transaction {
         val dao = dao(TweetsDisplayGroup::class)
         val group = TweetsDisplayGroup()
         dao.create(group)
-        addToGroup(group, twitterClient, type)
+        addToNewGroup(createTimeLineDisplay(twitterClient.toClientToken(), group, type))
     }
 
     override fun createGroup(twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): Unit = transaction {
         val dao = dao(TweetsDisplayGroup::class)
         val group = TweetsDisplayGroup()
         dao.create(group)
-        addToGroup(group, twitterClient, foreignId, type)
+        addToNewGroup(createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type))
+    }
+
+    private fun addToNewGroup(display: Display) {
+        val newGroup = ArrayList<Display>(arrayListOf(display))
+        displayGroupList.add(newGroup)
     }
 
     override fun addToGroup(group: TweetsDisplayGroup, twitterClient: TwitterClient, type: TimeLineType): Unit = transaction {
@@ -59,22 +68,23 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
 
     private fun addTo(display: Display) {
         displayGroupList.forEach {
-            if (it.single().group.id == display.group.id)
+            if (it.first().group.id == display.group.id)
                 it.add(display)
         }
     }
 
     override fun removeGroup(groupId: Int): Unit = transaction {
         val groupDao = dao(TweetsDisplayGroup::class)
-        groupDao.queryForId(groupId) ?: throw GroupDoesNotExistEasSpecifiedException()
+        groupDao.queryForId(groupId) ?: throw GroupDoesNotExistWasSpecifiedException()
         val timeLineDisplayDao = dao(TimeLineDisplay::class)
-        timeLineDisplayDao.delete { eq("group", groupId) }
-        val tweetsDisplayDao = dao(TweetsDisplayGroup::class)
-        tweetsDisplayDao.delete { eq("group", groupId) }
-        displayGroupList.forEach {
-            it.removeAll { it.group.id == groupId }
-        }
-        displayGroupList.removeAll { it.isEmpty() }
+        timeLineDisplayDao.delete { eq("group_id", groupId) }
+        val tweetsDisplayDao = dao(TweetsDisplay::class)
+        tweetsDisplayDao.delete { eq("group_id", groupId) }
+        val removeGroupIndex = displayGroupList
+                .map { it.first() }
+                .indexOfFirst { it.group.id == groupId }
+        displayGroupList.removeAt(removeGroupIndex)
+        groupDao.deleteById(groupId)
     }
 
     override fun remove(tweetsDisplay: TweetsDisplay): Unit = transaction {
@@ -122,8 +132,8 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
 
     private fun Transaction.checkExistence(group: TweetsDisplayGroup) {
         val groupDao = dao(TweetsDisplayGroup::class)
-        groupDao.queryForId(group.id) ?: throw GroupDoesNotExistEasSpecifiedException()
+        groupDao.queryForId(group.id) ?: throw GroupDoesNotExistWasSpecifiedException()
     }
 }
 
-class GroupDoesNotExistEasSpecifiedException : IllegalArgumentException("group that does not exist was specified")
+class GroupDoesNotExistWasSpecifiedException : IllegalArgumentException("group that does not exist was specified")
