@@ -20,6 +20,6 @@ data class ClientToken(@DatabaseField(id = true)
 fun createClientToken(id: Long, authToken: String, authTokenSecret: String) = ClientToken(id, authToken, authTokenSecret)
 fun createClientToken(authToken: AccessToken) = ClientToken(authToken.userId, authToken.token, authToken.tokenSecret)
 fun TwitterClient.toClientToken(): ClientToken {
-    val oAuthAccessToken = this.twitter.oAuthAccessToken
+    val oAuthAccessToken = twitter.oAuthAccessToken
     return createClientToken(id, oAuthAccessToken.token, oAuthAccessToken.tokenSecret)
 }
