@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.ui
+package net.ketc.numeri.presentation.view.activity.ui
 
 import android.content.Context
 import android.graphics.Color

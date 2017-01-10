@@ -21,7 +21,7 @@ import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.MainPresenter
-import net.ketc.numeri.presentation.view.ui.MainActivityUI
+import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.log.v
