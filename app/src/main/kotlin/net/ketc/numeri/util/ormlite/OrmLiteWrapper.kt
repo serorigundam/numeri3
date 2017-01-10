@@ -62,10 +62,10 @@ fun getHelper(context: Context = Numeri.application): DataBaseHelper = OpenHelpe
  *
  * @param handle handle
  */
-inline fun <R> transaction(crossinline handle: Transaction.() -> R) = dataBaseConnect { connectionSource, helper ->
+inline fun <R> transaction(crossinline handle: Transaction.() -> R) = connectDataBase { connectionSource, helper ->
     var throwable: Throwable? = null
     try {
-        return@dataBaseConnect TransactionManager.callInTransaction(connectionSource) {
+        return@connectDataBase TransactionManager.callInTransaction(connectionSource) {
             try {
                 handle(Transaction(helper))
             } catch (e: Throwable) {
@@ -87,7 +87,7 @@ inline fun <R> transaction(crossinline handle: Transaction.() -> R) = dataBaseCo
  * create tables
  * @param tables tables
  */
-fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connectionSource, helper ->
+fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
     tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
@@ -97,7 +97,7 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connec
  * drop table
  * @param table table
  */
-fun clearTable(vararg table: KClass<out Entity<*>>) = dataBaseConnect { connectionSource, helper ->
+fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
     table.forEach {
         TableUtils.clearTable(connectionSource, it.java)
     }
@@ -105,7 +105,7 @@ fun clearTable(vararg table: KClass<out Entity<*>>) = dataBaseConnect { connecti
 
 val dataBaseConnectLock = ReentrantLock()
 
-inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R {
+inline fun <R> connectDataBase(func: (ConnectionSource, DataBaseHelper) -> R): R {
     d("database connect lock", "hold count = ${dataBaseConnectLock.holdCount}")
     return dataBaseConnectLock.withLock {
         val helper = DataBaseHelperFactory.create()
@@ -122,6 +122,7 @@ inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R
                     this.close()
                 } catch (e: SQLException) {
                     e.printStackTrace()
+                    throw e
                 }
             }
             OpenHelperManager.releaseHelper()
