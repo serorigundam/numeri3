@@ -8,7 +8,7 @@ import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.OAuthServiceImpl
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.domain.service.TweetsDisplayServiceImpl
-import net.ketc.numeri.presentation.presenter.MainPresenter
+import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import javax.inject.Singleton
 
 @Module
