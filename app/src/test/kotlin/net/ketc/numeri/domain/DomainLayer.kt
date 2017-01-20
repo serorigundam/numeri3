@@ -12,7 +12,7 @@ import net.ketc.numeri.util.ormlite.createTable
 import javax.inject.Singleton
 
 @Module
-class TestDomainModule() {
+class TestDomainModule {
 
     @Provides
     @Singleton
