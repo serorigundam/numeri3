@@ -147,7 +147,7 @@ class MainActivityUI : AnkoComponent<MainActivity> {
         }
     }
 
-    class Adapter() : RecyclerView.Adapter<Adapter.VH>() {
+    class Adapter : RecyclerView.Adapter<Adapter.VH>() {
         override fun onBindViewHolder(holder: VH?, position: Int) {
         }
 

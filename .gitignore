@@ -44,3 +44,5 @@ signing.properties
 .idea/libraries
 
 .idea/inspectionProfiles
+
+.idea/gradle.xml
