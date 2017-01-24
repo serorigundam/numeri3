@@ -13,7 +13,7 @@ interface AutoDisposable {
     /**
      * do not need to call [autoDispose] when using this method.
      */
-    fun <T> singleTask(scheduler: Scheduler, observeOn: Scheduler = AndroidSchedulers.mainThread(), task: () -> T) = SingleTask(scheduler, observeOn, this, task)
+    fun <T> singleTask(scheduler: Scheduler, observeOn: Scheduler = AndroidSchedulers.mainThread(), task: () -> T) = singleTask(scheduler, observeOn, this, task)
 
 }
 
