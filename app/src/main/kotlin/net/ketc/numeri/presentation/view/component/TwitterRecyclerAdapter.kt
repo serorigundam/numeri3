@@ -8,6 +8,8 @@ import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.Cacheable
+import net.ketc.numeri.presentation.view.component.ui.FooterView
+import net.ketc.numeri.presentation.view.component.ui.FooterViewUI
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
@@ -99,11 +101,7 @@ class TweetViewHolder(ctx: Context) : TwitterViewHolder<Tweet>(ctx.relativeLayou
 
 class FooterViewHolder<T>(private val readableMore: ReadableMore<T>,
                           private val autoDisposable: AutoDisposable,
-                          ctx: Context) : RecyclerView.ViewHolder(ctx.relativeLayout {
-    textView {
-        text = "this is footer"
-    }.lparams(matchParent, wrapContent)
-}), AutoDisposable by autoDisposable {
+                          ctx: Context) : RecyclerView.ViewHolder(FooterViewUI(ctx).createView()), FooterView, AutoDisposable by autoDisposable {
     init {
         val context = itemView.context
         val resourceId = context.getResourceId(android.R.attr.selectableItemBackground)
@@ -114,17 +112,33 @@ class FooterViewHolder<T>(private val readableMore: ReadableMore<T>,
     }
 
     private fun onClick() {
+        setProgress(true)
         singleTask(MySchedulers.twitter) {
             itemView.isClickable = false
             readableMore.read()
         } error {
             readableMore.error(it)
             itemView.isClickable = true
+            setProgress(false)
         } success {
             readableMore.complete(it)
             itemView.isClickable = true
+            setProgress(false)
         }
     }
+
+    fun setProgress(progress: Boolean) {
+        if (progress) {
+            itemView.readMoreText.visibility = View.INVISIBLE
+            itemView.progressBar.visibility = View.VISIBLE
+            itemView.isClickable = false
+        } else {
+            itemView.readMoreText.visibility = View.VISIBLE
+            itemView.progressBar.visibility = View.INVISIBLE
+            itemView.isClickable = true
+        }
+    }
+
 }
 
 interface ReadableMore<T> {

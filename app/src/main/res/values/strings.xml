@@ -4,4 +4,5 @@
     <string name="authentication_failure">認証失敗</string>
     <string name="failed_generate_authentication_url">認証用URLの生成に失敗</string>
     <string name="lock_tweet_cquisition">30秒間最新ツイートの取得をロックします。</string>
+    <string name="read_more">更に読み込む</string>
 </resources>

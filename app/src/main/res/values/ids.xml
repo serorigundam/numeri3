@@ -15,4 +15,6 @@
     <item name="swipe_refresh" type="id" />
     <item name="tweets_recycler" type="id" />
     <item name="column_group_wrapper_coordinator" type="id" />
+    <item name="read_more_text" type="id" />
+    <item name="progress_bar" type="id" />
 </resources>
