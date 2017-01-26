@@ -15,8 +15,8 @@ object TweetFactory {
     fun create(twitterClient: TwitterClient, status: Status): Tweet {
         val tweet = TweetCache.putOrGet(status)
         fun setTweetState(t: Tweet) {
-            FavoriteStateCache.setState(twitterClient, t, status.isFavorited)
-            RetweetStateCache.setState(twitterClient, t, status.isRetweeted)
+            FavoriteStateCache.changeState(twitterClient, t, status.isFavorited)
+            RetweetStateCache.changeState(twitterClient, t, status.isRetweeted)
             t.retweetedTweet?.let(::setTweetState)
             t.quotedTweet?.let(::setTweetState)
         }
@@ -46,41 +46,31 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
 
     private class TweetImpl(status: Status) : Tweet {
         override val id: Long = status.id
-        override val user: TwitterUser
-        override val createdAt: String
-        override val text: String
-        override val quotedTweet: Tweet?
-        override val retweetedTweet: Tweet?
-        override val source: String
+        override val user: TwitterUser = TwitterUserCache.putOrGet(status.user)
+        override val createdAt: String = status.createdAt.format()
+        override val text: String = status.text
+        override val quotedTweet: Tweet? = status.quotedStatus?.run { TweetCache.putOrGet(this) }
+        override val retweetedTweet: Tweet? = status.retweetedStatus?.run { TweetCache.putOrGet(this) }
+        override val source: String = fromHtml(status.source ?: "").toString()
         override val favoriteCount: Int
             get() = mFavoriteCount
         override val retweetCount: Int
             get() = mRetweetCount
-        override val hashtags: List<String>
-        override val urlEntities: List<UrlEntity>
-        override val mediaEntities: List<MediaEntity>
-        override val userMentionEntities: List<UserMentionEntity>
+        override val hashtags: List<String> = status.hashtagEntities.map { it.text }.toImmutableList()
+        override val urlEntities: List<UrlEntity> = status.urlEntities.map(::UrlEntity).toImmutableList()
+        override val mediaEntities: List<MediaEntity> = status.extendedMediaEntities.map(::MediaEntity).toImmutableList()
+        override val userMentionEntities: List<UserMentionEntity> = status.userMentionEntities.map(::UserMentionEntity).toImmutableList()
 
-        var mFavoriteCount: Int
-        var mRetweetCount: Int
+        var mFavoriteCount: Int = status.favoriteCount
+        var mRetweetCount: Int = status.retweetCount
 
-        init {
-            user = TwitterUserCache.putOrGet(status.user)
-            createdAt = status.createdAt.format()
-            text = status.text
-
-            quotedTweet = status.quotedStatus?.run { TweetCache.putOrGet(this) }
-            retweetedTweet = status.retweetedStatus?.run { TweetCache.putOrGet(this) }
-
-            source = fromHtml(status.source ?: "").toString()
-
-            mFavoriteCount = status.favoriteCount
-            mRetweetCount = status.retweetCount
-
-            hashtags = status.hashtagEntities.map { it.text }.toImmutableList()
-            urlEntities = status.urlEntities.map(::UrlEntity).toImmutableList()
-            mediaEntities = status.extendedMediaEntities.map(::MediaEntity).toImmutableList()
-            userMentionEntities = status.userMentionEntities.map(::UserMentionEntity).toImmutableList()
+        override fun toString(): String {
+            return StringBuilder()
+                    .append("id : ").append(id)
+                    .append("\nuser : ").append(user)
+                    .append("\ntext : ").append(text)
+                    .append("\ncreatedAt : ").append(createdAt)
+                    .toString()
         }
 
         companion object {

@@ -3,11 +3,13 @@ package net.ketc.numeri.presentation.presenter.activity
 import android.content.Intent
 import android.net.Uri
 import net.ketc.numeri.R
+import net.ketc.numeri.domain.entity.TweetsDisplayType
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.cache.TwitterUserCache
 import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
+import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.activity.MainActivityInterface
 import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.rx.twitterThread
@@ -18,6 +20,8 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
 
     @Inject
     lateinit var oAuthService: OAuthService
+    @Inject
+    lateinit var tweetsDisplayService: TweetsDisplayService
 
     init {
         inject()
@@ -34,15 +38,32 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
                     .forEach {
                         activity.addAccount(it, this)
                     }
+            //todo 仮置き
+            val client = pair.firstOrNull()?.first
+            if (client != null) {
+                if (tweetsDisplayService.getAllGroup().isEmpty()) {
+                    val group = tweetsDisplayService.createGroup()
+                    tweetsDisplayService.createDisplay(group, client, -1, TweetsDisplayType.HOME)
+                }
+                val group = tweetsDisplayService.getAllGroup().first()
+                val displays = tweetsDisplayService.getDisplays(group)
+                activity.setDisplay(displays.first())
+            }
         }
+        startAccountsObserve()
+    }
 
+    fun startAccountsObserve() {
+        val accounts = activity.accounts
         TwitterUserCache.userUpdateFlowable
                 .onBackpressureBuffer()
                 .twitterThread()
+                .filter { user -> accounts.any { it == user } }
                 .subscribe({
                     activity.updateAccount(it)
                 }).autoDispose()
     }
+
 
     fun newAuthenticate() {
         activity.addAccountButtonEnabled = false

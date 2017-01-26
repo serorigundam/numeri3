@@ -9,6 +9,7 @@ import net.ketc.numeri.domain.service.OAuthServiceImpl
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.domain.service.TweetsDisplayServiceImpl
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
+import net.ketc.numeri.presentation.presenter.fragment.tweet.display.TimeLinePresenter
 import javax.inject.Singleton
 
 @Module
@@ -28,9 +29,14 @@ class DomainModule {
 @Component(modules = arrayOf(DomainModule::class))
 interface DomainComponent {
     fun inject(mainPresenter: MainPresenter)
+    fun inject(timeLinePresenter: TimeLinePresenter)
 }
 
 //extension
 fun MainPresenter.inject() {
+    Injectors.domainComponent.inject(this)
+}
+
+fun TimeLinePresenter.inject() {
     Injectors.domainComponent.inject(this)
 }

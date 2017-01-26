@@ -3,7 +3,6 @@ package net.ketc.numeri.domain
 import dagger.Component
 import dagger.Module
 import dagger.Provides
-import net.ketc.numeri.domain.entity.TimeLineDisplay
 import net.ketc.numeri.domain.entity.TweetsDisplay
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.service.*
@@ -22,7 +21,7 @@ class TestDomainModule {
     @Singleton
     fun provideTweetDisplayService(): TweetsDisplayService {
         setOnMemoryDB()
-        createTable(TweetsDisplay::class, TimeLineDisplay::class, TweetsDisplayGroup::class)
+        createTable(TweetsDisplay::class,  TweetsDisplayGroup::class)
         return TweetsDisplayServiceImpl()
     }
 

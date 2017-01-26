@@ -19,17 +19,18 @@ abstract class TweetStateCache<State : Serializable> {
         }
     }
 
-    fun setState(twitterClient: TwitterClient, tweet: Tweet, changeState: State) {
-        val stateMap = orPut(twitterClient.id)
+    private fun setState(twitterClient: TwitterClient, tweet: Tweet, changeState: State): State {
+        val stateMap = map[twitterClient.id]!!
         val state = stateMap[tweet.id]
         if (state != null)
             throw IllegalStateException()
         stateMap.put(tweet.id, changeState)
+        return changeState
     }
 
     fun changeState(twitterClient: TwitterClient, tweet: Tweet, state: State) {
-        val stateMap = map[twitterClient.id] ?: throw IllegalStateException()
-        stateMap[tweet.id] ?: throw IllegalStateException()
+        val stateMap = map[twitterClient.id] ?: orPut(twitterClient.id)
+        stateMap[tweet.id] ?: setState(twitterClient, tweet, state)
         stateMap.put(tweet.id, state)
     }
 

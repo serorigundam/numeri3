@@ -1,10 +1,8 @@
 package net.ketc.numeri.domain.service
 
-import android.test.mock.MockContext
 import net.ketc.numeri.TestInjectors
 import net.ketc.numeri.domain.entity.*
 import net.ketc.numeri.setLogStream
-import net.ketc.numeri.setOnMemoryDB
 import net.ketc.numeri.util.ormlite.clearTable
 import net.ketc.numeri.util.ormlite.createTable
 import org.junit.After
@@ -51,74 +49,66 @@ class TweetsDisplayServiceTest {
     @Before
     fun beforeEach() {
         setLogStream()
-        createTable(TweetsDisplay::class, TimeLineDisplay::class, TweetsDisplayGroup::class)
+        createTable(TweetsDisplay::class, TweetsDisplayGroup::class)
     }
 
     @After
     fun afterEach() {
-        tweetsDisplayService.getAllDisplays()
-                .flatMap { it }
-                .map { it.group.id }
-                .distinct()
-                .forEach {
-                    tweetsDisplayService.removeGroup(it)
-                }
-        clearTable(TweetsDisplay::class, TimeLineDisplay::class, TweetsDisplayGroup::class)
+        tweetsDisplayService.getAllGroup().forEach {
+            tweetsDisplayService.removeGroup(it)
+        }
+        clearTable(TweetsDisplay::class, TweetsDisplayGroup::class)
     }
 
     @Test
     fun createGroupTest() {
-        tweetsDisplayService.createGroup(client1, TimeLineType.HOME)
-        tweetsDisplayService.createGroup(client1, 1, TweetsDisplayType.USER_LIST)
-        val allDisplays = tweetsDisplayService.getAllDisplays()
-        assertEquals(2, allDisplays.size)
-        assertEquals(1, allDisplays[0].size)
-        assertEquals(1, allDisplays[1].size)
+        tweetsDisplayService.createGroup()
+        val groups = tweetsDisplayService.getAllGroup()
+        assertEquals(1, groups.size)
+        tweetsDisplayService.createGroup()
+        val groups2 = tweetsDisplayService.getAllGroup()
+        assertEquals(2, groups2.size)
     }
 
     @Test
     fun addToGroupTest() {
-        tweetsDisplayService.createGroup(client1, TimeLineType.HOME)
-        tweetsDisplayService.createGroup(client1, 1, TweetsDisplayType.USER_LIST)
-        val allDisplays = tweetsDisplayService.getAllDisplays()
-        allDisplays.forEachIndexed { i, list ->
-            tweetsDisplayService.addToGroup(list.first().group, client1, TimeLineType.MENTIONS)
-            tweetsDisplayService.addToGroup(list.first().group, client1, i.toLong(), TweetsDisplayType.PUBLIC)
-        }
-
-        tweetsDisplayService.getAllDisplays().forEach {
-            assertEquals(3, it.size)
-        }
+        val group = tweetsDisplayService.createGroup()
+        tweetsDisplayService.createDisplay(group, client1, -1L, TweetsDisplayType.HOME)
+        val displays = tweetsDisplayService.getDisplays(group)
+        assertEquals(1, displays.size)
+        assertEquals(0, displays[0].order)
+        assertEquals(client1.id, displays[0].token.id)
+        assertEquals(TweetsDisplayType.HOME, displays[0].type)
+        tweetsDisplayService.createDisplay(group, client2, -1L, TweetsDisplayType.MENTIONS)
+        assertEquals(2, displays.size)
+        assertEquals(1, displays[1].order)
+        assertEquals(client2.id, displays[1].token.id)
+        assertEquals(TweetsDisplayType.MENTIONS, displays[1].type)
     }
 
     @Test
     fun deleteGroupTest() {
-        tweetsDisplayService.createGroup(client1, TimeLineType.HOME)
-        tweetsDisplayService.createGroup(client1, 1, TweetsDisplayType.USER_LIST)
-
-        val displays = tweetsDisplayService.getAllDisplays()
-        val size = displays.size
-        assertEquals(2, size)
-        val id1 = displays[0].first().group.id
-        val id2 = displays[1].first().group.id
-        tweetsDisplayService.removeGroup(id1)
-        assertEquals(1, tweetsDisplayService.getAllDisplays().size)
-        tweetsDisplayService.removeGroup(id2)
-        assertEquals(0, tweetsDisplayService.getAllDisplays().size)
+        val group = tweetsDisplayService.createGroup()
+        tweetsDisplayService.createDisplay(group, client1, -1L, TweetsDisplayType.HOME)
+        val groups = tweetsDisplayService.getAllGroup()
+        assertEquals(1, groups.size)
+        tweetsDisplayService.removeGroup(group)
+        val groups1 = tweetsDisplayService.getAllGroup()
+        assertEquals(0, groups1.size)
     }
 
     @Test(expected = GroupDoesNotExistWasSpecifiedException::class)
     fun addToGroupThrownGroupDoesNotExistWasSpecifiedExceptionTest1() {
-        tweetsDisplayService.addToGroup(TweetsDisplayGroup(), client1, TimeLineType.MENTIONS)
+        tweetsDisplayService.createDisplay(TweetsDisplayGroup(), client1, -1L, TweetsDisplayType.MENTIONS)
     }
 
     @Test(expected = GroupDoesNotExistWasSpecifiedException::class)
     fun addToGroupThrownGroupDoesNotExistWasSpecifiedExceptionTest2() {
-        tweetsDisplayService.addToGroup(TweetsDisplayGroup(), client1, 1L, TweetsDisplayType.USER_LIST)
+        tweetsDisplayService.createDisplay(TweetsDisplayGroup(), client1, 1L, TweetsDisplayType.USER_LIST)
     }
 
     @Test(expected = GroupDoesNotExistWasSpecifiedException::class)
     fun removeGroupThrownGroupDoesNotExistWasSpecifiedException() {
-        tweetsDisplayService.removeGroup(1)
+        tweetsDisplayService.removeGroup(TweetsDisplayGroup())
     }
 }

@@ -11,4 +11,8 @@
     <item name="navigation_content" type="id" />
     <item name="add_account_button" type="id" />
     <item name="accounts_linear" type="id" />
+    <item name="tweet_text" type="id" />
+    <item name="swipe_refresh" type="id" />
+    <item name="tweets_recycler" type="id" />
+    <item name="column_group_wrapper_coordinator" type="id" />
 </resources>

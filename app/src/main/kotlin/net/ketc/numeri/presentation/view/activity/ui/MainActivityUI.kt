@@ -42,10 +42,8 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                     height = wrapContent
                     width = matchParent
                 }
-                recyclerView {
-                    adapter = Adapter()
-                    layoutManager = LinearLayoutManager(ui.ctx, LinearLayoutManager.VERTICAL, false)
-                    itemAnimator = DefaultItemAnimator()
+                coordinatorLayout {
+                    id = R.id.column_group_wrapper_coordinator
                 }.lparams {
                     height = matchParent
                     width = matchParent

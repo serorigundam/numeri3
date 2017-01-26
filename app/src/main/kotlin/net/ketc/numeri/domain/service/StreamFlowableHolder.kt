@@ -24,11 +24,10 @@ interface StreamFlowableHolder {
 
 class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterClient) : StreamFlowableHolder {
 
-    private val stream: TwitterStream
     private val streamObserver: StreamObserver
 
     init {
-        stream = TwitterStreamFactory().instance
+        val stream: TwitterStream = TwitterStreamFactory().instance
         stream.setOAuthConsumer(twitterApp.apiKey, twitterApp.apiSecret)
         stream.oAuthAccessToken = twitterClient.twitter.oAuthAccessToken
         streamObserver = StreamObserver(stream, twitterClient)
