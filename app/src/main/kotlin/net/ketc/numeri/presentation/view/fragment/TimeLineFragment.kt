@@ -11,8 +11,7 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.*
 import net.ketc.numeri.domain.model.Tweet
-import net.ketc.numeri.presentation.presenter.fragment.tweet.display.HomePresenter
-import net.ketc.numeri.presentation.presenter.fragment.tweet.display.TimeLinePresenter
+import net.ketc.numeri.presentation.presenter.fragment.tweet.display.*
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.TwitterRecyclerAdapter
 import net.ketc.numeri.util.android.initialize
@@ -24,12 +23,12 @@ import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragmentInterface {
-    override lateinit var presenter: TimeLinePresenter
-
     override val activity: Activity
         get() = this.parent
 
     override val display: TweetsDisplay by lazy { arguments.getSerializable(EXTRA_DISPLAY) as TweetsDisplay }
+
+    override var presenter: TimeLinePresenter = createTimeLinePresenter(display)
 
     override val lastTweet: Tweet?
         get() = twitterAdapter.last
@@ -53,9 +52,17 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     private val swipeRefresh: SwipeRefreshLayout by lazy { view!!.find<SwipeRefreshLayout>(R.id.swipe_refresh) }
     private val tweetsRecycler: RecyclerView by lazy { view!!.find<RecyclerView>(R.id.tweets_recycler) }
 
+    private fun createTimeLinePresenter(timeLineDisplay: TweetsDisplay): TimeLinePresenter {
+        return when (timeLineDisplay.type) {
+            TweetsDisplayType.HOME -> HomePresenter(this)
+            TweetsDisplayType.MENTIONS -> MentionsPresenter(this)
+            TweetsDisplayType.USER_LIST -> UserListPresenter(this)
+            TweetsDisplayType.PUBLIC -> PublicTimeLinePresenter(this)
+            else -> throw InternalError()
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val display = display
-        presenter = createTimeLinePresenter(display)
         return createView(context)
     }
 
@@ -65,27 +72,6 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         swipeRefresh.setOnRefreshListener { presenter.update() }
         presenter.initialize()
     }
-
-
-    private fun createTimeLinePresenter(timeLineDisplay: TweetsDisplay): TimeLinePresenter {
-        return when (timeLineDisplay.type) {
-            TweetsDisplayType.HOME -> HomePresenter(this)
-            TweetsDisplayType.MENTIONS -> TODO()
-            TweetsDisplayType.USER_LIST -> TODO()
-            TweetsDisplayType.PUBLIC -> TODO()
-            else -> throw InternalError()
-        }
-    }
-
-    override fun onPause() {
-        super.onPause()
-    }
-
-
-    override fun onResume() {
-        super.onResume()
-    }
-
 
     override fun onDestroyView() {
         super.onDestroyView()
@@ -135,4 +121,3 @@ interface TimeLineFragmentInterface : FragmentInterface {
     fun remove(id: Long)
     fun insert(tweet: Tweet)
 }
-

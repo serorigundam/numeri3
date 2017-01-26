@@ -62,6 +62,9 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         }
     }
 
+    /**
+     * callback at before initialization load
+     */
     abstract fun beforeInitializeLoad()
 
     /**
