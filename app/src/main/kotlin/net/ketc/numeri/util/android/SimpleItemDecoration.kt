@@ -7,7 +7,7 @@ import android.graphics.drawable.Drawable
 import android.support.v7.widget.RecyclerView
 import android.view.View
 
-class SimpleItemDecolation(context: Context) : RecyclerView.ItemDecoration() {
+class SimpleItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
     val divider: Drawable
 
     init {

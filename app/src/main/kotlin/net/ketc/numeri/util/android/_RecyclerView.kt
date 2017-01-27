@@ -7,5 +7,5 @@ import android.support.v7.widget.RecyclerView
 fun RecyclerView.initialize() {
     layoutManager = LinearLayoutManager(context, LinearLayoutManager.VERTICAL, false)
     itemAnimator = DefaultItemAnimator()
-    addItemDecoration(SimpleItemDecolation(context))
+    addItemDecoration(SimpleItemDecoration(context))
 }

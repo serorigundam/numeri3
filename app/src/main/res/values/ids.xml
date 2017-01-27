@@ -17,4 +17,15 @@
     <item name="column_group_wrapper_coordinator" type="id" />
     <item name="read_more_text" type="id" />
     <item name="progress_bar" type="id" />
+    <item name="sub_info_text" type="id" />
+    <item name="twitter_bird_image" type="id" />
+    <item name="created_at_text" type="id" />
+    <item name="thumb_image1" type="id" />
+    <item name="thumb_image2" type="id" />
+    <item name="thumb_image3" type="id" />
+    <item name="thumb_image4" type="id" />
+    <item name="via_text" type="id" />
+    <item name="thumbnails_relative" type="id" />
+    <item name="source_text" type="id" />
+    <item name="overlay_relative" type="id" />
 </resources>

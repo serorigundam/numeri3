@@ -3,7 +3,7 @@ package net.ketc.numeri.domain.model
 import twitter4j.ExtendedMediaEntity
 
 data class MediaEntity(val url: String, val type: MediaType, val variants: List<Variant>) {
-    constructor(entity: ExtendedMediaEntity) : this(entity.expandedURL,
+    constructor(entity: ExtendedMediaEntity) : this(entity.mediaURL,
             entity.type.totType(),
             entity.videoVariants.orEmpty().map(::Variant))
 }

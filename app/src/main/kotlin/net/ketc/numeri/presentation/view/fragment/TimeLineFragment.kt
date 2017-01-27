@@ -48,7 +48,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             swipeRefresh.isEnabled = value
         }
 
-    private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy { TwitterRecyclerAdapter(presenter, presenter) { TweetViewHolder(context) } }
+    private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy { TwitterRecyclerAdapter(presenter, presenter) { TweetViewHolder(context,presenter) } }
     private val swipeRefresh: SwipeRefreshLayout by lazy { view!!.find<SwipeRefreshLayout>(R.id.swipe_refresh) }
     private val tweetsRecycler: RecyclerView by lazy { view!!.find<RecyclerView>(R.id.tweets_recycler) }
 
