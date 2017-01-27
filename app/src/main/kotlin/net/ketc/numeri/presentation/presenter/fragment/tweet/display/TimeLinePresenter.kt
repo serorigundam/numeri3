@@ -99,6 +99,10 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         handler.postDelayed(unlockUpdate, UPDATE_LOCK_MILLS)
     }
 
+    fun onClickTweet(tweet: Tweet) {
+
+    }
+
     override fun read(): MutableList<Tweet> {
         val paging = Paging().apply {
             count = DEFAULT_COUNT
@@ -131,3 +135,4 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         val UPDATE_LOCK_MILLS: Long = 30 * 1000
     }
 }
+
