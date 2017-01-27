@@ -30,9 +30,7 @@ class FooterViewUI(override val ctx: Context) : UI {
     }
 }
 
-interface FooterView {
-    val View.readMoreText: TextView
-        get() = find(R.id.read_more_text)
-    val View.progressBar: ProgressBar
-        get() = find(R.id.progress_bar)
-}
+val View.readMoreText: TextView
+    get() = find(R.id.read_more_text)
+val View.progressBar: ProgressBar
+    get() = find(R.id.progress_bar)
