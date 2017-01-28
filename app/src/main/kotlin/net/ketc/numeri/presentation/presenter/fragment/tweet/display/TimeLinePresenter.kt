@@ -8,6 +8,7 @@ import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.fragment.AutoDisposableFragmentPresenter
 import net.ketc.numeri.presentation.view.component.ReadableMore
+import net.ketc.numeri.presentation.view.component.TweetOperatorDialogFactory
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragmentInterface
 import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
@@ -42,7 +43,7 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
             mClient = it.first { it.id == fragment.display.token.id }
             client.stream.onDeletionNoticeFlowable.subscribe {
                 fragment.remove(it.statusId)
-            }
+            }.autoDispose()
             beforeInitializeLoad()
             initializeLoad()
             afterInitializeLoad()
@@ -100,7 +101,11 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
     }
 
     fun onClickTweet(tweet: Tweet) {
-
+        val dialog = TweetOperatorDialogFactory(fragment.activity, tweet.retweetedTweet ?: tweet, this) {
+            it.printStackTrace()
+            fragment.activity.toast("error")
+        }.create(client)
+        fragment.showDialog(dialog)
     }
 
     override fun read(): MutableList<Tweet> {

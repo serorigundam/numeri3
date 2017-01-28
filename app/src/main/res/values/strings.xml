@@ -5,4 +5,8 @@
     <string name="failed_generate_authentication_url">認証用URLの生成に失敗</string>
     <string name="lock_tweet_cquisition">30秒間最新ツイートの取得をロックします。</string>
     <string name="read_more">更に読み込む</string>
+    <string name="destroy_favorite">お気に入りから解除</string>
+    <string name="create_favorite">お気に入りに登録</string>
+    <string name="destroy_retweet">RTを解除</string>
+    <string name="create_retweet">RTを行う</string>
 </resources>

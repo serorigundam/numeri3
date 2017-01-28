@@ -1,6 +1,7 @@
 package net.ketc.numeri.domain.model
 
 import net.ketc.numeri.domain.model.cache.Cacheable
+import net.ketc.numeri.domain.service.TwitterClient
 
 interface Tweet : Cacheable<Long> {
     val user: TwitterUser
@@ -17,3 +18,6 @@ interface Tweet : Cacheable<Long> {
     val userMentionEntities: List<UserMentionEntity>
     val isMention: Boolean
 }
+
+fun TwitterClient.isMyTweet(tweet: Tweet) = tweet.user.id == id
+

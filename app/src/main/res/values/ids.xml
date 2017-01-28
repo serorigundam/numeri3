@@ -28,4 +28,7 @@
     <item name="thumbnails_relative" type="id" />
     <item name="source_text" type="id" />
     <item name="overlay_relative" type="id" />
+    <item name="menu_text" type="id" />
+    <item name="menu_linear" type="id" />
+    <item name="nested_scroll" type="id" />
 </resources>

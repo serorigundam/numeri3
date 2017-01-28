@@ -12,12 +12,26 @@ import java.util.*
 object TweetFactory {
     fun get(id: Long) = TweetCache.get(id)
 
+    fun get(predicate: (Tweet) -> Boolean) = TweetCache.find(predicate)
+
+    fun delete(id: Long) {
+        TweetCache.get(id)?.let {
+            FavoriteStateCache.deleteState(it)
+            RetweetStateCache.deleteState(it)
+            TweetCache.delete(id)
+        }
+
+    }
+
     fun create(twitterClient: TwitterClient, status: Status): Tweet {
         val tweet = TweetCache.putOrGet(status)
         fun setTweetState(t: Tweet) {
             FavoriteStateCache.changeState(twitterClient, t, status.isFavorited)
             RetweetStateCache.changeState(twitterClient, t, status.isRetweeted)
-            t.retweetedTweet?.let(::setTweetState)
+            t.retweetedTweet?.let {
+                RetweetStateCache.changeState(twitterClient, it, twitterClient.isMyTweet(tweet))
+                FavoriteStateCache.changeState(twitterClient, it, status.isFavorited)
+            }
             t.quotedTweet?.let(::setTweetState)
         }
         setTweetState(tweet)
@@ -42,6 +56,12 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
         } else {
             tweet
         }
+    }
+
+    fun find(predicate: (Tweet) -> Boolean) = map.map { it.value }.find(predicate)
+
+    fun delete(id: Long) {
+        map.remove(id)
     }
 
     private class TweetImpl(status: Status) : Tweet {

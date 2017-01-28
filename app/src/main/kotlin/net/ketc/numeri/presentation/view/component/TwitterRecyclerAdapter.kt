@@ -66,15 +66,14 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
 
     fun remove(t: T) {
         val index = itemList.indexOf(t)
-        if (index == -1) {
+        if (index != -1) {
             itemList.remove(t)
             notifyItemRemoved(index)
         }
     }
 
     fun remove(id: Long) {
-        val removed = itemList.first { it.id == id }
-        remove(removed)
+        itemList.firstOrNull { it.id == id }?.let { remove(it) }
     }
 
     companion object {
@@ -87,7 +86,9 @@ abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View) : RecyclerV
     abstract fun bind(cacheable: T)
 }
 
-class TweetViewHolder(ctx: Context, override val autoDisposable: AutoDisposable) :
+class TweetViewHolder(ctx: Context,
+                      override val autoDisposable: AutoDisposable,
+                      private val onClick: (Tweet) -> Unit) :
         TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView()),
         AutoDisposable by autoDisposable {
 
@@ -98,6 +99,7 @@ class TweetViewHolder(ctx: Context, override val autoDisposable: AutoDisposable)
 
     override fun bind(cacheable: Tweet) {
         itemView.bind(cacheable)
+        itemView.setOnClickListener { onClick(cacheable) }
     }
 
     private fun View.bind(tweet: Tweet) {

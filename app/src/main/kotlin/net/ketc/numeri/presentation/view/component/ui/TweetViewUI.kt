@@ -55,7 +55,7 @@ class TweetViewUI(override val ctx: Context) : UI {
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.sub_info_text)
                 rightOf(R.id.icon_image)
-                leftOf(R.id.twitter_bird_image)
+                leftOf(R.id.created_at_text)
                 marginEnd = dimen(R.dimen.margin_text_small)
             }
 

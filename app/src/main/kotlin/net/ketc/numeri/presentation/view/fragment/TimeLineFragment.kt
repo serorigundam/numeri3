@@ -4,6 +4,7 @@ import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.app.AppCompatDialog
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
 import android.view.View
@@ -14,6 +15,7 @@ import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.presentation.presenter.fragment.tweet.display.*
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.TwitterRecyclerAdapter
+import net.ketc.numeri.util.android.DialogOwner
 import net.ketc.numeri.util.android.initialize
 import net.ketc.numeri.util.android.parent
 import org.jetbrains.anko.find
@@ -24,11 +26,14 @@ import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragmentInterface {
     override lateinit var presenter: TimeLinePresenter
+    val dialogOwner = DialogOwner()
 
     override val activity: Activity
         get() = this.parent
 
-    override val display: TweetsDisplay by lazy { arguments.getSerializable(EXTRA_DISPLAY) as TweetsDisplay }
+    override val display: TweetsDisplay by lazy {
+        arguments.getSerializable(EXTRA_DISPLAY) as TweetsDisplay
+    }
 
     override val lastTweet: Tweet?
         get() = twitterAdapter.last
@@ -48,9 +53,17 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             swipeRefresh.isEnabled = value
         }
 
-    private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy { TwitterRecyclerAdapter(presenter, presenter) { TweetViewHolder(context,presenter) } }
-    private val swipeRefresh: SwipeRefreshLayout by lazy { view!!.find<SwipeRefreshLayout>(R.id.swipe_refresh) }
-    private val tweetsRecycler: RecyclerView by lazy { view!!.find<RecyclerView>(R.id.tweets_recycler) }
+    private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy {
+        TwitterRecyclerAdapter(presenter, presenter) {
+            TweetViewHolder(context, presenter) { presenter.onClickTweet(it) }
+        }
+    }
+    private val swipeRefresh: SwipeRefreshLayout by lazy {
+        view!!.find<SwipeRefreshLayout>(R.id.swipe_refresh)
+    }
+    private val tweetsRecycler: RecyclerView by lazy {
+        view!!.find<RecyclerView>(R.id.tweets_recycler)
+    }
 
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         val display = display
@@ -76,8 +89,19 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         }
     }
 
+    override fun onPause() {
+        super.onPause()
+        dialogOwner.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialogOwner.onResume()
+    }
+
     override fun onDestroyView() {
         super.onDestroyView()
+        dialogOwner.onDestroy()
     }
 
     override fun addAll(tweets: List<Tweet>) = twitterAdapter.addAll(tweets)
@@ -85,6 +109,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     override fun remove(tweet: Tweet) = twitterAdapter.remove(tweet)
     override fun remove(id: Long) = twitterAdapter.remove(id)
     override fun insert(tweet: Tweet) = twitterAdapter.insertTop(tweet)
+    override fun showDialog(dialog: AppCompatDialog) = dialogOwner.showDialog(dialog)
 
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
@@ -123,4 +148,5 @@ interface TimeLineFragmentInterface : FragmentInterface {
     fun remove(tweet: Tweet)
     fun remove(id: Long)
     fun insert(tweet: Tweet)
+    fun showDialog(dialog: AppCompatDialog)
 }
