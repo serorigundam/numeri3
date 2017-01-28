@@ -66,13 +66,13 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         super.onCreate(savedInstanceState)
         MainActivityUI().setContentView(this)
         initialize()
-        presenter.initialize()
         //todo 仮置き
         columnGroupWraper.addView(ctx.frameLayout {
             id = 1302
             tag = "home"
             lparams(matchParent, matchParent)
         })
+        presenter.initialize(savedInstanceState)
     }
 
     private fun initialize() {
@@ -222,6 +222,7 @@ interface MainActivityInterface : ActivityInterface {
     val accounts: List<TwitterUser>
     fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
+    //todo 仮置き
     fun setDisplay(display: TweetsDisplay)
 }
 
