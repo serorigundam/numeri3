@@ -6,7 +6,7 @@ RxJava2とかankoとかMVP試すためにTwitterクライアント作る(n回目
 * kotlin-1.0.5-3
 * android studio2.3-beta3
 
-## 必要なもの
-* 署名用にkeytool使ってrelease.jksとdebug.jksをプロジェクトルートに配置
-* release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesを配置
-* strings-twitter.xmlをこんな感じで作ってapp/src/main/res/values/strings-twitter.xmlに配置
+## ビルド前に
+* 署名用にkeytool使ってrelease.jksとdebug.jksを作成しプロジェクトルートに配置
+* プロジェクトルートにあるsigning.propertiesないのプロパティそれぞれにrelease.jksのそれぞれのパスワードを設定
+* twitterにサインアップしてAPIキーとか取得したらapp/src/main/res/values/strings-twitter.xmlにそれぞれの値を設定
