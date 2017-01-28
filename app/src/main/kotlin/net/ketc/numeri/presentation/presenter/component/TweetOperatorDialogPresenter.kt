@@ -1,35 +1,43 @@
 package net.ketc.numeri.presentation.presenter.component
 
 import android.content.Context
+import android.content.Intent
+import android.net.Uri
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.*
 import net.ketc.numeri.domain.model.isMyTweet
 import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.presentation.view.component.TweetMenuItemsInterface
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 
 class TweetOperatorDialogPresenter(private val ctx: Context, autoDisposable: AutoDisposable,
-                                   private val tweet: Tweet,
+                                   private val tweetMenuDialog: TweetMenuItemsInterface,
                                    private val error: (Throwable) -> Unit) : AutoDisposable by autoDisposable {
+    private val tweet: Tweet = tweetMenuDialog.tweet
+    private val client: TwitterClient = tweetMenuDialog.client
 
-    fun changeFavorite(client: TwitterClient, error: (Throwable) -> Unit, success: (Boolean) -> Unit) {
+    fun changeFavorite() {
+        tweetMenuDialog.isFavoriteMenuClickable = false
         singleTask(MySchedulers.twitter) {
-            if (!client.isFavorite(tweet)) {
+            if (!tweetMenuDialog.isFavorite) {
                 client.twitter.createFavorite(tweet.id)
             } else {
                 client.twitter.destroyFavorite(tweet.id)
             }.convertAndCacheOrGet(client)
         } error {
             error(it)
-            this.error(it)
+            tweetMenuDialog.isFavoriteMenuClickable = true
         } success {
-            success(client.isFavorite(it))
+            tweetMenuDialog.isFavorite = client.isFavorite(it)
+            tweetMenuDialog.isFavoriteMenuClickable = true
         }
     }
 
-    fun changeRetweeted(client: TwitterClient, error: (Throwable) -> Unit, success: (Boolean) -> Unit) {
+    fun changeRetweeted() {
+        tweetMenuDialog.isRetweetMenuClickable = false
         singleTask(MySchedulers.twitter) {
-            if (!client.isRetweeted(tweet)) {
+            if (!tweetMenuDialog.isRetweeted) {
                 client.twitter.retweetStatus(tweet.id)
                 true
             } else {
@@ -44,10 +52,16 @@ class TweetOperatorDialogPresenter(private val ctx: Context, autoDisposable: Aut
             }
         } error {
             error(it)
-            this.error(it)
+            tweetMenuDialog.isRetweetMenuClickable = true
         } success {
             RetweetStateCache.changeState(client, tweet, it)
-            success(it)
+            tweetMenuDialog.isRetweeted = it
+            tweetMenuDialog.isRetweetMenuClickable = true
         }
     }
+
+    fun openUri(urlStr: String) {
+        ctx.startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(urlStr)))
+    }
+
 }

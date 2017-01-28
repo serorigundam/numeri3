@@ -15,28 +15,36 @@ import net.ketc.numeri.util.android.getResourceId
 import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.nestedScrollView
 
-fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, @StringRes textId: Int, onClick: (View) -> Unit) = item(ctx, onClick) {
+fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, text: String, onClick: (View) -> Unit) = item(ctx, onClick) {
     imageView {
         id = R.id.icon_image
         backgroundColor = ctx.getColor(R.color.transparent)
         image = context.getDrawable(drawableId)
     }.lparams(dip(16), dip(16))
     menuText(R.id.icon_image) {
-        text = ctx.getString(textId)
+        this.text = text
     }
 }
 
-fun createTextMenu(ctx: Context, menuText: String, @StringRes textId: Int, onClick: (View) -> Unit) = item(ctx, onClick) {
+fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, @StringRes textId: Int, onClick: (View) -> Unit): View {
+    return createIconMenu(ctx, drawableId, ctx.getString(textId), onClick)
+}
+
+fun createTextMenu(ctx: Context, menuText: String, text: String, onClick: (View) -> Unit) = item(ctx, onClick) {
     textView {
         id = R.id.text
         backgroundColor = ctx.getColor(R.color.transparent)
-        text = menuText
+        this.text = menuText
         ellipsize = TextUtils.TruncateAt.END
         maxEms = 2
     }.lparams(dip(16), dip(16))
     menuText(R.id.text) {
-        text = ctx.getString(textId)
+        this.text = text
     }
+}
+
+fun createTextMenu(ctx: Context, menuText: String, @StringRes textId: Int, onClick: (View) -> Unit): View {
+    return createTextMenu(ctx, menuText, ctx.getString(textId), onClick)
 }
 
 private fun item(ctx: Context, onClick: (View) -> Unit, init: _RelativeLayout.() -> Unit) = ctx.relativeLayout {
