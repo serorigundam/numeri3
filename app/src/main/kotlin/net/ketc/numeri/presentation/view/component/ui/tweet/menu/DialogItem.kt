@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component.ui
+package net.ketc.numeri.presentation.view.component.ui.tweet.menu
 
 import android.content.Context
 import android.support.annotation.DrawableRes
@@ -8,9 +8,11 @@ import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
+import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import net.ketc.numeri.R
+import net.ketc.numeri.presentation.view.component.ui.UI
 import net.ketc.numeri.util.android.getResourceId
 import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.nestedScrollView
@@ -58,9 +60,15 @@ private fun item(ctx: Context, onClick: (View) -> Unit, init: _RelativeLayout.()
 
 }
 
+val View.iconImage: ImageView
+    get() = find(R.id.icon_image)
+
+val View.menuText: TextView
+    get() = find(R.id.menu_text)
+
 private fun _RelativeLayout.menuText(rightOf: Int, init: TextView.() -> Unit) = this.textView {
-    id = R.id.menu_text
-    ellipsize = TextUtils.TruncateAt.END
+    id = net.ketc.numeri.R.id.menu_text
+    ellipsize = android.text.TextUtils.TruncateAt.END
     lines = 1
     textColor = context.getColor(context.getResourceId(android.R.attr.textColorPrimary))
     init()
@@ -68,9 +76,6 @@ private fun _RelativeLayout.menuText(rightOf: Int, init: TextView.() -> Unit) = 
     marginStart = dip(40)
     rightOf(rightOf)
 }
-
-val View.menuText: TextView
-    get() = find(R.id.menu_text)
 
 class TweetOperationDialogUI(override val ctx: Context) : UI {
     override fun createView() = ctx.relativeLayout {
@@ -101,7 +106,7 @@ class TweetOperationDialogUI(override val ctx: Context) : UI {
 }
 
 fun BottomSheetDialog.addTweetMenu(view: View) {
-    (this.findViewById(R.id.menu_linear) as ViewGroup).addView(view)
+    (this.findViewById(net.ketc.numeri.R.id.menu_linear) as ViewGroup).addView(view)
 }
 
 val BottomSheetDialog.tweetText: TextView

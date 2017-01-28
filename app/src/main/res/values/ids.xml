@@ -31,4 +31,5 @@
     <item name="menu_text" type="id" />
     <item name="menu_linear" type="id" />
     <item name="nested_scroll" type="id" />
+    <item name="sub_info_icon" type="id" />
 </resources>

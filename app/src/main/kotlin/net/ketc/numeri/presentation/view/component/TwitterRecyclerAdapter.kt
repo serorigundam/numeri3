@@ -5,15 +5,21 @@ import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.view.ViewGroup
+import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.Cacheable
 import net.ketc.numeri.presentation.view.component.ui.*
+import net.ketc.numeri.presentation.view.component.ui.footer.FooterViewUI
+import net.ketc.numeri.presentation.view.component.ui.footer.progressBar
+import net.ketc.numeri.presentation.view.component.ui.footer.readMoreText
+import net.ketc.numeri.presentation.view.component.ui.tweet.*
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.backgroundResource
+import org.jetbrains.anko.image
 import java.util.*
 
 class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: ReadableMore<MutableList<T>>,
@@ -114,9 +120,11 @@ class TweetViewHolder(ctx: Context,
         if (tweet.retweetedTweet != null) {
             subInfoText.visibility = View.VISIBLE
             subInfoText.text = "${tweet.user.screenName}さんからのRT"
+            subInfoIcon.image = context.getDrawable(R.drawable.ic_autorenew_white_24dp)
         } else {
             subInfoText.visibility = View.GONE
             subInfoText.text = ""
+            subInfoIcon.image = null
         }
     }
 

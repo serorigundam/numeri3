@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component.ui
+package net.ketc.numeri.presentation.view.component.ui.tweet
 
 import android.content.Context
 import android.text.TextUtils
@@ -7,6 +7,7 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
+import net.ketc.numeri.presentation.view.component.ui.UI
 import org.jetbrains.anko.*
 
 class TweetViewUI(override val ctx: Context) : UI {
@@ -27,6 +28,14 @@ class TweetViewUI(override val ctx: Context) : UI {
                 below(R.id.sub_info_text)
                 marginEnd = dimen(R.dimen.margin_small)
             }
+
+            imageView {
+                id = R.id.sub_info_icon
+            }.lparams(dip(16), dip(16)) {
+                alignEnd(R.id.icon_image)
+                bottomMargin = dimen(R.dimen.margin_text_small)
+            }
+
 
             textView {
                 id = R.id.sub_info_text
@@ -91,6 +100,7 @@ class TweetViewUI(override val ctx: Context) : UI {
                 id = R.id.via_text
                 text = "via"
             }.lparams(wrapContent, wrapContent) {
+                rightOf(R.id.icon_image)
                 below(R.id.thumbnails_relative)
                 topMargin = dimen(R.dimen.margin_text_small)
             }
@@ -141,6 +151,8 @@ class TweetViewUI(override val ctx: Context) : UI {
 
 val View.iconImage: ImageView
     get() = find(R.id.icon_image)
+val View.subInfoIcon: ImageView
+    get() = find(R.id.sub_info_icon)
 val View.subInfoText: TextView
     get() = find(R.id.sub_info_text)
 val View.screenNameText: TextView

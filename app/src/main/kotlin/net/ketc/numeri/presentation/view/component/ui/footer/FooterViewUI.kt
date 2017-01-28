@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component.ui
+package net.ketc.numeri.presentation.view.component.ui.footer
 
 import android.content.Context
 import android.view.Gravity
@@ -6,6 +6,7 @@ import android.view.View
 import android.widget.ProgressBar
 import android.widget.TextView
 import net.ketc.numeri.R
+import net.ketc.numeri.presentation.view.component.ui.UI
 import org.jetbrains.anko.*
 
 class FooterViewUI(override val ctx: Context) : UI {
