@@ -11,12 +11,12 @@ RxJava2とかankoとかMVP試すためにTwitterクライアント作る(n回目
 * release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesを配置
 * strings-twitter.xmlをこんな感じで作ってapp/src/main/res/values/strings-twitter.xmlに配置
 
-'''
-    <resources>
-        <string name="twitter_api_key">hoge_api_key</string>
-        <string name="twitter_secret_key">hoge_secret_key</string>
-        <string name="twitter_callback_host">hoge_host</string>
-        <string name="twitter_callback_scheme">hoge_scheme</string>
-    </resources>
+'''xml
+<resources>
+    <string name="twitter_api_key">hoge_api_key</string>
+    <string name="twitter_secret_key">hoge_secret_key</string>
+    <string name="twitter_callback_host">hoge_host</string>
+    <string name="twitter_callback_scheme">hoge_scheme</string>
+</resources>
 '''
 
