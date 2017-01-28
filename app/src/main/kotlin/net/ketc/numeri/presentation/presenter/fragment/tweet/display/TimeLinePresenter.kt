@@ -58,8 +58,10 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         } error {
             it.printStackTrace()
             fragment.activity.toast("error")
+            fragment.isReadMorEnabled = true
         } success {
             fragment.addAll(it)
+            fragment.isReadMorEnabled = true
         }
     }
 

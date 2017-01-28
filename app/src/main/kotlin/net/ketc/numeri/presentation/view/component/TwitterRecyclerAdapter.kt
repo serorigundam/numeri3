@@ -8,15 +8,10 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.Cacheable
-import net.ketc.numeri.presentation.view.component.ui.*
-import net.ketc.numeri.presentation.view.component.ui.footer.FooterViewUI
-import net.ketc.numeri.presentation.view.component.ui.footer.progressBar
-import net.ketc.numeri.presentation.view.component.ui.footer.readMoreText
 import net.ketc.numeri.presentation.view.component.ui.tweet.*
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
-import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.backgroundResource
 import org.jetbrains.anko.image
@@ -32,6 +27,21 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
     val first: T?
         get() = itemList.firstOrNull()
 
+    private var viewAddition = 0
+
+    var isReadMoreEnable: Boolean = false
+        get() = field
+        set(value) {
+            field = value
+            if (value) {
+                notifyItemInserted(itemCount)
+                viewAddition++
+            } else {
+                notifyItemRemoved(itemCount)
+                viewAddition--
+            }
+        }
+
     override fun getItemViewType(position: Int): Int {
         return if (itemList.lastIndex >= position) RecyclerView.INVALID_TYPE
         else TYPE_FOOTER
@@ -46,7 +56,7 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
             }
     }
 
-    override fun getItemCount() = itemList.size + 1
+    override fun getItemCount() = itemList.size + viewAddition
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
@@ -159,52 +169,4 @@ class TweetViewHolder(ctx: Context,
             overlayRelative.backgroundColor = Color.parseColor("#00000000")
         }
     }
-}
-
-class FooterViewHolder<T>(private val readableMore: ReadableMore<T>,
-                          private val autoDisposable: AutoDisposable,
-                          ctx: Context) : RecyclerView.ViewHolder(FooterViewUI(ctx).createView()), AutoDisposable by autoDisposable {
-    init {
-        val context = itemView.context
-        val resourceId = context.getResourceId(android.R.attr.selectableItemBackground)
-        val drawable = context.getDrawable(resourceId)
-        itemView.background = drawable
-        itemView.isClickable = true
-        itemView.setOnClickListener { onClick() }
-    }
-
-    private fun onClick() {
-        setProgress(true)
-        singleTask(MySchedulers.twitter) {
-            itemView.isClickable = false
-            readableMore.read()
-        } error {
-            readableMore.error(it)
-            itemView.isClickable = true
-            setProgress(false)
-        } success {
-            readableMore.complete(it)
-            itemView.isClickable = true
-            setProgress(false)
-        }
-    }
-
-    fun setProgress(progress: Boolean) {
-        if (progress) {
-            itemView.readMoreText.visibility = View.INVISIBLE
-            itemView.progressBar.visibility = View.VISIBLE
-            itemView.isClickable = false
-        } else {
-            itemView.readMoreText.visibility = View.VISIBLE
-            itemView.progressBar.visibility = View.INVISIBLE
-            itemView.isClickable = true
-        }
-    }
-
-}
-
-interface ReadableMore<T> {
-    fun read(): T
-    fun error(throwable: Throwable)
-    fun complete(t: T)
 }

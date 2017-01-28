@@ -53,6 +53,12 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             swipeRefresh.isEnabled = value
         }
 
+    override var isReadMorEnabled: Boolean
+        get() = twitterAdapter.isReadMoreEnable
+        set(value) {
+            twitterAdapter.isReadMoreEnable = value
+        }
+
     private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy {
         TwitterRecyclerAdapter(presenter, presenter) {
             TweetViewHolder(context, presenter) { presenter.onClickTweet(it) }
@@ -125,7 +131,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             swipeRefreshLayout {
                 lparams(matchParent, matchParent)
                 id = R.id.swipe_refresh
-
+                isEnabled = false
                 recyclerView {
                     id = R.id.tweets_recycler
                     isVerticalScrollBarEnabled = true
@@ -143,6 +149,7 @@ interface TimeLineFragmentInterface : FragmentInterface {
     val firstTweet: Tweet?
     var isRefreshing: Boolean
     var isRefreshable: Boolean
+    var isReadMorEnabled: Boolean
     fun addAll(tweets: List<Tweet>)
     fun insertAllToTop(tweets: List<Tweet>)
     fun remove(tweet: Tweet)
