@@ -1,10 +1,10 @@
 buildscript {
-    ext.kotlin_version = '1.0.5-2'
+    ext.kotlin_version = '1.0.5-3'
     ext.android_build_tool_ver = '25.0.2'
     repositories {
         jcenter()
         dependencies {
-            classpath 'com.android.tools.build:gradle:2.3.0-beta1'
+            classpath 'com.android.tools.build:gradle:2.3.0-beta3'
             classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         }
     }
@@ -16,7 +16,7 @@ allprojects {
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '2.14.1'
+    gradleVersion = '3.3'
 }
 
 task clean(type: Delete) {

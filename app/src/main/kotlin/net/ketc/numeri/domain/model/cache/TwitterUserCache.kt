@@ -131,7 +131,7 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
         }
 
         fun isUpdate(user: User): Boolean {
-            if (equals(user)) {
+            if (!equals(user)) {
                 throw IllegalArgumentException("user with a different ID was given")
             }
             return name != user.name
@@ -157,6 +157,13 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
 
         override fun hashCode() = id.hashCode()
 
+        override fun toString(): String {
+            return StringBuilder()
+                    .append("id : ").append(id)
+                    .append("name : ").append(name)
+                    .append("screenName : ").append(screenName)
+                    .toString()
+        }
     }
 }
 

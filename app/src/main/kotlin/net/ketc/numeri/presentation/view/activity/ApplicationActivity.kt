@@ -1,9 +1,9 @@
-package net.ketc.numeri.presentation.view
+package net.ketc.numeri.presentation.view.activity
 
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
-import net.ketc.numeri.presentation.presenter.Presenter
+import net.ketc.numeri.presentation.presenter.activity.Presenter
 
 /**
  * @param P is bound [Presenter]

@@ -11,11 +11,6 @@ import io.reactivex.disposables.Disposable
 class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: Scheduler, private val autoDisposable: AutoDisposable?, private val task: () -> T) {
     private var error: ((Throwable) -> Unit)? = null
 
-    private val single = Single.create<T> { emitter ->
-        val t = task()
-        emitter.onSuccess(t)
-    }
-
     /**
      * sets the callback function called when the task succeeds.
      * Then execute the task.
@@ -23,7 +18,10 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
      * @return Disposable
      */
     infix fun success(success: (T) -> Unit): Disposable {
-        val disposable = single.subscribeOn(subscribeOn)
+        val disposable = Single.create<T> { emitter ->
+            val t = task()
+            emitter.onSuccess(t)
+        }.subscribeOn(subscribeOn)
                 .observeOn(observeOn)
                 .subscribe(success) {
                     error?.invoke(it) ?: throw it

@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view
+package net.ketc.numeri.presentation.view.activity.ui
 
 import android.content.Context
 import android.graphics.Color
@@ -14,6 +14,7 @@ import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.TextView
 import net.ketc.numeri.R
+import net.ketc.numeri.presentation.view.activity.MainActivity
 import net.ketc.numeri.util.android.getResourceId
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
@@ -41,10 +42,8 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                     height = wrapContent
                     width = matchParent
                 }
-                recyclerView {
-                    adapter = Adapter()
-                    layoutManager = LinearLayoutManager(ui.ctx, LinearLayoutManager.VERTICAL, false)
-                    itemAnimator = DefaultItemAnimator()
+                coordinatorLayout {
+                    id = R.id.column_group_wrapper_coordinator
                 }.lparams {
                     height = matchParent
                     width = matchParent
@@ -146,7 +145,7 @@ class MainActivityUI : AnkoComponent<MainActivity> {
         }
     }
 
-    class Adapter() : RecyclerView.Adapter<Adapter.VH>() {
+    class Adapter : RecyclerView.Adapter<Adapter.VH>() {
         override fun onBindViewHolder(holder: VH?, position: Int) {
         }
 

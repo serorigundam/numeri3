@@ -1,9 +1,10 @@
-package net.ketc.numeri.presentation.view
+package net.ketc.numeri.presentation.view.activity
 
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
@@ -19,12 +20,15 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
+import net.ketc.numeri.domain.entity.TweetsDisplay
 import net.ketc.numeri.domain.model.TwitterUser
-import net.ketc.numeri.presentation.presenter.MainPresenter
+import net.ketc.numeri.presentation.presenter.activity.MainPresenter
+import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
+import net.ketc.numeri.presentation.view.fragment.TimeLineFragment
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
-import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.AutoDisposable
+import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
 import java.util.*
 
@@ -43,6 +47,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val showAccountRelative: RelativeLayout by lazy { navigation.getHeaderView(0).find<RelativeLayout>(R.id.show_account_relative) }
     private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
     private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
+    private val columnGroupWraper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
 
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
 
@@ -52,12 +57,22 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
             addAccountButton.isEnabled = value
         }
 
+    override val accounts: List<TwitterUser>
+        get() = mAccounts.toImmutableList()
+
+    private val mAccounts = ArrayList<TwitterUser>()
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         MainActivityUI().setContentView(this)
         initialize()
-        presenter.initialize()
-        v(javaClass.simpleName, "onCreate")
+        //todo 仮置き
+        columnGroupWraper.addView(ctx.frameLayout {
+            id = 1302
+            tag = "home"
+            lparams(matchParent, matchParent)
+        })
+        presenter.initialize(savedInstanceState)
     }
 
     private fun initialize() {
@@ -125,12 +140,19 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         val holder = AccountItemViewHolder(ctx, twitterUser, autoDisposable)
         accountItemViewHolderList.add(holder)
         accountsLinear.addView(holder.view)
+        mAccounts.add(twitterUser)
     }
 
     override fun updateAccount(user: TwitterUser) {
         val clientHolder = accountItemViewHolderList.find { it.twitterUser == user }
                 ?: throw IllegalArgumentException("nonexistent user was passed")
         clientHolder.update()
+    }
+
+    override fun setDisplay(display: TweetsDisplay) {
+        supportFragmentManager.beginTransaction()
+                .add(1302, TimeLineFragment.create(display), "home")
+                .commit()
     }
 
     class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser, val autoDisposable: AutoDisposable) {
@@ -197,8 +219,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
 interface MainActivityInterface : ActivityInterface {
     var addAccountButtonEnabled: Boolean
+    val accounts: List<TwitterUser>
     fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
+    //todo 仮置き
+    fun setDisplay(display: TweetsDisplay)
 }
 
 class OauthActivity : AppCompatActivity() {

@@ -6,6 +6,7 @@ import com.j256.ormlite.android.apptools.OpenHelperManager
 import com.j256.ormlite.android.apptools.OrmLiteSqliteOpenHelper
 import com.j256.ormlite.dao.Dao
 import com.j256.ormlite.misc.TransactionManager
+import com.j256.ormlite.stmt.Where
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
@@ -36,6 +37,11 @@ fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createOrUpdateAll(data: Colle
 
 fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.createIfNotExistsAll(data: Collection<E>) = data.forEach { createIfNotExists(it) }
 
+fun <E : Entity<ID>, ID : Serializable> Dao<E, ID>.delete(where: Where<E, ID>.() -> Unit) {
+    val deleteBuilder = deleteBuilder()
+    where(deleteBuilder.where())
+    deleteBuilder.delete()
+}
 
 interface Entity<out ID : Serializable> : Serializable {
     val id: ID
@@ -56,10 +62,10 @@ fun getHelper(context: Context = Numeri.application): DataBaseHelper = OpenHelpe
  *
  * @param handle handle
  */
-inline fun <R> transaction(crossinline handle: Transaction.() -> R) = dataBaseConnect { connectionSource, helper ->
+inline fun <R> transaction(crossinline handle: Transaction.() -> R) = connectDataBase { connectionSource, helper ->
     var throwable: Throwable? = null
     try {
-        return@dataBaseConnect TransactionManager.callInTransaction(connectionSource) {
+        return@connectDataBase TransactionManager.callInTransaction(connectionSource) {
             try {
                 handle(Transaction(helper))
             } catch (e: Throwable) {
@@ -81,7 +87,7 @@ inline fun <R> transaction(crossinline handle: Transaction.() -> R) = dataBaseCo
  * create tables
  * @param tables tables
  */
-fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connectionSource, helper ->
+fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
     tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
@@ -91,13 +97,15 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = dataBaseConnect { connec
  * drop table
  * @param table table
  */
-fun <E : Entity<ID>, ID : Serializable> clearTable(table: KClass<E>) = dataBaseConnect { connectionSource, helper ->
-    TableUtils.clearTable(connectionSource, table.java)
+fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
+    table.forEach {
+        TableUtils.clearTable(connectionSource, it.java)
+    }
 }
 
 val dataBaseConnectLock = ReentrantLock()
 
-inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R {
+inline fun <R> connectDataBase(func: (ConnectionSource, DataBaseHelper) -> R): R {
     d("database connect lock", "hold count = ${dataBaseConnectLock.holdCount}")
     return dataBaseConnectLock.withLock {
         val helper = DataBaseHelperFactory.create()
@@ -114,6 +122,7 @@ inline fun <R> dataBaseConnect(func: (ConnectionSource, DataBaseHelper) -> R): R
                     this.close()
                 } catch (e: SQLException) {
                     e.printStackTrace()
+                    throw e
                 }
             }
             OpenHelperManager.releaseHelper()

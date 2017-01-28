@@ -19,7 +19,7 @@ open class AppModule {
 }
 
 @Module
-open class TwitterAppModule() {
+open class TwitterAppModule {
 
     @Provides
     @Singleton
