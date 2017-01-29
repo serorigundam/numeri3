@@ -1,7 +1,0 @@
-<?xml version="1.0" encoding="utf-8"?>
-<resources>
-    <string name="twitter_api_key">hoge_api_key</string>
-    <string name="twitter_secret_key">hoge_secret_key</string>
-    <string name="twitter_callback_host">hoge_host</string>
-    <string name="twitter_callback_scheme">hoge_scheme</string>
-</resources>
