@@ -23,7 +23,9 @@ class SafePostDelegate {
 
     fun onResume() {
         pause = false
-        taskQueue.forEach { it() }
-        taskQueue.clear()
+        if (taskQueue.isNotEmpty()) {
+            taskQueue.forEach { it() }
+            taskQueue.clear()
+        }
     }
 }
