@@ -32,4 +32,6 @@
     <item name="menu_linear" type="id" />
     <item name="nested_scroll" type="id" />
     <item name="sub_info_icon" type="id" />
+    <item name="tab" type="id" />
+    <item name="pager" type="id" />
 </resources>

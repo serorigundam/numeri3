@@ -40,18 +40,16 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
                         activity.addAccount(it, this)
                     }
             //todo 仮置き
-            if (savedInstanceState == null) {
+            val client = pair.firstOrNull()?.first
+            if (client != null) {
+                if (tweetsDisplayService.getAllGroup().isEmpty()) {
+                    val group = tweetsDisplayService.createGroup()
+                    tweetsDisplayService.createDisplay(group, client, -1, TweetsDisplayType.HOME)
+                }
+                val group = tweetsDisplayService.getAllGroup().first()
                 safePost {
-                    val client = pair.firstOrNull()?.first
-                    if (client != null) {
-                        if (tweetsDisplayService.getAllGroup().isEmpty()) {
-                            val group = tweetsDisplayService.createGroup()
-                            tweetsDisplayService.createDisplay(group, client, -1, TweetsDisplayType.HOME)
-                        }
-                        val group = tweetsDisplayService.getAllGroup().first()
-                        val displays = tweetsDisplayService.getDisplays(group)
-                        activity.setDisplay(displays.first())
-                    }
+                    activity.addGroup(group)
+                    activity.showGroup(group)
                 }
             }
         }

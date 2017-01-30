@@ -1,7 +1,7 @@
 package net.ketc.numeri.presentation.view.fragment
 
-import android.app.Activity
 import android.support.v4.app.Fragment
+import android.support.v7.app.AppCompatActivity
 import net.ketc.numeri.presentation.presenter.fragment.FragmentPresenter
 
 abstract class ApplicationFragment<P : FragmentPresenter<FragmentInterface>> : Fragment() {
@@ -24,5 +24,5 @@ abstract class ApplicationFragment<P : FragmentPresenter<FragmentInterface>> : F
 }
 
 interface FragmentInterface {
-    val activity: Activity
+    val activity: AppCompatActivity
 }

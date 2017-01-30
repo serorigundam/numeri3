@@ -20,11 +20,11 @@ import android.widget.LinearLayout
 import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
-import net.ketc.numeri.domain.entity.TweetsDisplay
+import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
-import net.ketc.numeri.presentation.view.fragment.TimeLineFragment
+import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
@@ -47,7 +47,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val showAccountRelative: RelativeLayout by lazy { navigation.getHeaderView(0).find<RelativeLayout>(R.id.show_account_relative) }
     private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
     private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
-    private val columnGroupWraper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
+    private val columnGroupWrapper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
 
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
 
@@ -66,12 +66,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         super.onCreate(savedInstanceState)
         MainActivityUI().setContentView(this)
         initialize()
-        //todo 仮置き
-        columnGroupWraper.addView(ctx.frameLayout {
-            id = 1302
-            tag = "home"
-            lparams(matchParent, matchParent)
-        })
         presenter.initialize(savedInstanceState)
     }
 
@@ -136,6 +130,16 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         }
     }
 
+    fun addGroupView(id: Int) {
+        columnGroupWrapper.addView(ctx.frameLayout {
+            this.id = id
+            tag = id.toString()
+            visibility = View.GONE
+            lparams(matchParent, matchParent)
+        })
+    }
+
+
     override fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable) {
         val holder = AccountItemViewHolder(ctx, twitterUser, autoDisposable)
         accountItemViewHolderList.add(holder)
@@ -149,10 +153,21 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         clientHolder.update()
     }
 
-    override fun setDisplay(display: TweetsDisplay) {
+    override fun addGroup(group: TweetsDisplayGroup) {
+        addGroupView(group.id)
         supportFragmentManager.beginTransaction()
-                .add(1302, TimeLineFragment.create(display), "home")
+                .replace(group.id, TimeLinesFragment.create(group), group.id.toString())
                 .commit()
+    }
+
+    override fun showGroup(group: TweetsDisplayGroup) {
+        columnGroupWrapper.forEachChild {
+            if (it.id == group.id) {
+                it.visibility = View.VISIBLE
+            } else {
+                it.visibility = View.GONE
+            }
+        }
     }
 
     class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser, val autoDisposable: AutoDisposable) {
@@ -213,6 +228,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
+        val EXTRA_GROUP_IDS = "EXTRA_GROUP_IDS"
+        val EXTRA_SHOW_GROUP = "EXTRA_SHOW_GROUP"
     }
 }
 
@@ -222,8 +239,8 @@ interface MainActivityInterface : ActivityInterface {
     val accounts: List<TwitterUser>
     fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
-    //todo 仮置き
-    fun setDisplay(display: TweetsDisplay)
+    fun addGroup(group: TweetsDisplayGroup)
+    fun showGroup(group: TweetsDisplayGroup)
 }
 
 class OauthActivity : AppCompatActivity() {

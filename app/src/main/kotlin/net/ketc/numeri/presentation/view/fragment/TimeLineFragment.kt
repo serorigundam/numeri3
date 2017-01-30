@@ -1,9 +1,9 @@
 package net.ketc.numeri.presentation.view.fragment
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDialog
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -28,7 +28,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     override lateinit var presenter: TimeLinePresenter
     val dialogOwner = DialogOwner()
 
-    override val activity: Activity
+    override val activity: AppCompatActivity
         get() = this.parent
 
     override val display: TweetsDisplay by lazy {
@@ -59,6 +59,8 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             twitterAdapter.isReadMoreEnable = value
         }
 
+    override val displayName: String by lazy { arguments.getString(EXTRA_DISPLAY_NAME) }
+
     private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy {
         TwitterRecyclerAdapter(presenter, presenter) {
             TweetViewHolder(context, presenter) { presenter.onClickTweet(it) }
@@ -83,7 +85,6 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         swipeRefresh.setOnRefreshListener { presenter.update() }
         presenter.initialize()
     }
-
 
     private fun createTimeLinePresenter(timeLineDisplay: TweetsDisplay): TimeLinePresenter {
         return when (timeLineDisplay.type) {
@@ -119,10 +120,12 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
+        val EXTRA_DISPLAY_NAME = "EXTRA_DISPLAY_NAME"
 
-        fun create(display: TweetsDisplay) = TimeLineFragment().apply {
+        fun create(display: TweetsDisplay, name: String) = TimeLineFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(EXTRA_DISPLAY, display)
+                putString(EXTRA_DISPLAY_NAME, name)
             }
         }
 
@@ -150,6 +153,7 @@ interface TimeLineFragmentInterface : FragmentInterface {
     var isRefreshing: Boolean
     var isRefreshable: Boolean
     var isReadMorEnabled: Boolean
+    val displayName: String
     fun addAll(tweets: List<Tweet>)
     fun insertAllToTop(tweets: List<Tweet>)
     fun remove(tweet: Tweet)
