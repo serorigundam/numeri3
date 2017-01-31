@@ -1,6 +1,7 @@
 package net.ketc.numeri.domain.service
 
 import net.ketc.numeri.domain.entity.*
+import net.ketc.numeri.util.copy
 import net.ketc.numeri.util.ormlite.Transaction
 import net.ketc.numeri.util.ormlite.delete
 import net.ketc.numeri.util.ormlite.transaction
@@ -11,7 +12,7 @@ interface TweetsDisplayService {
 
     fun createGroup(): TweetsDisplayGroup
 
-    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType)
+    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): TweetsDisplay
 
     fun removeGroup(group: TweetsDisplayGroup)
 
@@ -50,13 +51,14 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         return@transaction group
     }
 
-    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): Unit = transaction {
+    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): TweetsDisplay = transaction {
         checkExistence(group)
         val display = createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type)
         val dao = dao(TweetsDisplay::class)
         display.order = dao.count { it.group.id == group.id }
         displaysMap[group]!!.add(display)
         dao.create(display)
+        display
     }
 
     override fun removeGroup(group: TweetsDisplayGroup): Unit = transaction {
@@ -86,7 +88,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     }
 
     override fun getDisplays(group: TweetsDisplayGroup): List<TweetsDisplay> {
-        return displaysMap[group]?.toImmutableList() ?: throw GroupDoesNotExistWasSpecifiedException()
+        return displaysMap[group]?.copy() ?: throw GroupDoesNotExistWasSpecifiedException()
     }
 
     override fun replace(to: TweetsDisplay, by: TweetsDisplay): Unit = transaction {
@@ -98,6 +100,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         val displays = displaysMap[to.group] ?: throw GroupDoesNotExistWasSpecifiedException()
         displays.first { it.id == to.id }.order = to.order
         displays.first { it.id == by.id }.order = by.order
+        displays.sortBy { it.order }
         val dao = dao(TweetsDisplay::class)
         dao.update(to)
         dao.update(by)

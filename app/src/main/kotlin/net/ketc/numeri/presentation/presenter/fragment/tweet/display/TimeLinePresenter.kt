@@ -9,7 +9,10 @@ import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.fragment.AutoDisposableFragmentPresenter
 import net.ketc.numeri.presentation.view.component.ReadableMore
 import net.ketc.numeri.presentation.view.component.TweetOperatorDialogFactory
+import net.ketc.numeri.presentation.view.component.TweetViewHolder
+import net.ketc.numeri.presentation.view.component.TwitterRecyclerAdapter
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragmentInterface
+import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
 import twitter4j.Paging
@@ -36,11 +39,9 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
     override fun initialize() {
         singleTask(MySchedulers.twitter) {
             oAuthService.clients()
-        } error {
-            it.printStackTrace()
-            fragment.activity.toast("error")
         } success {
             mClient = it.first { it.id == fragment.display.token.id }
+            fragment.setClient(client)
             client.stream.onDeletionNoticeFlowable.subscribe {
                 fragment.remove(it.statusId)
             }.autoDispose()

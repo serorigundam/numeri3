@@ -4,7 +4,7 @@ import android.content.Intent
 import android.net.Uri
 import android.os.Bundle
 import net.ketc.numeri.R
-import net.ketc.numeri.domain.entity.TweetsDisplayType
+import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.cache.TwitterUserCache
 import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
@@ -12,9 +12,13 @@ import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.activity.MainActivityInterface
+import net.ketc.numeri.presentation.view.activity.TweetsDisplayGroupManageActivity
+import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.rx.twitterThread
+import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
+import java.util.*
 import javax.inject.Inject
 
 class MainPresenter(override val activity: MainActivityInterface) : AutoDisposablePresenter<MainActivityInterface>() {
@@ -23,6 +27,8 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
     lateinit var oAuthService: OAuthService
     @Inject
     lateinit var tweetsDisplayService: TweetsDisplayService
+
+    private val groups = ArrayList<TweetsDisplayGroup>()
 
     init {
         inject()
@@ -42,18 +48,51 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             //todo 仮置き
             val client = pair.firstOrNull()?.first
             if (client != null) {
-                if (tweetsDisplayService.getAllGroup().isEmpty()) {
-                    val group = tweetsDisplayService.createGroup()
-                    tweetsDisplayService.createDisplay(group, client, -1, TweetsDisplayType.HOME)
-                }
-                val group = tweetsDisplayService.getAllGroup().first()
+                val groups = tweetsDisplayService.getAllGroup()
+                this.groups.addAll(groups)
                 safePost {
-                    activity.addGroup(group)
-                    activity.showGroup(group)
+                    groups.forEach {
+                        activity.addGroup(it)
+                    }
+                    groups.firstOrNull()?.let { activity.showGroup(it) }
                 }
             }
         }
         startAccountsObserve()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        val newGroups = tweetsDisplayService.getAllGroup()
+        var isChange = newGroups.size != groups.size
+
+        if (!isChange) {
+            newGroups.forEachIndexed { i, group ->
+                if (i > groups.lastIndex || groups[i].id != group.id) {
+                    isChange = true
+                    return@forEachIndexed
+                }
+            }
+        }
+        if (isChange) {
+            val added = newGroups.filter { g ->
+                !groups.any { g.id == it.id }
+            }
+            val removed = groups.filter { g ->
+                !newGroups.any { g.id == it.id }
+            }
+
+            added.forEach {
+                activity.addGroup(it)
+            }
+            removed.forEach {
+                activity.removeGroup(it)
+            }
+            v("MainActivity", "addedGroups:${added.joinToString { "$it" }}")
+            v("MainActivity", "removedGroups:${removed.joinToString { "$it" }}")
+        }
+        groups.clear()
+        groups.addAll(newGroups)
     }
 
     fun startAccountsObserve() {
@@ -100,5 +139,9 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         }.success {
             activity.addAccount(it, this)
         }
+    }
+
+    fun startTweetsDisplayGroupManageActivity() {
+        ctx.startActivity<TweetsDisplayGroupManageActivity>()
     }
 }

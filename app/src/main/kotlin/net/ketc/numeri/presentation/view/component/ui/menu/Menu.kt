@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component.ui.tweet.menu
+package net.ketc.numeri.presentation.view.component.ui.menu
 
 import android.content.Context
 import android.support.annotation.DrawableRes
@@ -9,15 +9,12 @@ import android.view.Gravity
 import android.view.View
 import android.view.ViewGroup
 import android.widget.ImageView
-import android.widget.LinearLayout
 import android.widget.TextView
 import net.ketc.numeri.R
-import net.ketc.numeri.presentation.view.component.ui.UI
 import net.ketc.numeri.util.android.getResourceId
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.nestedScrollView
 
-fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, text: String, onClick: (View) -> Unit) = item(ctx, onClick) {
+fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, text: String, onClick: (View) -> Unit = {}) = item(ctx, onClick) {
     imageView {
         id = R.id.icon_image
         backgroundColor = ctx.getColor(R.color.transparent)
@@ -28,11 +25,11 @@ fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, text: String, onC
     }
 }
 
-fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, @StringRes textId: Int, onClick: (View) -> Unit): View {
+fun createIconMenu(ctx: Context, @DrawableRes drawableId: Int, @StringRes textId: Int, onClick: (View) -> Unit = {}): View {
     return createIconMenu(ctx, drawableId, ctx.getString(textId), onClick)
 }
 
-fun createTextMenu(ctx: Context, menuText: String, text: String, onClick: (View) -> Unit) = item(ctx, onClick) {
+fun createTextMenu(ctx: Context, menuText: String, text: String, onClick: (View) -> Unit = {}) = item(ctx, onClick) {
     textView {
         id = R.id.text
         backgroundColor = ctx.getColor(R.color.transparent)
@@ -45,7 +42,7 @@ fun createTextMenu(ctx: Context, menuText: String, text: String, onClick: (View)
     }
 }
 
-fun createTextMenu(ctx: Context, menuText: String, @StringRes textId: Int, onClick: (View) -> Unit): View {
+fun createTextMenu(ctx: Context, menuText: String, @StringRes textId: Int, onClick: (View) -> Unit = {}): View {
     return createTextMenu(ctx, menuText, ctx.getString(textId), onClick)
 }
 
@@ -57,7 +54,6 @@ private fun item(ctx: Context, onClick: (View) -> Unit, init: _RelativeLayout.()
         padding = dimen(R.dimen.margin_medium)
         gravity = Gravity.CENTER
     }
-
 }
 
 val View.iconImage: ImageView
@@ -75,34 +71,6 @@ private fun _RelativeLayout.menuText(rightOf: Int, init: TextView.() -> Unit) = 
 }.lparams(matchParent, wrapContent) {
     marginStart = dip(40)
     rightOf(rightOf)
-}
-
-class TweetOperationDialogUI(override val ctx: Context) : UI {
-    override fun createView() = ctx.relativeLayout {
-        backgroundColor = ctx.getColor(R.color.colorPrimaryDark)
-
-        lparams(matchParent, wrapContent)
-
-        textView {
-            id = R.id.tweet_text
-            maxLines = 2
-            ellipsize = TextUtils.TruncateAt.END
-            textSizeDimen = R.dimen.text_size_small
-        }.lparams(matchParent, wrapContent) {
-            margin = dimen(R.dimen.margin_medium)
-        }
-
-        nestedScrollView {
-            id = R.id.nested_scroll
-            linearLayout {
-                id = R.id.menu_linear
-                orientation = LinearLayout.VERTICAL
-                lparams(matchParent, wrapContent)
-            }
-        }.lparams(matchParent, wrapContent) {
-            below(R.id.tweet_text)
-        }
-    }
 }
 
 fun BottomSheetDialog.addTweetMenu(view: View) {

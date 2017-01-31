@@ -32,10 +32,12 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
 
     override fun getItem(position: Int): Fragment = fragments[position]
 
-    override fun getCount(): Int = fragments.size
+    override fun getCount(): Int = fragments.count()
 
     override fun getPageTitle(position: Int): CharSequence
             = (fragments[position] as TimeLineFragmentInterface).displayName
+
+    private var initialized = false
 
     fun initialize() {
         autoDisposable.singleTask(MySchedulers.twitter) {
@@ -44,8 +46,9 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
 
         } success {
             fragments.addAll(it)
-            previousFragmentIds.addAll(fragments.map { it.id })
+            previousFragmentIds.addAll(fragments.map { (it as TimeLineFragment).display.id })
             notifyDataSetChanged()
+            initialized = true
         }
     }
 
@@ -60,7 +63,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
                     val fragment = fm.getFragment(bundle, it)
                     fragment?.let {
                         fragments.add(index, it)
-                        previousFragmentIds.add(it.id)
+                        previousFragmentIds.add((it as TimeLineFragment).display.id)
                     }
                     notifyDataSetChanged()
                 }
@@ -69,14 +72,11 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
     }
 
     override fun getItemPosition(`object`: Any?): Int {
-        if (`object` == null)
-            throw IllegalArgumentException("do not accept null")
         val unchanged = previousFragmentIds
                 .any {
-                    it == (`object` as Fragment).id &&
+                    it == (`object` as TimeLineFragment).display.id &&
                             previousFragmentIds.indexOf(it) == fragments.indexOf(`object`)
                 }
-
         return if (unchanged) {
             POSITION_UNCHANGED
         } else {
@@ -85,34 +85,37 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
     }
 
     fun onResume() {
+        if (!initialized)
+            return
         autoDisposable.singleTask(MySchedulers.twitter) {
-            oAuthService.clients()
-            var isChange = false
             val displays = tweetsDisplayService.getDisplays(group)
-            displays.forEachIndexed { i, display ->
-                if (i > fragments.lastIndex || (fragments[i] as TimeLineFragment).display.id != display.id) {
-                    isChange = true
-                    return@forEachIndexed
+            var isChange = fragments.size != displays.size
+            if (!isChange) {
+                displays.forEachIndexed { i, display ->
+                    if (i > fragments.lastIndex || (fragments[i] as TimeLineFragment).display.id != display.id) {
+                        isChange = true
+                        return@forEachIndexed
+                    }
                 }
             }
-            if (fragments.size != displays.size || isChange) {
+            if (isChange) {
+                val fragments = displays.mapIndexed { i, display ->
+                    (fragments.mapIndexed { i, fragment -> i to fragment as TimeLineFragment }
+                            .firstOrNull { pair ->
+                                pair.first == i && display.id == pair.second.display.id
+                            }?.second ?: createFragment(display))
+                }
+                true to fragments
+            } else {
+                false to emptyList()
+            }
+        } error Throwable::printStackTrace success {
+            if (it.first) {
                 fragments.clear()
-                displays.asSequence().map { display ->
-                    fragments.firstOrNull { (it as TimeLineFragment).display.id == display.id }
-                            ?: createFragment(display)
-                }
-            } else {
-                null
-            }
-        } error {
-            it.printStackTrace()
-        } success {
-            if (it != null) {
-                previousFragmentIds.clear()
-                previousFragmentIds.addAll(fragments.map { it.id })
-                fragments.addAll(it)
+                this.fragments.addAll(it.second)
                 notifyDataSetChanged()
-            } else {
+                previousFragmentIds.clear()
+                previousFragmentIds.addAll(fragments.map { (it as TimeLineFragment).display.id })
             }
         }
     }
@@ -130,7 +133,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
         return when (display.type) {
             TweetsDisplayType.HOME -> TimeLineFragment.create(display, "Home:${display.getUser().screenName}")
             TweetsDisplayType.MENTIONS -> TimeLineFragment.create(display, "Mentions:${display.getUser().screenName}")
-            TweetsDisplayType.USER_LIST -> TimeLineFragment.create(display, "List${display.getUserList().name}")
+            TweetsDisplayType.USER_LIST -> TimeLineFragment.create(display, "List")
             TweetsDisplayType.PUBLIC -> TimeLineFragment.create(display, "User:${display.showUser().screenName}")
         }
     }

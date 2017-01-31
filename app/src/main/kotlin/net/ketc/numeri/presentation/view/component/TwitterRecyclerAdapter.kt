@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.Cacheable
+import net.ketc.numeri.domain.model.isMention
+import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.presentation.view.component.ui.menu.iconImage
 import net.ketc.numeri.presentation.view.component.ui.tweet.*
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
@@ -19,6 +22,7 @@ import java.util.*
 
 class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: ReadableMore<MutableList<T>>,
                                                   private val autoDisposable: AutoDisposable,
+                                                  private val onClick: (T) -> Unit,
                                                   private val create: () -> TwitterViewHolder<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val itemList = ArrayList<T>()
@@ -51,7 +55,10 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
         //ダサい…
         if (itemList.lastIndex >= position)
             when (holder) {
-                is TweetViewHolder -> holder.bind(itemList[position] as Tweet)
+                is TweetViewHolder -> {
+                    holder.bind(itemList[position] as Tweet)
+                    holder.itemView.setOnClickListener { onClick(itemList[position]) }
+                }
                 else -> throw InternalError()
             }
     }
@@ -104,7 +111,7 @@ abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View) : RecyclerV
 
 class TweetViewHolder(ctx: Context,
                       override val autoDisposable: AutoDisposable,
-                      private val onClick: (Tweet) -> Unit) :
+                      private val client: TwitterClient) :
         TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView()),
         AutoDisposable by autoDisposable {
 
@@ -115,7 +122,6 @@ class TweetViewHolder(ctx: Context,
 
     override fun bind(cacheable: Tweet) {
         itemView.bind(cacheable)
-        itemView.setOnClickListener { onClick(cacheable) }
     }
 
     private fun View.bind(tweet: Tweet) {
@@ -161,7 +167,7 @@ class TweetViewHolder(ctx: Context,
     }
 
     private fun View.setColor(tweet: Tweet) {
-        if (tweet.isMention) {
+        if (tweet.isMention(client)) {
             overlayRelative.backgroundColor = Color.parseColor("#60f46e42")
         } else if (tweet.retweetedTweet != null) {
             overlayRelative.backgroundColor = Color.parseColor("#6042dff4")

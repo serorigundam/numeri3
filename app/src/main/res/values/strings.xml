@@ -9,4 +9,5 @@
     <string name="create_favorite">お気に入りに登録</string>
     <string name="destroy_retweet">RTを解除</string>
     <string name="create_retweet">RTを行う</string>
+    <string name="column_manage">カラム管理</string>
 </resources>

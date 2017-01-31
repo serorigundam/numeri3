@@ -3,6 +3,7 @@ package net.ketc.numeri.presentation.view.fragment
 import android.content.Context
 import android.os.Bundle
 import android.support.design.widget.TabLayout
+import android.support.v4.app.FragmentManager
 import android.support.v4.view.ViewPager
 import android.support.v7.app.AppCompatActivity
 import android.view.LayoutInflater
@@ -22,12 +23,15 @@ import org.jetbrains.anko.support.v4.find
 import org.jetbrains.anko.support.v4.viewPager
 
 class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFragmentInterface {
-    override var presenter: TimeLinesPresenter = TimeLinesPresenter(this)
+    override val presenter: TimeLinesPresenter = TimeLinesPresenter(this)
 
     override val activity: AppCompatActivity
         get() = this.parent
 
     override val group: TweetsDisplayGroup by lazy { arguments.getSerializable(EXTRA_GROUP) as TweetsDisplayGroup }
+
+    override val fm: FragmentManager
+        get() = childFragmentManager
 
     private var savedInstanceState: Bundle? = null
 
@@ -52,6 +56,7 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
     }
 
     override fun setAdapter(adapter: TweetsDisplayPagerAdapter) {
+        this.adapter = adapter
         viewPager.adapter = adapter
         if (savedInstanceState == null) {
             adapter.initialize()
@@ -88,5 +93,6 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
 
 interface TimeLinesFragmentInterface : FragmentInterface {
     val group: TweetsDisplayGroup
+    val fm: FragmentManager
     fun setAdapter(adapter: TweetsDisplayPagerAdapter)
 }

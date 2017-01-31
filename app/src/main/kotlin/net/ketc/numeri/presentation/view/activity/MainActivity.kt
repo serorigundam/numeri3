@@ -32,11 +32,11 @@ import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
 import java.util.*
 
-class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface {
+class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface, NavigationView.OnNavigationItemSelectedListener {
     override val ctx: Context
         get() = this
 
-    override var presenter: MainPresenter = MainPresenter(this)
+    override val presenter: MainPresenter = MainPresenter(this)
 
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
     private val drawer: DrawerLayout by lazy { find<DrawerLayout>(R.id.drawer) }
@@ -44,11 +44,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val headerIconImage: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.icon_image) }
     private val showAccountIndicator: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.show_account_indicator) }
     private val navigationContent: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation_content) }
+    private val navigationView: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
     private val showAccountRelative: RelativeLayout by lazy { navigation.getHeaderView(0).find<RelativeLayout>(R.id.show_account_relative) }
     private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
     private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
     private val columnGroupWrapper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
-
+    private var showingGroupId = -1
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
 
     override var addAccountButtonEnabled: Boolean
@@ -74,6 +75,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
+        navigationView.setNavigationItemSelectedListener(this)
         showAccountRelative.setOnClickListener {
             toggleNavigationState()
         }
@@ -87,10 +89,18 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         presenter.onNewIntent(oauthIntent)
     }
 
-    override fun onOptionsItemSelected(item: MenuItem?): Boolean {
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
         if (drawerToggle.onOptionsItemSelected(item))
             return true
         return super.onOptionsItemSelected(item)
+    }
+
+    override fun onNavigationItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.column_manage -> presenter.startTweetsDisplayGroupManageActivity()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
     }
 
     override fun onKeyDown(keyCode: Int, event: KeyEvent?): Boolean {
@@ -116,7 +126,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         super.onConfigurationChanged(newConfig)
         drawerToggle.onConfigurationChanged(newConfig)
     }
-
 
     private fun toggleNavigationState() {
         if (navigationContent.visibility == View.GONE) {
@@ -160,7 +169,28 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
                 .commit()
     }
 
+    override fun removeGroup(group: TweetsDisplayGroup) {
+        val removed = (0..columnGroupWrapper.childCount)
+                .map { columnGroupWrapper.getChildAt(it) }
+                .find { it.id == group.id } ?: throw InternalError()
+        val removedFragment = supportFragmentManager.fragments
+                .filter { it is TimeLinesFragment }
+                .map { it as TimeLinesFragment }
+                .find { it.group.id == group.id }
+        supportFragmentManager.beginTransaction()
+                .remove(removedFragment)
+                .commit()
+        columnGroupWrapper.removeView(removed)
+        if (removed.id == showingGroupId) {
+            columnGroupWrapper.getChildAt(0)?.let {
+                it.visibility = View.VISIBLE
+                showingGroupId = it.id
+            }
+        }
+    }
+
     override fun showGroup(group: TweetsDisplayGroup) {
+        showingGroupId = group.id
         columnGroupWrapper.forEachChild {
             if (it.id == group.id) {
                 it.visibility = View.VISIBLE
@@ -228,8 +258,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
-        val EXTRA_GROUP_IDS = "EXTRA_GROUP_IDS"
-        val EXTRA_SHOW_GROUP = "EXTRA_SHOW_GROUP"
     }
 }
 
@@ -240,6 +268,7 @@ interface MainActivityInterface : ActivityInterface {
     fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
     fun addGroup(group: TweetsDisplayGroup)
+    fun removeGroup(group: TweetsDisplayGroup)
     fun showGroup(group: TweetsDisplayGroup)
 }
 

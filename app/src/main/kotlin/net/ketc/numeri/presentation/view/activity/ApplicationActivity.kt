@@ -8,11 +8,11 @@ import net.ketc.numeri.presentation.presenter.activity.Presenter
 /**
  * @param P is bound [Presenter]
  */
-abstract class ApplicationActivity<P : Presenter<ActivityInterface>> : AppCompatActivity() {
+abstract class ApplicationActivity<out P : Presenter<ActivityInterface>> : AppCompatActivity() {
     /**
      * this is bound activity-life-cycle
      */
-    internal abstract var presenter: P
+    protected abstract val presenter: P
 
     override fun onPause() {
         super.onPause()

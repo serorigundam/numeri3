@@ -4,8 +4,8 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import net.ketc.numeri.presentation.presenter.fragment.FragmentPresenter
 
-abstract class ApplicationFragment<P : FragmentPresenter<FragmentInterface>> : Fragment() {
-    internal abstract var presenter: P
+abstract class ApplicationFragment<out P : FragmentPresenter<FragmentInterface>> : Fragment() {
+    protected abstract val presenter: P
 
     override fun onPause() {
         super.onPause()

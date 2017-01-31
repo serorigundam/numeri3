@@ -2,9 +2,9 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/main_menu">
         <item
-            android:id="@+id/action"
+            android:id="@+id/column_manage"
             android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
+            android:title="@string/column_manage" />
 
         <item
             android:id="@+id/action1"

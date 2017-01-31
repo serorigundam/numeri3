@@ -26,21 +26,14 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 appBarLayout {
                     toolbar {
                         id = R.id.toolbar
-                    }.lparams {
-                        height = wrapContent
-                        width = matchParent
+                    }.lparams(matchParent, wrapContent) {
                         scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or
                                 AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
                     }
-                }.lparams {
-                    height = wrapContent
-                    width = matchParent
-                }
+                }.lparams(matchParent, wrapContent)
                 coordinatorLayout {
                     id = R.id.column_group_wrapper_coordinator
-                }.lparams {
-                    height = matchParent
-                    width = matchParent
+                }.lparams(matchParent, matchParent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
                 }
             }

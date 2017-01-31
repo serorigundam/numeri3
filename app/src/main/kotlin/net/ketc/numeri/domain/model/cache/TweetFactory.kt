@@ -80,7 +80,6 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
         override val urlEntities: List<UrlEntity> = status.urlEntities.map(::UrlEntity).toImmutableList()
         override val mediaEntities: List<MediaEntity> = status.extendedMediaEntities.map(::MediaEntity).toImmutableList()
         override val userMentionEntities: List<UserMentionEntity> = status.userMentionEntities.map(::UserMentionEntity).toImmutableList()
-        override val isMention: Boolean = userMentionEntities.any { it.id == user.id } && retweetedTweet == null
 
         var mFavoriteCount: Int = status.favoriteCount
         var mRetweetCount: Int = status.retweetCount

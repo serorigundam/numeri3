@@ -10,7 +10,8 @@ import net.ketc.numeri.domain.model.cache.isFavorite
 import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperatorDialogPresenter
-import net.ketc.numeri.presentation.view.component.ui.tweet.menu.*
+import net.ketc.numeri.presentation.view.component.ui.menu.*
+import net.ketc.numeri.presentation.view.component.ui.tweet.TweetOperationDialogUI
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 
