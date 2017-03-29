@@ -3,9 +3,7 @@ package net.ketc.numeri.presentation.view.activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
-import android.support.v4.widget.NestedScrollView
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.RecyclerView
 import android.support.v7.widget.Toolbar
@@ -56,7 +54,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
         displaysRecycler.defaultInit()
         presenter.initialize(savedInstanceState)
         SimpleItemTouchHelper(moveEnable = true, swipeEnable = true,
-                onMove = { rv, vh, target ->
+                onMove = { _, vh, target ->
                     val by = vh.adapterPosition
                     val to = target.adapterPosition
                     val lastIndex = adapter.displayItemCount
@@ -65,7 +63,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
                     }
                     true
                 },
-                onSwiped = { vh, direction ->
+                onSwiped = { vh, _ ->
                     val position = vh.adapterPosition
                     if (adapter.displayItemCount > position)
                         presenter.removeDisplay(adapter.get(position))
@@ -79,7 +77,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
                 if (drawer.isDrawerOpen(navigation)) {
                     drawer.closeDrawer(navigation)
                 } else {
-                    moveTaskToBack(true)
+                    return super.onKeyDown(keyCode, event)
                 }
             }
             else -> return super.onKeyDown(keyCode, event)

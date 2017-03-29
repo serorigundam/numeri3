@@ -87,7 +87,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
             return
         }
 
-        val createdDisplay = displayService.createDisplay(activity.group, client, display.foreignId, display.type)
+        val createdDisplay = displayService.createDisplay(activity.group, client, display.foreignId, display.type, text)
         activity.closeNavigation()
         activity.add(createdDisplay to text)
     }

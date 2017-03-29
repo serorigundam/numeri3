@@ -1,10 +1,10 @@
 buildscript {
-    ext.anko_version = '0.9'
+    ext.anko_version = '0.9.1'
     ext.junit_platform_ver = '1.0.0-M2'
     ext.spek_version = '1.0.89'
     ext.t4j_version = '4.0.5'
     ext.dagger_version = '2.8'
-    ext.support_lib_ver = '25.1.1'
+    ext.support_lib_ver = '25.3.1'
     repositories {
         jcenter()
         dependencies {

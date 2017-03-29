@@ -49,7 +49,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
     private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
     private val columnGroupWrapper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
-    private var showingGroupId = -1
+    override var showingGroupId = -1
+        private set
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
 
     override var addAccountButtonEnabled: Boolean
@@ -190,9 +191,9 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     }
 
     override fun showGroup(group: TweetsDisplayGroup) {
-        showingGroupId = group.id
         columnGroupWrapper.forEachChild {
             if (it.id == group.id) {
+                showingGroupId = group.id
                 it.visibility = View.VISIBLE
             } else {
                 it.visibility = View.GONE
@@ -265,6 +266,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 interface MainActivityInterface : ActivityInterface {
     var addAccountButtonEnabled: Boolean
     val accounts: List<TwitterUser>
+    val showingGroupId: Int
     fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable)
     fun updateAccount(user: TwitterUser)
     fun addGroup(group: TweetsDisplayGroup)

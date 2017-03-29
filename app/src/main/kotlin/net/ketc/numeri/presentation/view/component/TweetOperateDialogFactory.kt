@@ -9,7 +9,7 @@ import net.ketc.numeri.domain.model.UrlEntity
 import net.ketc.numeri.domain.model.cache.isFavorite
 import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
-import net.ketc.numeri.presentation.presenter.component.TweetOperatorDialogPresenter
+import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
 import net.ketc.numeri.presentation.view.component.ui.menu.*
 import net.ketc.numeri.presentation.view.component.ui.tweet.TweetOperationDialogUI
 import net.ketc.numeri.util.rx.AutoDisposable
@@ -51,7 +51,7 @@ class TweetMenuItems(private val ctx: Context,
                      override val client: TwitterClient,
                      autoDisposable: AutoDisposable,
                      error: (Throwable) -> Unit) : TweetMenuItemsInterface {
-    private val presenter = TweetOperatorDialogPresenter(ctx, autoDisposable, this, error)
+    private val presenter = TweetOperateDialogPresenter(ctx, autoDisposable, this, error)
     override var isFavorite: Boolean
         get() = client.isFavorite(tweet)
         set(value) {

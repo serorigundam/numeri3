@@ -20,7 +20,7 @@ class TimeLinesPresenter(override val fragment: TimeLinesFragmentInterface) : Au
     override fun initialize() {
         super.initialize()
         val adapter = TweetsDisplayPagerAdapter(fragment.fm,
-                fragment.group, this, oAuthService, displayService)
+                fragment.group, this, displayService)
         fragment.setAdapter(adapter)
     }
 }

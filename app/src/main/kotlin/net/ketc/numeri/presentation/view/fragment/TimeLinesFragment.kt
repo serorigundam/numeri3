@@ -78,9 +78,11 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
             lparams(matchParent, matchParent)
             tabLayout {
                 id = R.id.tab
-                elevation = dip(4).toFloat()
+                elevation = 5.toFloat()
                 tabMode = TabLayout.MODE_SCROLLABLE
             }.lparams(matchParent, dip(32))
+
+
             viewPager {
                 id = R.id.pager
                 offscreenPageLimit = 10

@@ -43,8 +43,7 @@
         <activity
             android:name=".presentation.view.activity.TweetsDisplayGroupManageActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
-            android:label="@string/column_manage"
-            android:launchMode="singleInstance">
+            android:label="@string/column_manage">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
@@ -53,8 +52,7 @@
         <activity
             android:name=".presentation.view.activity.TweetsDisplayManageActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
-            android:label="@string/column_manage"
-            android:launchMode="singleInstance">
+            android:label="@string/column_manage">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

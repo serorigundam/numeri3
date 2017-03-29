@@ -60,7 +60,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             twitterAdapter.isReadMoreEnable = value
         }
 
-    override val displayName: String by lazy { arguments.getString(EXTRA_DISPLAY_NAME) }
+    override val displayName: String by lazy { display.name }
 
     private var mTwitterAdapter: TwitterRecyclerAdapter<Tweet>? = null
     private val twitterAdapter: TwitterRecyclerAdapter<Tweet>
@@ -129,12 +129,10 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
-        val EXTRA_DISPLAY_NAME = "EXTRA_DISPLAY_NAME"
 
-        fun create(display: TweetsDisplay, name: String) = TimeLineFragment().apply {
+        fun create(display: TweetsDisplay) = TimeLineFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(EXTRA_DISPLAY, display)
-                putString(EXTRA_DISPLAY_NAME, name)
             }
         }
 

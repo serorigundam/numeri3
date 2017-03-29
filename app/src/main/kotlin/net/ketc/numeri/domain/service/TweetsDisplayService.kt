@@ -12,7 +12,7 @@ interface TweetsDisplayService {
 
     fun createGroup(): TweetsDisplayGroup
 
-    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): TweetsDisplay
+    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType, name: String): TweetsDisplay
 
     fun removeGroup(group: TweetsDisplayGroup)
 
@@ -51,9 +51,9 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         return@transaction group
     }
 
-    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): TweetsDisplay = transaction {
+    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType, name: String): TweetsDisplay = transaction {
         checkExistence(group)
-        val display = createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type)
+        val display = createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type, name)
         val dao = dao(TweetsDisplay::class)
         display.order = dao.count { it.group.id == group.id }
         displaysMap[group]!!.add(display)

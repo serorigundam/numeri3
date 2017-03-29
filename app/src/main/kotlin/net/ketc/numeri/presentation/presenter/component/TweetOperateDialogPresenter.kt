@@ -11,9 +11,9 @@ import net.ketc.numeri.presentation.view.component.TweetMenuItemsInterface
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 
-class TweetOperatorDialogPresenter(private val ctx: Context, autoDisposable: AutoDisposable,
-                                   private val tweetMenuDialog: TweetMenuItemsInterface,
-                                   private val error: (Throwable) -> Unit) : AutoDisposable by autoDisposable {
+class TweetOperateDialogPresenter(private val ctx: Context, autoDisposable: AutoDisposable,
+                                  private val tweetMenuDialog: TweetMenuItemsInterface,
+                                  private val error: (Throwable) -> Unit) : AutoDisposable by autoDisposable {
     private val tweet: Tweet = tweetMenuDialog.tweet
     private val client: TwitterClient = tweetMenuDialog.client
 

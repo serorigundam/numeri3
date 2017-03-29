@@ -67,19 +67,19 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         var isChange = newGroups.size != groups.size
 
         if (!isChange) {
-            newGroups.forEachIndexed { i, group ->
-                if (i > groups.lastIndex || groups[i].id != group.id) {
+            newGroups.forEachIndexed { i, (id) ->
+                if (i > groups.lastIndex || groups[i].id != id) {
                     isChange = true
                     return@forEachIndexed
                 }
             }
         }
         if (isChange) {
-            val added = newGroups.filter { g ->
-                !groups.any { g.id == it.id }
+            val added = newGroups.filter { (id) ->
+                !groups.any { id == it.id }
             }
-            val removed = groups.filter { g ->
-                !newGroups.any { g.id == it.id }
+            val removed = groups.filter { (id) ->
+                !newGroups.any { id == it.id }
             }
 
             added.forEach {
@@ -90,9 +90,12 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             }
             v("MainActivity", "addedGroups:${added.joinToString { "$it" }}")
             v("MainActivity", "removedGroups:${removed.joinToString { "$it" }}")
+            groups.clear()
+            groups.addAll(newGroups)
+            if (groups.singleOrNull { (id) -> activity.showingGroupId == id } == null) {
+                if (groups.isNotEmpty()) activity.showGroup(groups.single())
+            }
         }
-        groups.clear()
-        groups.addAll(newGroups)
     }
 
     fun startAccountsObserve() {

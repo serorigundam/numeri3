@@ -80,10 +80,11 @@ class TweetsDisplayServiceTest {
         assertEquals(client1.id, displays[0].token.id)
         assertEquals(TweetsDisplayType.HOME, displays[0].type)
         tweetsDisplayService.createDisplay(group, client2, -1L, TweetsDisplayType.MENTIONS)
-        assertEquals(2, displays.size)
-        assertEquals(1, displays[1].order)
-        assertEquals(client2.id, displays[1].token.id)
-        assertEquals(TweetsDisplayType.MENTIONS, displays[1].type)
+        val displays2 = tweetsDisplayService.getDisplays(group)
+        assertEquals(2, displays2.size)
+        assertEquals(1, displays2[1].order)
+        assertEquals(client2.id, displays2[1].token.id)
+        assertEquals(TweetsDisplayType.MENTIONS, displays2[1].type)
     }
 
     @Test
