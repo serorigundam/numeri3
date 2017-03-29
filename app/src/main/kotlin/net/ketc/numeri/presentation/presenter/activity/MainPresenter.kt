@@ -29,6 +29,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
     lateinit var tweetsDisplayService: TweetsDisplayService
 
     private val groups = ArrayList<TweetsDisplayGroup>()
+    private var initialized = false
 
     init {
         inject()
@@ -40,12 +41,12 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             oAuthService.clients().map { it.withUser() }
         }.error {
             ctx.toast(ctx.getString(R.string.authentication_failure))
+            initialized = true
         }.success { pair ->
             pair.map { it.second }
                     .forEach {
                         activity.addAccount(it, this)
                     }
-            //todo 仮置き
             val client = pair.firstOrNull()?.first
             if (client != null) {
                 val groups = tweetsDisplayService.getAllGroup()
@@ -57,12 +58,16 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
                     groups.firstOrNull()?.let { activity.showGroup(it) }
                 }
             }
+            initialized = true
         }
         startAccountsObserve()
     }
 
     override fun onResume() {
         super.onResume()
+
+        if (!initialized) return
+
         val newGroups = tweetsDisplayService.getAllGroup()
         var isChange = newGroups.size != groups.size
 
