@@ -41,6 +41,4 @@ class CreateDisplayGroupActivity : ApplicationActivity<CreateDisplayGroupPresent
     }
 }
 
-interface CreateDisplayGroupActivityInterface : ActivityInterface {
-
-}
+interface CreateDisplayGroupActivityInterface : ActivityInterface

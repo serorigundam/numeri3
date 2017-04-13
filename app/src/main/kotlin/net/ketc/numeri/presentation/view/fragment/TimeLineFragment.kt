@@ -121,8 +121,8 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     override fun insert(tweet: Tweet) = twitterAdapter.insertTop(tweet)
     override fun showDialog(dialog: AppCompatDialog) = dialogOwner.showDialog(dialog)
     override fun setClient(client: TwitterClient) {
-        mTwitterAdapter = TwitterRecyclerAdapter(presenter, presenter, { presenter.onClickTweet(it) }) {
-            TweetViewHolder(parent, presenter, client)
+        mTwitterAdapter = TwitterRecyclerAdapter(presenter, presenter) {
+            TweetViewHolder(parent, presenter, client, { presenter.onClickTweet(it) })
         }
         tweetsRecycler.adapter = twitterAdapter
     }

@@ -22,7 +22,6 @@ import java.util.*
 
 class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: ReadableMore<MutableList<T>>,
                                                   private val autoDisposable: AutoDisposable,
-                                                  private val onClick: (T) -> Unit,
                                                   private val create: () -> TwitterViewHolder<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val itemList = ArrayList<T>()
@@ -57,7 +56,6 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
             when (holder) {
                 is TweetViewHolder -> {
                     holder.bind(itemList[position] as Tweet)
-                    holder.itemView.setOnClickListener { onClick(itemList[position]) }
                 }
                 else -> throw InternalError()
             }
@@ -104,15 +102,16 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
     }
 }
 
-abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View) : RecyclerView.ViewHolder(view) {
+abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View, protected val onClick: (T) -> Unit) : RecyclerView.ViewHolder(view) {
     abstract protected val autoDisposable: AutoDisposable
     abstract fun bind(cacheable: T)
 }
 
 class TweetViewHolder(ctx: Context,
                       override val autoDisposable: AutoDisposable,
-                      private val client: TwitterClient) :
-        TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView()),
+                      private val client: TwitterClient,
+                      onClick: (Tweet) -> Unit) :
+        TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView(), onClick),
         AutoDisposable by autoDisposable {
 
     init {
@@ -122,6 +121,7 @@ class TweetViewHolder(ctx: Context,
 
     override fun bind(cacheable: Tweet) {
         itemView.bind(cacheable)
+        itemView.setOnClickListener { onClick(cacheable) }
     }
 
     private fun View.bind(tweet: Tweet) {
