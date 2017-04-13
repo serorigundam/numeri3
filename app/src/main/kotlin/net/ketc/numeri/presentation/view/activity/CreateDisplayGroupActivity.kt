@@ -20,21 +20,19 @@ class CreateDisplayGroupActivity : ApplicationActivity<CreateDisplayGroupPresent
         setSupportActionBar(ui.toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         presenter.initialize(savedInstanceState)
-        val groupNameEdit = ui.groupNameEdit
-        groupNameEdit.setOnEditorActionListener { _, actionId, _ ->
-            if (!done) {
-                when (actionId) {
-                    EditorInfo.IME_ACTION_DONE -> {
-                        presenter.addGroup(groupNameEdit.text.toString())
-                        finish()
-                        return@setOnEditorActionListener true
-                    }
-                    else -> return@setOnEditorActionListener false
-                }
-            }
-            return@setOnEditorActionListener false
-        }
+        ui.groupNameEdit.setOnEditorActionListener { _, actionId, _ -> done(actionId) }
     }
+
+    private fun done(actionId: Int): Boolean = if (!done) {
+        when (actionId) {
+            EditorInfo.IME_ACTION_DONE -> {
+                presenter.addGroup(ui.groupNameEdit.text.toString())
+                finish()
+                true
+            }
+            else -> false
+        }
+    } else false
 
     companion object {
         fun start(context: Context) {
