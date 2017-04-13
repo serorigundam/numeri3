@@ -127,6 +127,12 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         tweetsRecycler.adapter = twitterAdapter
     }
 
+    override fun scrollToTop() {
+        if (twitterAdapter.first != null) {
+            tweetsRecycler.scrollToPosition(0)
+        }
+    }
+
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
 
@@ -168,4 +174,5 @@ interface TimeLineFragmentInterface : FragmentInterface {
     fun remove(id: Long)
     fun insert(tweet: Tweet)
     fun showDialog(dialog: AppCompatDialog)
+    fun scrollToTop()
 }

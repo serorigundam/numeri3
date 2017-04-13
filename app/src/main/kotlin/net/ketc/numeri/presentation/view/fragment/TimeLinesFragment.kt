@@ -39,6 +39,18 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
     private val tab: TabLayout by lazy { find<TabLayout>(R.id.tab) }
     private var adapter: TweetsDisplayPagerAdapter? = null
 
+    private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabReselected(tab: TabLayout.Tab) {
+            (adapter?.getItem(tab.position) as? TimeLineFragment)?.scrollToTop()
+        }
+
+        override fun onTabUnselected(tab: TabLayout.Tab) {
+        }
+
+        override fun onTabSelected(tab: TabLayout.Tab) {
+        }
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
         return createView(context)
     }
@@ -63,6 +75,24 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
         }
     }
 
+    fun createView(ctx: Context): View = ctx.relativeLayout {
+        lparams(matchParent, matchParent)
+        tabLayout {
+            id = R.id.tab
+            elevation = 5.toFloat()
+            tabMode = TabLayout.MODE_SCROLLABLE
+            addOnTabSelectedListener(onTabSelectedListener)
+        }.lparams(matchParent, dip(32))
+
+
+        viewPager {
+            id = R.id.pager
+            offscreenPageLimit = 10
+        }.lparams(matchParent, matchParent) {
+            below(R.id.tab)
+        }
+    }
+
 
     companion object {
 
@@ -73,23 +103,6 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
         }
 
         val EXTRA_GROUP = "EXTRA_GROUP"
-
-        private fun createView(ctx: Context): View = ctx.relativeLayout {
-            lparams(matchParent, matchParent)
-            tabLayout {
-                id = R.id.tab
-                elevation = 5.toFloat()
-                tabMode = TabLayout.MODE_SCROLLABLE
-            }.lparams(matchParent, dip(32))
-
-
-            viewPager {
-                id = R.id.pager
-                offscreenPageLimit = 10
-            }.lparams(matchParent, matchParent) {
-                below(R.id.tab)
-            }
-        }
     }
 }
 

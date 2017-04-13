@@ -98,7 +98,9 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.column_manage -> presenter.startTweetsDisplayGroupManageActivity()
+            R.id.column_manage -> {
+                presenter.startTweetsDisplayGroupManageActivity()
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         return true

@@ -8,6 +8,7 @@ import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.OAuthServiceImpl
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.domain.service.TweetsDisplayServiceImpl
+import net.ketc.numeri.presentation.presenter.activity.CreateDisplayGroupPresenter
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayGroupManagePresenter
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenter
@@ -36,6 +37,7 @@ interface DomainComponent {
     fun inject(timeLinesPresenter: TimeLinesPresenter)
     fun inject(tweetsDisplayGroupManagePresenter: TweetsDisplayGroupManagePresenter)
     fun inject(tweetsDisplayManagePresenter: TweetsDisplayManagePresenter)
+    fun inject(createDisplayGroupPresenter: CreateDisplayGroupPresenter)
 }
 
 //extension
@@ -56,5 +58,9 @@ fun TweetsDisplayGroupManagePresenter.inject() {
 }
 
 fun TweetsDisplayManagePresenter.inject() {
+    Injectors.domainComponent.inject(this)
+}
+
+fun CreateDisplayGroupPresenter.inject() {
     Injectors.domainComponent.inject(this)
 }

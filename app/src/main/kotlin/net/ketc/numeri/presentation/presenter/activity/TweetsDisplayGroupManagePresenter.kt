@@ -4,6 +4,7 @@ import android.os.Bundle
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.service.TweetsDisplayService
+import net.ketc.numeri.presentation.view.activity.CreateDisplayGroupActivity
 import net.ketc.numeri.presentation.view.activity.TweetsDisplayGroupManageActivityInterface
 import net.ketc.numeri.presentation.view.activity.TweetsDisplayManageActivity
 import javax.inject.Inject
@@ -33,9 +34,14 @@ class TweetsDisplayGroupManagePresenter(override val activity: TweetsDisplayGrou
         activity.remove(group)
     }
 
-    fun addGroup() {
-        val group = displayService.createGroup()
-        activity.add(group)
+    fun startCreateDisplayGroupActivity() {
+        CreateDisplayGroupActivity.start(ctx)
     }
 
+    override fun onResume() {
+        super.onResume()
+        displayService.getAllGroup().singleOrNull { !activity.groups.contains(it) }?.let {
+            activity.add(it)
+        }
+    }
 }

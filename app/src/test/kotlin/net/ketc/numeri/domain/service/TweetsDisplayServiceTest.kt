@@ -62,17 +62,17 @@ class TweetsDisplayServiceTest {
 
     @Test
     fun createGroupTest() {
-        tweetsDisplayService.createGroup()
+        tweetsDisplayService.createGroup("")
         val groups = tweetsDisplayService.getAllGroup()
         assertEquals(1, groups.size)
-        tweetsDisplayService.createGroup()
+        tweetsDisplayService.createGroup("")
         val groups2 = tweetsDisplayService.getAllGroup()
         assertEquals(2, groups2.size)
     }
 
     @Test
     fun addToGroupTest() {
-        val group = tweetsDisplayService.createGroup()
+        val group = tweetsDisplayService.createGroup("")
         tweetsDisplayService.createDisplay(group, client1, -1L, TweetsDisplayType.HOME, "")
         val displays = tweetsDisplayService.getDisplays(group)
         assertEquals(1, displays.size)
@@ -89,7 +89,7 @@ class TweetsDisplayServiceTest {
 
     @Test
     fun deleteGroupTest() {
-        val group = tweetsDisplayService.createGroup()
+        val group = tweetsDisplayService.createGroup("")
         tweetsDisplayService.createDisplay(group, client1, -1L, TweetsDisplayType.HOME, "")
         val groups = tweetsDisplayService.getAllGroup()
         assertEquals(1, groups.size)

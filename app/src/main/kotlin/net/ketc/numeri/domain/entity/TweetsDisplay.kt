@@ -6,7 +6,9 @@ import net.ketc.numeri.util.ormlite.Entity
 
 @DatabaseTable
 data class TweetsDisplayGroup(@DatabaseField(generatedId = true)
-                              override val id: Int = 0) : Entity<Int>
+                              override val id: Int = 0,
+                              @DatabaseField(canBeNull = false)
+                              var name: String = "") : Entity<Int>
 
 data class TweetsDisplay(
         @DatabaseField(generatedId = true)

@@ -16,7 +16,7 @@ class TweetsDisplayGroupsRecyclerAdapter(private val onClick: (TweetsDisplayGrou
     }
 
     override fun onBindViewHolder(holder: SimpleTextViewHolder, position: Int) {
-        holder.bind("Group-${items[position].id}")
+        holder.bind(items[position].name)
         holder.itemView.setOnClickListener { onClick(items[position]) }
     }
 

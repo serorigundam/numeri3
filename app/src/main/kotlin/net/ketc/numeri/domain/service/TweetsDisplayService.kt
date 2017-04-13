@@ -10,7 +10,7 @@ import java.util.*
 
 interface TweetsDisplayService {
 
-    fun createGroup(): TweetsDisplayGroup
+    fun createGroup(name: String): TweetsDisplayGroup
 
     fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType, name: String): TweetsDisplay
 
@@ -43,9 +43,9 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         }
     }
 
-    override fun createGroup() = transaction {
+    override fun createGroup(name: String) = transaction {
         val dao = dao(TweetsDisplayGroup::class)
-        val group = TweetsDisplayGroup()
+        val group = TweetsDisplayGroup(name = name)
         dao.create(group)
         displaysMap.put(group, ArrayList())
         return@transaction group
