@@ -14,4 +14,5 @@
     <string name="label_create_column_group">グループ作成</string>
     <string name="changing_column_group">カラムグループ切替</string>
     <string name="select_column_group">表示するカラムグループを選択</string>
+    <string name="yes">はい</string>
 </resources>
