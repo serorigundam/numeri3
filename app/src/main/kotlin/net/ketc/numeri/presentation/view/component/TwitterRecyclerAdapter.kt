@@ -8,6 +8,9 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.Cacheable
+import net.ketc.numeri.domain.model.isMention
+import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.presentation.view.component.ui.menu.iconImage
 import net.ketc.numeri.presentation.view.component.ui.tweet.*
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
@@ -51,7 +54,9 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
         //ダサい…
         if (itemList.lastIndex >= position)
             when (holder) {
-                is TweetViewHolder -> holder.bind(itemList[position] as Tweet)
+                is TweetViewHolder -> {
+                    holder.bind(itemList[position] as Tweet)
+                }
                 else -> throw InternalError()
             }
     }
@@ -97,15 +102,16 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
     }
 }
 
-abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View) : RecyclerView.ViewHolder(view) {
+abstract class TwitterViewHolder<in T : Cacheable<Long>>(view: View, protected val onClick: (T) -> Unit) : RecyclerView.ViewHolder(view) {
     abstract protected val autoDisposable: AutoDisposable
     abstract fun bind(cacheable: T)
 }
 
 class TweetViewHolder(ctx: Context,
                       override val autoDisposable: AutoDisposable,
-                      private val onClick: (Tweet) -> Unit) :
-        TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView()),
+                      private val client: TwitterClient,
+                      onClick: (Tweet) -> Unit) :
+        TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView(), onClick),
         AutoDisposable by autoDisposable {
 
     init {
@@ -161,7 +167,7 @@ class TweetViewHolder(ctx: Context,
     }
 
     private fun View.setColor(tweet: Tweet) {
-        if (tweet.isMention) {
+        if (tweet.isMention(client)) {
             overlayRelative.backgroundColor = Color.parseColor("#60f46e42")
         } else if (tweet.retweetedTweet != null) {
             overlayRelative.backgroundColor = Color.parseColor("#6042dff4")

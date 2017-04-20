@@ -170,6 +170,8 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
 
 fun User.convertAndCacheOrGet() = TwitterUserCache.putOrGet(this)
 
-fun TwitterClient.user(): TwitterUser = TwitterUserCache.get(id) ?: this@user.twitter.showUser(this@user.id).convertAndCacheOrGet()
+fun TwitterClient.user(): TwitterUser = TwitterUserCache.get(id) ?: twitter.showUser(id).convertAndCacheOrGet()
 
 fun TwitterClient.withUser(): Pair<TwitterClient, TwitterUser> = this to user()
+
+fun TwitterClient.showUser(id: Long) = TwitterUserCache.get(id) ?: twitter.showUser(id).convertAndCacheOrGet()

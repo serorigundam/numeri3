@@ -9,8 +9,9 @@ import net.ketc.numeri.domain.model.UrlEntity
 import net.ketc.numeri.domain.model.cache.isFavorite
 import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
-import net.ketc.numeri.presentation.presenter.component.TweetOperatorDialogPresenter
-import net.ketc.numeri.presentation.view.component.ui.tweet.menu.*
+import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
+import net.ketc.numeri.presentation.view.component.ui.menu.*
+import net.ketc.numeri.presentation.view.component.ui.tweet.BottomSheetDialogUI
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 
@@ -19,17 +20,17 @@ class TweetOperatorDialogFactory(private val ctx: Context,
                                  private val autoDisposable: AutoDisposable,
                                  private val error: (Throwable) -> Unit) {
     private val dialog = BottomSheetDialog(ctx).apply {
-        setContentView(TweetOperationDialogUI(ctx).createView())
+        setContentView(BottomSheetDialogUI(ctx).createView())
     }
 
 
     fun create(client: TwitterClient): BottomSheetDialog {
         val menuItems = TweetMenuItems(ctx, tweet, client, autoDisposable, error)
-        dialog.tweetText.text = tweet.text
-        dialog.addTweetMenu(menuItems.favoriteMenuItem)
-        dialog.addTweetMenu(menuItems.retweetMenuItem)
+        dialog.messageText.text = tweet.text
+        dialog.addMenu(menuItems.favoriteMenuItem)
+        dialog.addMenu(menuItems.retweetMenuItem)
         menuItems.openUrlMenuItems.forEach {
-            dialog.addTweetMenu(it)
+            dialog.addMenu(it)
         }
         return dialog
     }
@@ -50,7 +51,7 @@ class TweetMenuItems(private val ctx: Context,
                      override val client: TwitterClient,
                      autoDisposable: AutoDisposable,
                      error: (Throwable) -> Unit) : TweetMenuItemsInterface {
-    private val presenter = TweetOperatorDialogPresenter(ctx, autoDisposable, this, error)
+    private val presenter = TweetOperateDialogPresenter(ctx, autoDisposable, this, error)
     override var isFavorite: Boolean
         get() = client.isFavorite(tweet)
         set(value) {

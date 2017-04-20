@@ -9,4 +9,9 @@
     <string name="create_favorite">お気に入りに登録</string>
     <string name="destroy_retweet">RTを解除</string>
     <string name="create_retweet">RTを行う</string>
+    <string name="column_manage">カラム管理</string>
+    <string name="hint_input_column_group_name">カラムグループ名を入力してください</string>
+    <string name="label_create_column_group">グループ作成</string>
+    <string name="changing_column_group">カラムグループ切替</string>
+    <string name="select_column_group">表示するカラムグループを選択</string>
 </resources>

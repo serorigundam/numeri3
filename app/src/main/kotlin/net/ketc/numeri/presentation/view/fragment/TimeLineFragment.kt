@@ -1,9 +1,9 @@
 package net.ketc.numeri.presentation.view.fragment
 
-import android.app.Activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v4.widget.SwipeRefreshLayout
+import android.support.v7.app.AppCompatActivity
 import android.support.v7.app.AppCompatDialog
 import android.support.v7.widget.RecyclerView
 import android.view.LayoutInflater
@@ -12,11 +12,12 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.*
 import net.ketc.numeri.domain.model.Tweet
+import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.fragment.tweet.display.*
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.TwitterRecyclerAdapter
 import net.ketc.numeri.util.android.DialogOwner
-import net.ketc.numeri.util.android.initialize
+import net.ketc.numeri.util.android.defaultInit
 import net.ketc.numeri.util.android.parent
 import org.jetbrains.anko.find
 import org.jetbrains.anko.matchParent
@@ -25,10 +26,10 @@ import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 
 class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragmentInterface {
-    override lateinit var presenter: TimeLinePresenter
-    val dialogOwner = DialogOwner()
+    override val presenter: TimeLinePresenter by lazy { createTimeLinePresenter(display) }
+    private val dialogOwner = DialogOwner()
 
-    override val activity: Activity
+    override val activity: AppCompatActivity
         get() = this.parent
 
     override val display: TweetsDisplay by lazy {
@@ -59,31 +60,34 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             twitterAdapter.isReadMoreEnable = value
         }
 
-    private val twitterAdapter: TwitterRecyclerAdapter<Tweet> by lazy {
-        TwitterRecyclerAdapter(presenter, presenter) {
-            TweetViewHolder(context, presenter) { presenter.onClickTweet(it) }
-        }
-    }
+    override val displayName: String by lazy { display.name }
+
+    private var mTwitterAdapter: TwitterRecyclerAdapter<Tweet>? = null
+    private val twitterAdapter: TwitterRecyclerAdapter<Tweet>
+        get() = mTwitterAdapter ?: throw IllegalStateException("TwitterClient is not set")
+
     private val swipeRefresh: SwipeRefreshLayout by lazy {
         view!!.find<SwipeRefreshLayout>(R.id.swipe_refresh)
     }
+
     private val tweetsRecycler: RecyclerView by lazy {
         view!!.find<RecyclerView>(R.id.tweets_recycler)
     }
 
+    init {
+        retainInstance = true
+    }
+
     override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val display = display
-        presenter = createTimeLinePresenter(display)
-        return createView(context)
+        val view = createView(context)
+        view.find<RecyclerView>(R.id.tweets_recycler).defaultInit()
+        return view
     }
 
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
-        tweetsRecycler.initialize()
-        tweetsRecycler.adapter = twitterAdapter
         swipeRefresh.setOnRefreshListener { presenter.update() }
         presenter.initialize()
     }
-
 
     private fun createTimeLinePresenter(timeLineDisplay: TweetsDisplay): TimeLinePresenter {
         return when (timeLineDisplay.type) {
@@ -116,6 +120,18 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     override fun remove(id: Long) = twitterAdapter.remove(id)
     override fun insert(tweet: Tweet) = twitterAdapter.insertTop(tweet)
     override fun showDialog(dialog: AppCompatDialog) = dialogOwner.showDialog(dialog)
+    override fun setClient(client: TwitterClient) {
+        mTwitterAdapter = TwitterRecyclerAdapter(presenter, presenter) {
+            TweetViewHolder(parent, presenter, client, { presenter.onClickTweet(it) })
+        }
+        tweetsRecycler.adapter = twitterAdapter
+    }
+
+    override fun scrollToTop() {
+        if (twitterAdapter.first != null) {
+            tweetsRecycler.scrollToPosition(0)
+        }
+    }
 
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
@@ -150,10 +166,13 @@ interface TimeLineFragmentInterface : FragmentInterface {
     var isRefreshing: Boolean
     var isRefreshable: Boolean
     var isReadMorEnabled: Boolean
+    val displayName: String
+    fun setClient(client: TwitterClient)
     fun addAll(tweets: List<Tweet>)
     fun insertAllToTop(tweets: List<Tweet>)
     fun remove(tweet: Tweet)
     fun remove(id: Long)
     fun insert(tweet: Tweet)
     fun showDialog(dialog: AppCompatDialog)
+    fun scrollToTop()
 }

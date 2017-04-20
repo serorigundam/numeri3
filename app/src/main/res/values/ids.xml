@@ -32,4 +32,13 @@
     <item name="menu_linear" type="id" />
     <item name="nested_scroll" type="id" />
     <item name="sub_info_icon" type="id" />
+    <item name="tab" type="id" />
+    <item name="pager" type="id" />
+    <item name="groups_recycler" type="id" />
+    <item name="add_fab" type="id" />
+    <item name="root" type="id" />
+    <item name="displays_recycler" type="id" />
+    <item name="column_group_name_edit" type="id" />
+    <item name="app_bar" type="id" />
+    <item name="message_text" type="id" />
 </resources>

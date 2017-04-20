@@ -3,16 +3,25 @@ package net.ketc.numeri.presentation.view.activity
 import android.content.Context
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
+import android.view.MenuItem
 import net.ketc.numeri.presentation.presenter.activity.Presenter
 
 /**
  * @param P is bound [Presenter]
  */
-abstract class ApplicationActivity<P : Presenter<ActivityInterface>> : AppCompatActivity() {
+abstract class ApplicationActivity<out P : Presenter<ActivityInterface>> : AppCompatActivity() {
     /**
      * this is bound activity-life-cycle
      */
-    internal abstract var presenter: P
+    protected abstract val presenter: P
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            android.R.id.home -> finish()
+            else -> return super.onOptionsItemSelected(item)
+        }
+        return true
+    }
 
     override fun onPause() {
         super.onPause()

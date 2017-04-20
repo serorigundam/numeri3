@@ -3,16 +3,11 @@ package net.ketc.numeri.presentation.view.activity.ui
 import android.content.Context
 import android.graphics.Color
 import android.support.design.widget.AppBarLayout
-import android.support.v7.widget.DefaultItemAnimator
-import android.support.v7.widget.LinearLayoutManager
-import android.support.v7.widget.RecyclerView
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.view.ViewManager
 import android.widget.ImageView
 import android.widget.LinearLayout
-import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.presentation.view.activity.MainActivity
 import net.ketc.numeri.util.android.getResourceId
@@ -21,7 +16,6 @@ import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.navigationView
-import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.drawerLayout
 
 class MainActivityUI : AnkoComponent<MainActivity> {
@@ -32,21 +26,14 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 appBarLayout {
                     toolbar {
                         id = R.id.toolbar
-                    }.lparams {
-                        height = wrapContent
-                        width = matchParent
+                    }.lparams(matchParent, wrapContent) {
                         scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or
                                 AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
                     }
-                }.lparams {
-                    height = wrapContent
-                    width = matchParent
-                }
+                }.lparams(matchParent, wrapContent)
                 coordinatorLayout {
                     id = R.id.column_group_wrapper_coordinator
-                }.lparams {
-                    height = matchParent
-                    width = matchParent
+                }.lparams(matchParent, matchParent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
                 }
             }
@@ -143,16 +130,5 @@ class MainActivityUI : AnkoComponent<MainActivity> {
                 }
             }
         }
-    }
-
-    class Adapter : RecyclerView.Adapter<Adapter.VH>() {
-        override fun onBindViewHolder(holder: VH?, position: Int) {
-        }
-
-        override fun getItemCount() = 3
-
-        override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = VH(parent.context)
-
-        class VH(context: Context) : RecyclerView.ViewHolder(TextView(context).apply { text = "hoge" })
     }
 }

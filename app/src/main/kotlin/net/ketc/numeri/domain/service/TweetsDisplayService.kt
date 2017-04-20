@@ -1,6 +1,7 @@
 package net.ketc.numeri.domain.service
 
 import net.ketc.numeri.domain.entity.*
+import net.ketc.numeri.util.copy
 import net.ketc.numeri.util.ormlite.Transaction
 import net.ketc.numeri.util.ormlite.delete
 import net.ketc.numeri.util.ormlite.transaction
@@ -9,9 +10,9 @@ import java.util.*
 
 interface TweetsDisplayService {
 
-    fun createGroup(): TweetsDisplayGroup
+    fun createGroup(name: String): TweetsDisplayGroup
 
-    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType)
+    fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType, name: String): TweetsDisplay
 
     fun removeGroup(group: TweetsDisplayGroup)
 
@@ -35,6 +36,8 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
                 val tweetsDisplayDao = dao(TweetsDisplay::class)
                 val tweetsDisplayList = tweetsDisplayDao.queryBuilder()
                         .orderBy("order", true)
+                        .where()
+                        .eq("group_id", it.id)
                         .query()
                 displaysMap.put(it, tweetsDisplayList)
             }
@@ -42,21 +45,22 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         }
     }
 
-    override fun createGroup() = transaction {
+    override fun createGroup(name: String) = transaction {
         val dao = dao(TweetsDisplayGroup::class)
-        val group = TweetsDisplayGroup()
+        val group = TweetsDisplayGroup(name = name)
         dao.create(group)
         displaysMap.put(group, ArrayList())
         return@transaction group
     }
 
-    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType): Unit = transaction {
+    override fun createDisplay(group: TweetsDisplayGroup, twitterClient: TwitterClient, foreignId: Long, type: TweetsDisplayType, name: String): TweetsDisplay = transaction {
         checkExistence(group)
-        val display = createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type)
+        val display = createTweetsDisplay(twitterClient.toClientToken(), group, foreignId, type, name)
         val dao = dao(TweetsDisplay::class)
         display.order = dao.count { it.group.id == group.id }
         displaysMap[group]!!.add(display)
         dao.create(display)
+        display
     }
 
     override fun removeGroup(group: TweetsDisplayGroup): Unit = transaction {
@@ -86,7 +90,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     }
 
     override fun getDisplays(group: TweetsDisplayGroup): List<TweetsDisplay> {
-        return displaysMap[group]?.toImmutableList() ?: throw GroupDoesNotExistWasSpecifiedException()
+        return displaysMap[group]?.copy() ?: throw GroupDoesNotExistWasSpecifiedException()
     }
 
     override fun replace(to: TweetsDisplay, by: TweetsDisplay): Unit = transaction {
@@ -98,6 +102,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         val displays = displaysMap[to.group] ?: throw GroupDoesNotExistWasSpecifiedException()
         displays.first { it.id == to.id }.order = to.order
         displays.first { it.id == by.id }.order = by.order
+        displays.sortBy { it.order }
         val dao = dao(TweetsDisplay::class)
         dao.update(to)
         dao.update(by)

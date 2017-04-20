@@ -16,8 +16,9 @@ interface Tweet : Cacheable<Long> {
     val urlEntities: List<UrlEntity>
     val mediaEntities: List<MediaEntity>
     val userMentionEntities: List<UserMentionEntity>
-    val isMention: Boolean
 }
 
-fun TwitterClient.isMyTweet(tweet: Tweet) = tweet.user.id == id
+infix fun TwitterClient.isMyTweet(tweet: Tweet) = tweet.user.id == id
+infix fun Tweet.isMention(client: TwitterClient) = userMentionEntities.any { it.id == client.id } && retweetedTweet == null
+
 

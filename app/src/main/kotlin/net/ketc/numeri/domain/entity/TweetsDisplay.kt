@@ -6,7 +6,9 @@ import net.ketc.numeri.util.ormlite.Entity
 
 @DatabaseTable
 data class TweetsDisplayGroup(@DatabaseField(generatedId = true)
-                              override val id: Int = 0) : Entity<Int>
+                              override val id: Int = 0,
+                              @DatabaseField(canBeNull = false)
+                              var name: String = "") : Entity<Int>
 
 data class TweetsDisplay(
         @DatabaseField(generatedId = true)
@@ -17,13 +19,15 @@ data class TweetsDisplay(
         val group: TweetsDisplayGroup = TweetsDisplayGroup(),
         @DatabaseField(canBeNull = false, uniqueCombo = true)
         val foreignId: Long = -1,
+        @DatabaseField(canBeNull = false)
+        var name: String = "",
         @DatabaseField(canBeNull = false, uniqueCombo = true)
         val type: TweetsDisplayType = TweetsDisplayType.HOME,
         @DatabaseField(canBeNull = false)
         var order: Int = 0) : Entity<Int>
 
-fun createTweetsDisplay(token: ClientToken, group: TweetsDisplayGroup, foreignId: Long, type: TweetsDisplayType)
-        = TweetsDisplay(token = token, group = group, foreignId = foreignId, type = type)
+fun createTweetsDisplay(token: ClientToken, group: TweetsDisplayGroup, foreignId: Long, type: TweetsDisplayType, name: String = "")
+        = TweetsDisplay(token = token, group = group, foreignId = foreignId, type = type, name = name)
 
 enum class TweetsDisplayType {
     HOME, MENTIONS, USER_LIST, PUBLIC
