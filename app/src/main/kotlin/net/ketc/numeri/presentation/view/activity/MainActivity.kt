@@ -4,6 +4,7 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
@@ -24,7 +25,12 @@ import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
+import net.ketc.numeri.presentation.view.component.ui.menu.addMenu
+import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
+import net.ketc.numeri.presentation.view.component.ui.menu.messageText
+import net.ketc.numeri.presentation.view.component.ui.tweet.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
+import net.ketc.numeri.util.android.DialogOwner
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
@@ -41,7 +47,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
     private val drawer: DrawerLayout by lazy { find<DrawerLayout>(R.id.drawer) }
     private val navigation: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
-    private val headerIconImage: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.icon_image) }
     private val showAccountIndicator: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.show_account_indicator) }
     private val navigationContent: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation_content) }
     private val navigationView: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
@@ -52,6 +57,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     override var showingGroupId = -1
         private set
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
+    private val groups = ArrayList<TweetsDisplayGroup>()
+    private val dialogOwner = DialogOwner()
 
     override var addAccountButtonEnabled: Boolean
         get() = addAccountButton.isEnabled
@@ -101,8 +108,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
             R.id.column_manage -> {
                 presenter.startTweetsDisplayGroupManageActivity()
             }
+            R.id.changing_column_group -> {
+                showChangeColumnGroupDialog()
+            }
             else -> return super.onOptionsItemSelected(item)
         }
+        drawer.closeDrawer(navigation)
         return true
     }
 
@@ -128,6 +139,21 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
         drawerToggle.onConfigurationChanged(newConfig)
+    }
+
+    override fun onPause() {
+        super.onPause()
+        dialogOwner.onPause()
+    }
+
+    override fun onResume() {
+        super.onResume()
+        dialogOwner.onResume()
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        dialogOwner.onDestroy()
     }
 
     private fun toggleNavigationState() {
@@ -166,13 +192,18 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     }
 
     override fun addGroup(group: TweetsDisplayGroup) {
+        if (groups.contains(group))
+            return
         addGroupView(group.id)
+        groups.add(group)
         supportFragmentManager.beginTransaction()
                 .replace(group.id, TimeLinesFragment.create(group), group.id.toString())
                 .commit()
     }
 
     override fun removeGroup(group: TweetsDisplayGroup) {
+        if (!groups.contains(group))
+            return
         val removed = (0..columnGroupWrapper.childCount)
                 .map { columnGroupWrapper.getChildAt(it) }
                 .find { it.id == group.id } ?: throw InternalError()
@@ -190,6 +221,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
                 showingGroupId = it.id
             }
         }
+        groups.remove(group)
     }
 
     override fun showGroup(group: TweetsDisplayGroup) {
@@ -201,6 +233,22 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
                 it.visibility = View.GONE
             }
         }
+        supportActionBar!!.subtitle = group.name
+    }
+
+    fun showChangeColumnGroupDialog() {
+        val dialog = BottomSheetDialog(this)
+        dialog.apply {
+            setContentView(BottomSheetDialogUI(ctx).createView())
+            groups.forEach { group ->
+                addMenu(createIconMenu(ctx, R.drawable.ic_view_carousel_white_24dp, group.name, {
+                    showGroup(group)
+                    dialog.dismiss()
+                }))
+                messageText.text = getString(R.string.select_column_group)
+            }
+        }
+        dialogOwner.showDialog(dialog)
     }
 
     class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser, val autoDisposable: AutoDisposable) {
@@ -215,6 +263,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
             view.find<TextView>(R.id.user_name_text).text = twitterUser.name
             view.find<ImageView>(R.id.icon_image).download(twitterUser.iconUrl, autoDisposable)
         }
+
 
         companion object {
             private fun createAccountItem(ctx: Context) = ctx.relativeLayout {

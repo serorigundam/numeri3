@@ -40,4 +40,5 @@
     <item name="displays_recycler" type="id" />
     <item name="column_group_name_edit" type="id" />
     <item name="app_bar" type="id" />
+    <item name="message_text" type="id" />
 </resources>

@@ -8,17 +8,17 @@ import net.ketc.numeri.presentation.view.component.ui.UI
 import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.nestedScrollView
 
-class TweetOperationDialogUI(override val ctx: Context) : UI {
+class BottomSheetDialogUI(override val ctx: Context) : UI {
     override fun createView() = ctx.relativeLayout {
         backgroundColor = ctx.getColor(R.color.colorPrimaryDark)
 
         lparams(matchParent, wrapContent)
 
         textView {
-            id = R.id.tweet_text
+            id = R.id.message_text
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
-            textSizeDimen = R.dimen.text_size_small
+            textSizeDimen = R.dimen.text_size_medium
         }.lparams(matchParent, wrapContent) {
             margin = dimen(R.dimen.margin_medium)
         }
@@ -31,7 +31,7 @@ class TweetOperationDialogUI(override val ctx: Context) : UI {
                 lparams(matchParent, wrapContent)
             }
         }.lparams(matchParent, wrapContent) {
-            below(R.id.tweet_text)
+            below(R.id.message_text)
         }
     }
 }

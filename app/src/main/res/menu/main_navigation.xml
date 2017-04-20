@@ -7,46 +7,8 @@
             android:title="@string/column_manage" />
 
         <item
-            android:id="@+id/action1"
+            android:id="@+id/changing_column_group"
             android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action2"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action3"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action4"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action5"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action6"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action7"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action8"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action9"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
-        <item
-            android:id="@+id/action0"
-            android:icon="@mipmap/ic_launcher_round"
-            android:title="hoge" />
+            android:title="@string/changing_column_group" />
     </group>
-
-
 </menu>
