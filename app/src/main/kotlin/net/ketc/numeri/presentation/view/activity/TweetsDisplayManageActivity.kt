@@ -3,6 +3,7 @@ package net.ketc.numeri.presentation.view.activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
+import android.support.design.widget.FloatingActionButton
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.widget.RecyclerView
@@ -42,6 +43,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
     private val displaysRecycler: RecyclerView by lazy { find<RecyclerView>(R.id.displays_recycler) }
     private val navigation: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation) }
     private val navigationContent by lazy { find<LinearLayout>(R.id.navigation_content) }
+    private val addButton by lazy { find<FloatingActionButton>(R.id.add_fab) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -69,6 +71,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
                     if (adapter.displayItemCount > position)
                         presenter.removeDisplay(adapter.get(position))
                 }).attachToRecyclerView(displaysRecycler)
+        addButton.setOnClickListener { drawer.openDrawer(navigation) }
     }
 
 

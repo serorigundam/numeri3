@@ -25,6 +25,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
 
     private val userListMap = HashMap<TwitterUser, List<UserList>>()
     private val userMap = HashMap<TwitterClient, TwitterUser>()
+    private val userList = ArrayList<TwitterUser>()
 
     init {
         inject()
@@ -38,6 +39,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
                 val user = it.user()
                 userListMap.put(user, it.userLists())
                 userMap.put(it, user)
+                userList.add(user)
             }
         } error Throwable::printStackTrace success {
             setDisplays()
@@ -57,12 +59,12 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
         displayService.getDisplays(activity.group).forEach { display ->
             activity.add(display to display.stringTo(userMap.map { it.value }.find { it.id == display.token.id }!!))
         }
-        userMap.map { it.key to it.value }.forEach { userPair ->
+        userList.forEach { user ->
             val displayPairs = ArrayList<Pair<TweetsDisplay, String>>()
-            val client = userPair.first
+            val client = userMap.map { it.key to it.value }.single { user == it.second }.first
             val token = client.toClientToken()
             val home = createTweetsDisplay(token, activity.group, -1, TweetsDisplayType.HOME)
-            val clientUser = userPair.second
+            val clientUser = user
             displayPairs.add(home to home.stringTo(clientUser))
             val mentions = createTweetsDisplay(token, activity.group, -1, TweetsDisplayType.MENTIONS)
             displayPairs.add(mentions to mentions.stringTo(clientUser))
@@ -70,9 +72,8 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
                 val list = createTweetsDisplay(token, activity.group, it.id, TweetsDisplayType.USER_LIST)
                 displayPairs.add(list to list.stringTo(clientUser))
             }
-            activity.addDisplays(userPair, displayPairs)
+            activity.addDisplays(client to user, displayPairs)
         }
-
     }
 
     fun addDisplay(display: TweetsDisplay, text: String, client: TwitterClient) {
