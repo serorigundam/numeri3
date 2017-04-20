@@ -50,6 +50,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        supportActionBar!!.subtitle = group.name
         displaysRecycler.adapter = adapter
         displaysRecycler.defaultInit()
         presenter.initialize(savedInstanceState)

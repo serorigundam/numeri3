@@ -4,6 +4,8 @@ import android.os.Bundle
 import net.ketc.numeri.domain.entity.*
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.TwitterUser
+import net.ketc.numeri.domain.model.UserList
+import net.ketc.numeri.domain.model.cache.userLists
 import net.ketc.numeri.domain.model.cache.user
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
@@ -11,7 +13,6 @@ import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.view.activity.TweetsDisplayManageActivityInterface
 import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
-import twitter4j.UserList
 import java.util.*
 import javax.inject.Inject
 
@@ -34,9 +35,8 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
         singleTask(MySchedulers.twitter) {
             val clients = oAuthService.clients()
             clients.forEach {
-                val userLists = it.twitter.getUserLists(it.id)
                 val user = it.user()
-                userListMap.put(user, userLists)
+                userListMap.put(user, it.userLists())
                 userMap.put(it, user)
             }
         } error Throwable::printStackTrace success {
