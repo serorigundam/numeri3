@@ -36,6 +36,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
                 val tweetsDisplayDao = dao(TweetsDisplay::class)
                 val tweetsDisplayList = tweetsDisplayDao.queryBuilder()
                         .orderBy("order", true)
+                        .groupBy("group_id")
                         .query()
                 displaysMap.put(it, tweetsDisplayList)
             }
