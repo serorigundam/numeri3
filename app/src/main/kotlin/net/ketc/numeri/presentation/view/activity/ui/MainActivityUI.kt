@@ -23,21 +23,21 @@ import org.jetbrains.anko.design.navigationView
 import org.jetbrains.anko.support.v4.drawerLayout
 
 class MainActivityUI : IMainActivityUI {
-    lateinit override var drawer: DrawerLayout
+    override lateinit var drawer: DrawerLayout
         private set
-    lateinit override var navigation: NavigationView
+    override lateinit var navigation: NavigationView
         private set
-    lateinit override var showAccountIndicator: ImageView
+    override lateinit var showAccountIndicator: ImageView
         private set
-    lateinit override var navigationContent: RelativeLayout
+    override lateinit var navigationContent: RelativeLayout
         private set
-    lateinit override var showAccountRelative: RelativeLayout
+    override lateinit var showAccountRelative: RelativeLayout
         private set
-    lateinit override var addAccountButton: RelativeLayout
+    override lateinit var addAccountButton: RelativeLayout
         private set
-    lateinit override var accountsLinear: LinearLayout
+    override lateinit var accountsLinear: LinearLayout
         private set
-    lateinit override var columnGroupWrapper: CoordinatorLayout
+    override lateinit var columnGroupWrapper: CoordinatorLayout
         private set
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
