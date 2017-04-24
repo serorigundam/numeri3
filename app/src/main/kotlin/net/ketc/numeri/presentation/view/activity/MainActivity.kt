@@ -6,9 +6,7 @@ import android.content.res.Configuration
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.BottomSheetDialog
-import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
@@ -16,13 +14,12 @@ import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.view.*
 import android.widget.ImageView
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
+import net.ketc.numeri.presentation.view.activity.ui.IMainActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
 import net.ketc.numeri.presentation.view.component.ui.menu.addMenu
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
@@ -35,23 +32,17 @@ import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
 import java.util.*
 
-class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface, NavigationView.OnNavigationItemSelectedListener {
+class MainActivity : ApplicationActivity<MainPresenter>(),
+        NavigationView.OnNavigationItemSelectedListener,
+        MainActivityInterface, IMainActivityUI by MainActivityUI() {
     override val ctx: Context
         get() = this
-
     override val presenter: MainPresenter = MainPresenter(this)
 
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
-    private val drawer: DrawerLayout by lazy { find<DrawerLayout>(R.id.drawer) }
-    private val navigation: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
-    private val showAccountIndicator: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.show_account_indicator) }
-    private val navigationContent: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation_content) }
-    private val showAccountRelative: RelativeLayout by lazy { navigation.getHeaderView(0).find<RelativeLayout>(R.id.show_account_relative) }
-    private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
-    private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
-    private val columnGroupWrapper: CoordinatorLayout by lazy { find<CoordinatorLayout>(R.id.column_group_wrapper_coordinator) }
     override var showingGroupId = -1
         private set
+
     private val accountItemViewHolderList = ArrayList<AccountItemViewHolder>()
     private val groups = ArrayList<TweetsDisplayGroup>()
     private val dialogOwner = DialogOwner()
@@ -69,7 +60,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        MainActivityUI().setContentView(this)
+        setContentView(this)
         initialize()
         presenter.initialize(savedInstanceState)
     }
