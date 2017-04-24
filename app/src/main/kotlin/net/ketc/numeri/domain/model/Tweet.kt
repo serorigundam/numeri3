@@ -16,6 +16,7 @@ interface Tweet : Cacheable<Long> {
     val urlEntities: List<UrlEntity>
     val mediaEntities: List<MediaEntity>
     val userMentionEntities: List<UserMentionEntity>
+    val inReplyToStatusId: Long
 }
 
 infix fun TwitterClient.isMyTweet(tweet: Tweet) = tweet.user.id == id

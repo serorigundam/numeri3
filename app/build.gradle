@@ -124,6 +124,12 @@ configurations.all {
     }
 }
 
+kotlin {
+    experimental {
+        coroutines "enable"
+    }
+}
+
 gradle.taskGraph.whenReady { taskGraph ->
     def packageRelease = ":app:packageRelease"
     if (taskGraph.hasTask(packageRelease)) {

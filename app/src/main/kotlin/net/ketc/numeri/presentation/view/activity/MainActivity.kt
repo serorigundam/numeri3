@@ -4,7 +4,6 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
-import android.os.Handler
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.NavigationView
 import android.support.v7.app.ActionBarDrawerToggle
@@ -170,13 +169,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     override fun addAccount(twitterUser: TwitterUser, autoDisposable: AutoDisposable) {
         val holder = AccountItemViewHolder(ctx, twitterUser, autoDisposable)
         accountItemViewHolderList.add(holder)
-        accountsLinear.addView(holder.view)
-        holder.view.fadeIn()
         mAccounts.add(twitterUser)
-        Handler().postDelayed({
+        accountsLinear.addView(holder.view)
+        holder.view.fadeIn().end {
             toggleNavigationState()
             drawer.closeDrawer(navigation)
-        }, 600)
+        }.execute()
     }
 
     override fun updateAccount(user: TwitterUser) {
@@ -228,6 +226,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             }
         }
         supportActionBar!!.subtitle = group.name
+        columnGroupWrapper.fadeIn()
     }
 
     override fun showAddAccountDialog() {
@@ -255,6 +254,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
                 }))
                 messageText.text = getString(R.string.select_column_group)
             }
+
         }
         dialogOwner.showDialog(dialog)
     }

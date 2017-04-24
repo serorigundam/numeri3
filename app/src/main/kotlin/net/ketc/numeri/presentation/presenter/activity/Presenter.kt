@@ -21,6 +21,7 @@ interface Presenter<out T : ActivityInterface> {
      * this method is called at an arbitrary timing and initializes own instance
      */
     fun initialize(savedInstanceState: Bundle? = null) {
+
     }
 
     /**

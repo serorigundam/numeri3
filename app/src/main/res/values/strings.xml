@@ -16,4 +16,6 @@
     <string name="select_column_group">表示するカラムグループを選択</string>
     <string name="yes">はい</string>
     <string name="label_column_group_manage">カラムグループ管理</string>
+    <string name="follow_conversation">会話を辿る</string>
+    <string name="label_conversation">会話</string>
 </resources>
