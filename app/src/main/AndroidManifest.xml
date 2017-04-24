@@ -65,6 +65,15 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".presentation.view.activity.ConversationActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:label="@string/label_conversation">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

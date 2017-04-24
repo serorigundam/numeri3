@@ -20,9 +20,9 @@ import org.jetbrains.anko.backgroundResource
 import org.jetbrains.anko.image
 import java.util.*
 
-class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: ReadableMore<MutableList<T>>,
-                                                  private val autoDisposable: AutoDisposable,
-                                                  private val create: () -> TwitterViewHolder<T>) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val autoDisposable: AutoDisposable,
+                                                  private val create: () -> TwitterViewHolder<T>,
+                                                  private val readableMore: ReadableMore<MutableList<T>>? = null) : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     private val itemList = ArrayList<T>()
     val last: T?
@@ -65,7 +65,8 @@ class TwitterRecyclerAdapter<T : Cacheable<Long>>(private val readableMore: Read
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            TYPE_FOOTER -> FooterViewHolder(readableMore, autoDisposable, parent.context)
+            TYPE_FOOTER -> FooterViewHolder(readableMore ?: throw IllegalStateException("readableMore is not initialized"),
+                    autoDisposable, parent.context)
             else -> create()
         }
     }

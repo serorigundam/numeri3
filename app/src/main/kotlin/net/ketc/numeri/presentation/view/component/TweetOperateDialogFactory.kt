@@ -10,6 +10,7 @@ import net.ketc.numeri.domain.model.cache.isFavorite
 import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
+import net.ketc.numeri.presentation.view.activity.ConversationActivity
 import net.ketc.numeri.presentation.view.component.ui.menu.*
 import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
@@ -34,6 +35,8 @@ class TweetOperatorDialogFactory(private val ctx: Context,
         menuItems.openUrlMenuItems.forEach {
             dialog.addMenu(it)
         }
+        if ((tweet.retweetedTweet ?: tweet).inReplyToStatusId != -1L)
+            dialog.addMenu(menuItems.openDisplayConversationItem)
         return dialog
     }
 }
@@ -95,7 +98,7 @@ class TweetMenuItems(private val ctx: Context,
     val favoriteMenuItem: View = createFavoriteMenu()
     val retweetMenuItem: View = createRetweetMenu()
     val openUrlMenuItems: List<View> = createOpenUrlMenus()
-
+    val openDisplayConversationItem: View = createDisplayConversationMenu()
     private fun createFavoriteMenu(): View {
         val textId: Int
         val iconId: Int
@@ -106,7 +109,7 @@ class TweetMenuItems(private val ctx: Context,
             textId = R.string.create_favorite
             iconId = R.drawable.ic_star_border_white_24dp
         }
-        return createIconMenu(ctx, iconId, textId) { v -> presenter.changeFavorite() }
+        return createIconMenu(ctx, iconId, textId) { _ -> presenter.changeFavorite() }
     }
 
     private fun createRetweetMenu(): View {
@@ -131,4 +134,9 @@ class TweetMenuItems(private val ctx: Context,
         return tweet.urlEntities.map(UrlEntity::createMenu).toImmutableList()
     }
 
+    private fun createDisplayConversationMenu(): View {
+        return createIconMenu(ctx, R.drawable.ic_chat_bubble_outline_white_24dp, R.string.follow_conversation) {
+            ConversationActivity.start(ctx, (tweet.retweetedTweet ?: tweet).id, client.id)
+        }
+    }
 }
