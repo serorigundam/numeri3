@@ -43,7 +43,7 @@
         <activity
             android:name=".presentation.view.activity.TweetsDisplayGroupManageActivity"
             android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
-            android:label="@string/column_manage">
+            android:label="@string/label_column_group_manage">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>

@@ -5,9 +5,9 @@ import android.net.Uri
 import android.os.Bundle
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
+import net.ketc.numeri.domain.entity.TweetsDisplayType
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.cache.TwitterUserCache
-import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
@@ -43,6 +43,9 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             ctx.toast(ctx.getString(R.string.authentication_failure))
             initialized = true
         }.success { pair ->
+            if (pair.isEmpty()) {
+                activity.showAddAccountDialog()
+            }
             pair.map { it.second }
                     .forEach {
                         activity.addAccount(it, this)
@@ -67,7 +70,10 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         super.onResume()
 
         if (!initialized) return
+        applyDisplayGroupChanges()
+    }
 
+    private fun applyDisplayGroupChanges() {
         val newGroups = tweetsDisplayService.getAllGroup()
         var isChange = newGroups.size != groups.size
 
@@ -140,12 +146,17 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             return
         singleTask(MySchedulers.twitter) {
             val client = oAuthService.createTwitterClient(oauthVerifier)
-            client.twitter.showUser(client.id).convertAndCacheOrGet()
+            client.withUser()
         }.error {
             it.printStackTrace()
             ctx.toast(ctx.getString(R.string.authentication_failure))
         }.success {
-            activity.addAccount(it, this)
+            activity.addAccount(it.second, this)
+            if (activity.accounts.size == 1) {
+                val group = tweetsDisplayService.createGroup("メイン")
+                tweetsDisplayService.createDisplay(group, it.first, -1L, TweetsDisplayType.HOME, "Home:${it.second.screenName}")
+                applyDisplayGroupChanges()
+            }
         }
     }
 

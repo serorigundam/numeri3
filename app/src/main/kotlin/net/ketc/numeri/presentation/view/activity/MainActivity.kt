@@ -4,18 +4,17 @@ import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
+import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.text.TextUtils
-import android.view.Gravity
-import android.view.KeyEvent
-import android.view.MenuItem
-import android.view.View
+import android.view.*
 import android.widget.ImageView
 import android.widget.LinearLayout
 import android.widget.RelativeLayout
@@ -30,9 +29,7 @@ import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
 import net.ketc.numeri.presentation.view.component.ui.menu.messageText
 import net.ketc.numeri.presentation.view.component.ui.tweet.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
-import net.ketc.numeri.util.android.DialogOwner
-import net.ketc.numeri.util.android.download
-import net.ketc.numeri.util.android.getResourceId
+import net.ketc.numeri.util.android.*
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
@@ -49,7 +46,6 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
     private val navigation: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
     private val showAccountIndicator: ImageView by lazy { navigation.getHeaderView(0).find<ImageView>(R.id.show_account_indicator) }
     private val navigationContent: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation_content) }
-    private val navigationView: NavigationView by lazy { find<NavigationView>(R.id.navigation) }
     private val showAccountRelative: RelativeLayout by lazy { navigation.getHeaderView(0).find<RelativeLayout>(R.id.show_account_relative) }
     private val addAccountButton: RelativeLayout by lazy { find<RelativeLayout>(R.id.add_account_button) }
     private val accountsLinear: LinearLayout by lazy { find<LinearLayout>(R.id.accounts_linear) }
@@ -83,7 +79,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
-        navigationView.setNavigationItemSelectedListener(this)
+        navigation.setNavigationItemSelectedListener(this)
         showAccountRelative.setOnClickListener {
             toggleNavigationState()
         }
@@ -161,10 +157,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
             navigation.menu.setGroupVisible(R.id.main_menu, false)
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_less_white_24dp)
             navigationContent.visibility = View.VISIBLE
+            navigationContent.fadeIn()
         } else if (navigationContent.visibility == View.VISIBLE) {
-            navigation.menu.setGroupVisible(R.id.main_menu, true)
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_more_white_24dp)
             navigationContent.visibility = View.GONE
+            navigationContent.fadeOut()
+            navigation.menu.setGroupVisible(R.id.main_menu, true)
         }
     }
 
@@ -182,7 +180,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
         val holder = AccountItemViewHolder(ctx, twitterUser, autoDisposable)
         accountItemViewHolderList.add(holder)
         accountsLinear.addView(holder.view)
+        holder.view.fadeIn()
         mAccounts.add(twitterUser)
+        Handler().postDelayed({
+            toggleNavigationState()
+            drawer.closeDrawer(navigation)
+        }, 600)
     }
 
     override fun updateAccount(user: TwitterUser) {
@@ -234,6 +237,20 @@ class MainActivity : ApplicationActivity<MainPresenter>(), MainActivityInterface
             }
         }
         supportActionBar!!.subtitle = group.name
+    }
+
+    override fun showAddAccountDialog() {
+        var ok = false
+        val dialog = AlertDialog.Builder(ctx)
+                .setPositiveButton(getString(R.string.yes), { _, _ ->
+                    drawer.openDrawer(navigation)
+                    toggleNavigationState()
+                    ok = true
+                })
+                .setOnDismissListener { if (!ok) showAddAccountDialog() }
+                .setMessage("アカウントの認証する必要があります。")
+                .create()
+        dialogOwner.showDialog(dialog)
     }
 
     fun showChangeColumnGroupDialog() {
@@ -323,6 +340,7 @@ interface MainActivityInterface : ActivityInterface {
     fun addGroup(group: TweetsDisplayGroup)
     fun removeGroup(group: TweetsDisplayGroup)
     fun showGroup(group: TweetsDisplayGroup)
+    fun showAddAccountDialog()
 }
 
 class OauthActivity : AppCompatActivity() {

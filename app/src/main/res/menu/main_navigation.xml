@@ -3,12 +3,12 @@
     <group android:id="@+id/main_menu">
         <item
             android:id="@+id/column_manage"
-            android:icon="@mipmap/ic_launcher_round"
+            android:icon="@drawable/ic_view_column_white_24dp"
             android:title="@string/column_manage" />
 
         <item
             android:id="@+id/changing_column_group"
-            android:icon="@mipmap/ic_launcher_round"
+            android:icon="@drawable/ic_view_carousel_white_24dp"
             android:title="@string/changing_column_group" />
     </group>
 </menu>

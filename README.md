@@ -3,12 +3,12 @@ RxJava2とかankoとかMVP試すためにTwitterクライアント作る(n回目
 
 ## 開発環境
 * gradle3.3
-* kotlin-1.0.5-3
-* android studio2.3-beta3
+* kotlin-1.1.1
+* android studio2.3.1
 
 ## ビルド前に
 * 署名用にkeytool使ってrelease.jksとdebug.jksをプロジェクトルートに配置
-* release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesを配置		  
+* release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesをルートに配置
 * strings-twitter.xmlをこんな感じで作ってapp/src/main/res/values/strings-twitter.xmlに配置
 
 ```xml

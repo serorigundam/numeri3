@@ -1,6 +1,7 @@
 package net.ketc.numeri.presentation.view.activity.ui
 
 import android.support.design.widget.AppBarLayout
+import android.support.design.widget.FloatingActionButton
 import android.view.Gravity
 import android.view.View
 import android.widget.LinearLayout
@@ -11,6 +12,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.design.navigationView
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.support.v4.drawerLayout
@@ -34,6 +36,15 @@ class TweetsDisplayManageActivityUI : AnkoComponent<TweetsDisplayManageActivity>
                     id = R.id.displays_recycler
                 }.lparams(matchParent, matchParent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+                floatingActionButton {
+                    id = R.id.add_fab
+                    image = ctx.getDrawable(R.drawable.ic_add_white_24dp)
+                    size = FloatingActionButton.SIZE_AUTO
+                }.lparams {
+                    margin = dimen(R.dimen.margin_medium)
+                    anchorGravity = Gravity.BOTTOM or Gravity.END
+                    anchorId = R.id.displays_recycler
                 }
             }
 
