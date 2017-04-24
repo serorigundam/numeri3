@@ -72,10 +72,3 @@ private fun _RelativeLayout.menuText(rightOf: Int, init: TextView.() -> Unit) = 
     marginStart = dip(40)
     rightOf(rightOf)
 }
-
-fun BottomSheetDialog.addMenu(view: View) {
-    (this.findViewById(net.ketc.numeri.R.id.menu_linear) as ViewGroup).addView(view)
-}
-
-val BottomSheetDialog.messageText: TextView
-    get() = findViewById(R.id.message_text)!! as TextView

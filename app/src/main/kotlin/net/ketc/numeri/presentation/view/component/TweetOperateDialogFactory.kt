@@ -11,7 +11,9 @@ import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
 import net.ketc.numeri.presentation.view.component.ui.menu.*
-import net.ketc.numeri.presentation.view.component.ui.tweet.BottomSheetDialogUI
+import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
+import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
+import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 
@@ -117,7 +119,7 @@ class TweetMenuItems(private val ctx: Context,
             textId = R.string.create_retweet
             iconId = R.drawable.ic_autorenew_white_24dp
         }
-        return createIconMenu(ctx, iconId, textId) { v -> presenter.changeRetweeted() }
+        return createIconMenu(ctx, iconId, textId) { _ -> presenter.changeRetweeted() }
     }
 
     private fun createOpenUrlMenus(): List<View> {

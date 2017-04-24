@@ -21,10 +21,10 @@ import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import net.ketc.numeri.presentation.view.activity.ui.IMainActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
-import net.ketc.numeri.presentation.view.component.ui.menu.addMenu
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
-import net.ketc.numeri.presentation.view.component.ui.menu.messageText
-import net.ketc.numeri.presentation.view.component.ui.tweet.BottomSheetDialogUI
+import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
+import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
+import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
 import net.ketc.numeri.util.android.*
 import net.ketc.numeri.util.rx.AutoDisposable
