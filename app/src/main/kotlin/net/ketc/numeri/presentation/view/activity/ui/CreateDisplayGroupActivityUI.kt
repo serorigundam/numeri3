@@ -11,11 +11,11 @@ import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.textInputLayout
 
-class CreateDisplayGroupActivityUI : AnkoComponent<CreateDisplayGroupActivity> {
+class CreateDisplayGroupActivityUI : ICreateDisplayGroupActivityUI {
 
-    lateinit var groupNameEdit: EditText
+    override lateinit var groupNameEdit: EditText
         private set
-    lateinit var toolbar: Toolbar
+    override lateinit var toolbar: Toolbar
         private set
 
     override fun createView(ui: AnkoContext<CreateDisplayGroupActivity>) = with(ui) {
@@ -42,4 +42,9 @@ class CreateDisplayGroupActivityUI : AnkoComponent<CreateDisplayGroupActivity> {
             }
         }
     }
+}
+
+interface ICreateDisplayGroupActivityUI : AnkoComponent<CreateDisplayGroupActivity> {
+    val groupNameEdit: EditText
+    val toolbar: Toolbar
 }

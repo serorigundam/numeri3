@@ -3,51 +3,39 @@ package net.ketc.numeri.presentation.view.activity
 import android.content.Context
 import android.content.res.Configuration
 import android.os.Bundle
-import android.support.design.widget.FloatingActionButton
-import android.support.v4.widget.DrawerLayout
 import android.support.v7.app.ActionBarDrawerToggle
-import android.support.v7.widget.RecyclerView
-import android.support.v7.widget.Toolbar
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
-import android.widget.LinearLayout
-import android.widget.RelativeLayout
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplay
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenter
+import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.component.TweetsDisplayRecyclerAdapter
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
 import net.ketc.numeri.util.android.SimpleItemTouchHelper
 import net.ketc.numeri.util.android.defaultInit
-import org.jetbrains.anko.find
 import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
 
-class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePresenter>(), TweetsDisplayManageActivityInterface {
+class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePresenter>(),
+        TweetsDisplayManageActivityInterface, ITweetsDisplayManageActivityUI by TweetsDisplayManageActivityUI() {
 
     override val presenter: TweetsDisplayManagePresenter = TweetsDisplayManagePresenter(this)
-    private val drawer: DrawerLayout by lazy { find<DrawerLayout>(R.id.drawer) }
-    private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
     override val group: TweetsDisplayGroup
         get() = intent.getSerializableExtra(EXTRA_GROUP) as TweetsDisplayGroup
     override val ctx: Context
         get() = this
-    private val ui = TweetsDisplayManageActivityUI()
+    private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
     private val adapter: TweetsDisplayRecyclerAdapter by lazy { TweetsDisplayRecyclerAdapter() }
-    private val toolbar: Toolbar by lazy { find<Toolbar>(R.id.toolbar) }
-    private val displaysRecycler: RecyclerView by lazy { find<RecyclerView>(R.id.displays_recycler) }
-    private val navigation: RelativeLayout by lazy { find<RelativeLayout>(R.id.navigation) }
-    private val navigationContent by lazy { find<LinearLayout>(R.id.navigation_content) }
-    private val addButton by lazy { find<FloatingActionButton>(R.id.add_fab) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        ui.setContentView(this)
+        setContentView(this)
         setSupportActionBar(toolbar)
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
@@ -148,7 +136,5 @@ interface TweetsDisplayManageActivityInterface : ActivityInterface {
     fun replace(to: TweetsDisplay, by: TweetsDisplay)
     fun add(display: Pair<TweetsDisplay, String>)
     fun remove(display: TweetsDisplay)
-
     fun closeNavigation()
-
 }

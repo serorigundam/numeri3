@@ -15,12 +15,12 @@ import org.jetbrains.anko.design.coordinatorLayout
 import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.recyclerview.v7.recyclerView
 
-class TweetsDisplayGroupManageActivityUI : AnkoComponent<TweetsDisplayGroupManageActivity> {
-    lateinit var toolbar: Toolbar
+class TweetsDisplayGroupManageActivityUI : ITweetsDisplayGroupManageActivityUI {
+    override lateinit var toolbar: Toolbar
         private set
-    lateinit var groupsRecycler: RecyclerView
+    override lateinit var groupsRecycler: RecyclerView
         private set
-    lateinit var addButton: FloatingActionButton
+    override lateinit var addButton: FloatingActionButton
         private set
 
     override fun createView(ui: AnkoContext<TweetsDisplayGroupManageActivity>): View = with(ui) {
@@ -50,4 +50,10 @@ class TweetsDisplayGroupManageActivityUI : AnkoComponent<TweetsDisplayGroupManag
             }
         }
     }
+}
+
+interface ITweetsDisplayGroupManageActivityUI : AnkoComponent<TweetsDisplayGroupManageActivity> {
+    val toolbar: Toolbar
+    val groupsRecycler: RecyclerView
+    val addButton: FloatingActionButton
 }
