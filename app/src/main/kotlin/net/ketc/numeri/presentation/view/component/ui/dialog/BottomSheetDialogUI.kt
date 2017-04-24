@@ -1,8 +1,12 @@
-package net.ketc.numeri.presentation.view.component.ui.tweet
+package net.ketc.numeri.presentation.view.component.ui.dialog
 
 import android.content.Context
+import android.support.design.widget.BottomSheetDialog
 import android.text.TextUtils
+import android.view.View
+import android.view.ViewGroup
 import android.widget.LinearLayout
+import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.presentation.view.component.ui.UI
 import org.jetbrains.anko.*
@@ -35,3 +39,10 @@ class BottomSheetDialogUI(override val ctx: Context) : UI {
         }
     }
 }
+
+fun BottomSheetDialog.addMenu(view: View) {
+    (this.findViewById(net.ketc.numeri.R.id.menu_linear) as ViewGroup).addView(view)
+}
+
+val BottomSheetDialog.messageText: TextView
+    get() = findViewById(R.id.message_text)!! as TextView
