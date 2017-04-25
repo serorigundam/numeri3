@@ -15,7 +15,7 @@ import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenter
 import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayManageActivityUI
-import net.ketc.numeri.presentation.view.component.TweetsDisplayRecyclerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayRecyclerAdapter
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
 import net.ketc.numeri.util.android.SimpleItemTouchHelper
 import net.ketc.numeri.util.android.defaultInit

@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component
+package net.ketc.numeri.presentation.view.component.adapter
 
 import android.os.Bundle
 import android.os.Parcelable
@@ -12,40 +12,40 @@ import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 import java.util.*
 
-class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
-                                private val group: TweetsDisplayGroup,
-                                private val autoDisposable: AutoDisposable,
-                                private val tweetsDisplayService: TweetsDisplayService) : FragmentStatePagerAdapter(fm) {
+class TweetsDisplayPagerAdapter(private val fm: android.support.v4.app.FragmentManager,
+                                private val group: net.ketc.numeri.domain.entity.TweetsDisplayGroup,
+                                private val autoDisposable: net.ketc.numeri.util.rx.AutoDisposable,
+                                private val tweetsDisplayService: net.ketc.numeri.domain.service.TweetsDisplayService) : android.support.v4.app.FragmentStatePagerAdapter(fm) {
 
-    private val fragments = ArrayList<Fragment>()
-    private val previousFragmentIds = ArrayList<Int>()
+    private val fragments = java.util.ArrayList<android.support.v4.app.Fragment>()
+    private val previousFragmentIds = java.util.ArrayList<Int>()
 
-    override fun getItem(position: Int): Fragment = fragments[position]
+    override fun getItem(position: Int): android.support.v4.app.Fragment = fragments[position]
 
     override fun getCount(): Int = fragments.count()
 
     override fun getPageTitle(position: Int): CharSequence
-            = (fragments[position] as TimeLineFragment).displayName
+            = (fragments[position] as net.ketc.numeri.presentation.view.fragment.TimeLineFragment).displayName
 
     private var initialized = false
 
     fun initialize() {
-        autoDisposable.singleTask(MySchedulers.twitter) {
+        autoDisposable.singleTask(net.ketc.numeri.util.rx.MySchedulers.twitter) {
             createFragments()
         } error {
 
         } success {
             fragments.addAll(it)
-            previousFragmentIds.addAll(fragments.map { (it as TimeLineFragment).display.id })
+            previousFragmentIds.addAll(fragments.map { (it as net.ketc.numeri.presentation.view.fragment.TimeLineFragment).display.id })
             notifyDataSetChanged()
             initialized = true
         }
     }
 
-    override fun restoreState(state: Parcelable?, loader: ClassLoader) {
+    override fun restoreState(state: android.os.Parcelable?, loader: ClassLoader) {
         super.restoreState(state, loader)
         if (state != null) {
-            val bundle = state as Bundle
+            val bundle = state as android.os.Bundle
             val keys = bundle.keySet()
             keys.forEach {
                 if (it.startsWith("f")) {
@@ -53,7 +53,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
                     val fragment = fm.getFragment(bundle, it)
                     fragment?.let {
                         fragments.add(index, it)
-                        previousFragmentIds.add((it as TimeLineFragment).display.id)
+                        previousFragmentIds.add((it as net.ketc.numeri.presentation.view.fragment.TimeLineFragment).display.id)
                     }
                     notifyDataSetChanged()
                 }
@@ -64,7 +64,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
     override fun getItemPosition(`object`: Any?): Int {
         val unchanged = previousFragmentIds
                 .any {
-                    it == (`object` as TimeLineFragment).display.id &&
+                    it == (`object` as net.ketc.numeri.presentation.view.fragment.TimeLineFragment).display.id &&
                             previousFragmentIds.indexOf(it) == fragments.indexOf(`object`)
                 }
         return if (unchanged) {
@@ -77,12 +77,12 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
     fun onResume() {
         if (!initialized)
             return
-        autoDisposable.singleTask(MySchedulers.twitter) {
+        autoDisposable.singleTask(net.ketc.numeri.util.rx.MySchedulers.twitter) {
             val displays = tweetsDisplayService.getDisplays(group)
             var isChange = fragments.size != displays.size
             if (!isChange) {
                 displays.forEachIndexed { i, display ->
-                    if (i > fragments.lastIndex || (fragments[i] as TimeLineFragment).display.id != display.id) {
+                    if (i > fragments.lastIndex || (fragments[i] as net.ketc.numeri.presentation.view.fragment.TimeLineFragment).display.id != display.id) {
                         isChange = true
                         return@forEachIndexed
                     }
@@ -90,10 +90,10 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
             }
             if (isChange) {
                 val fragments = displays.mapIndexed { i, display ->
-                    (fragments.mapIndexed { i, fragment -> i to fragment as TimeLineFragment }
+                    (fragments.mapIndexed { i, fragment -> i to fragment as net.ketc.numeri.presentation.view.fragment.TimeLineFragment }
                             .firstOrNull { pair ->
                                 pair.first == i && display.id == pair.second.display.id
-                            }?.second ?:  TimeLineFragment.create(display))
+                            }?.second ?:  net.ketc.numeri.presentation.view.fragment.TimeLineFragment.Companion.create(display))
                 }
                 true to fragments
             } else {

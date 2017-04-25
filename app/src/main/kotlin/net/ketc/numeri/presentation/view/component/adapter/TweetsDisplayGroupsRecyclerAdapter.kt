@@ -1,8 +1,9 @@
-package net.ketc.numeri.presentation.view.component
+package net.ketc.numeri.presentation.view.component.adapter
 
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
+import net.ketc.numeri.presentation.view.component.SimpleTextViewHolder
 import net.ketc.numeri.util.android.getResourceId
 import java.util.*
 

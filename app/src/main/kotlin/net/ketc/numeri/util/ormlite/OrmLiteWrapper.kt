@@ -87,7 +87,7 @@ inline fun <R> transaction(crossinline handle: Transaction.() -> R) = connectDat
  * create tables
  * @param tables tables
  */
-fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
+fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, _ ->
     tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
@@ -97,7 +97,7 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connec
  * drop table
  * @param table table
  */
-fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
+fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, _ ->
     table.forEach {
         TableUtils.clearTable(connectionSource, it.java)
     }

@@ -97,6 +97,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             R.id.changing_column_group -> {
                 showChangeColumnGroupDialog()
             }
+            R.id.test_media -> MediaActivity.start(this)//todo test
             else -> return super.onOptionsItemSelected(item)
         }
         drawer.closeDrawer(navigation)
@@ -147,11 +148,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             navigation.menu.setGroupVisible(R.id.main_menu, false)
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_less_white_24dp)
             navigationContent.visibility = View.VISIBLE
-            navigationContent.fadeIn()
+            navigationContent.fadeIn().execute()
         } else if (navigationContent.visibility == View.VISIBLE) {
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_more_white_24dp)
             navigationContent.visibility = View.GONE
-            navigationContent.fadeOut()
+            navigationContent.fadeOut().execute()
             navigation.menu.setGroupVisible(R.id.main_menu, true)
         }
     }
@@ -226,7 +227,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             }
         }
         supportActionBar!!.subtitle = group.name
-        columnGroupWrapper.fadeIn()
+        columnGroupWrapper.fadeIn().execute()
     }
 
     override fun showAddAccountDialog() {

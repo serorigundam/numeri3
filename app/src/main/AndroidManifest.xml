@@ -74,6 +74,16 @@
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
         </activity>
+
+        <activity
+            android:name=".presentation.view.activity.MediaActivity"
+            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
+            android:label="@string/label_conversation"
+            android:theme="@style/AppTheme.FullScreen">
+            <intent-filter>
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+        </activity>
     </application>
 
 </manifest>

@@ -6,8 +6,8 @@ import android.support.v7.widget.helper.ItemTouchHelper
 
 class SimpleItemTouchHelper(moveEnable: Boolean = false,
                             swipeEnable: Boolean = false,
-                            onMove: (recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) -> Boolean = { r, v, t -> false },
-                            onSwiped: (viewHolder: RecyclerView.ViewHolder, direction: Int) -> Unit = { v, d -> }) :
+                            onMove: (recyclerView: RecyclerView, viewHolder: RecyclerView.ViewHolder, target: RecyclerView.ViewHolder) -> Boolean = { _, _, _ -> false },
+                            onSwiped: (viewHolder: RecyclerView.ViewHolder, direction: Int) -> Unit = { _, _ -> }) :
         ItemTouchHelper(
                 object : ItemTouchHelper.SimpleCallback(
                         if (moveEnable) ItemTouchHelper.DOWN or ItemTouchHelper.UP else 0,
