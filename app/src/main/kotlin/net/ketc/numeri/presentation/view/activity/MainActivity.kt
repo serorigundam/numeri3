@@ -109,6 +109,9 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             R.id.changing_column_group -> {
                 showChangeColumnGroupDialog()
             }
+            R.id.test_userInfo -> {
+                UserInfoActivity.start(this)
+            }
             else -> return super.onOptionsItemSelected(item)
         }
         drawer.closeDrawer(navigation)
