@@ -3,9 +3,11 @@ package net.ketc.numeri.presentation.view.component
 import android.content.Context
 import android.graphics.Color
 import android.view.View
+import kotlinx.coroutines.experimental.channels.buildChannel
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.isMention
 import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.presentation.view.activity.MediaActivity
 import net.ketc.numeri.presentation.view.component.adapter.TwitterViewHolder
 import net.ketc.numeri.presentation.view.component.ui.menu.iconImage
 import net.ketc.numeri.presentation.view.component.ui.tweet.*
@@ -68,6 +70,7 @@ class TweetViewHolder(ctx: Context,
             if (url.isNotEmpty()) {
                 thumbnails[i].visibility = View.VISIBLE
                 thumbnails[i].download(url, autoDisposable)
+                thumbnails[i].setOnClickListener { MediaActivity.start(context, displayTweet.mediaEntities, i) }
             } else {
                 thumbnails[i].setImageDrawable(null)
                 thumbnails[i].visibility = View.GONE

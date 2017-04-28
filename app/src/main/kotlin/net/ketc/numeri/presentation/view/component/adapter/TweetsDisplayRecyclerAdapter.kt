@@ -1,6 +1,5 @@
 package net.ketc.numeri.presentation.view.component.adapter
 
-import android.R
 import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import net.ketc.numeri.domain.entity.TweetsDisplay
@@ -9,15 +8,15 @@ import net.ketc.numeri.presentation.view.component.SimpleTextViewHolder
 import net.ketc.numeri.util.android.getResourceId
 import java.util.*
 
-class TweetsDisplayRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
+class TweetsDisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
-    private val items = ArrayList<Pair<TweetsDisplay, String>>()
+    private val items = ArrayList<TweetsDisplay>()
     val displayItemCount: Int
         get() = items.size
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder?, position: Int) {
         if (holder is SimpleTextViewHolder) {
-            holder.bind(items[position].second)
+            holder.bind(items[position].name)
         }
     }
 
@@ -27,7 +26,7 @@ class TweetsDisplayRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHol
         val ctx = parent.context
         return when (viewType) {
             DISPLAY -> SimpleTextViewHolder(ctx).apply {
-                itemView.background = ctx.getDrawable(ctx.getResourceId(R.attr.selectableItemBackground))
+                itemView.background = ctx.getDrawable(ctx.getResourceId(android.R.attr.selectableItemBackground))
                 itemView.isClickable = true
             }
             EMPTY -> EmptyViewHolder(ctx)
@@ -43,29 +42,29 @@ class TweetsDisplayRecyclerAdapter() : RecyclerView.Adapter<RecyclerView.ViewHol
         }
     }
 
-    fun add(pair: Pair<TweetsDisplay, String>) {
-        items.add(pair)
+    fun add(display: TweetsDisplay) {
+        items.add(display)
         notifyItemInserted(items.lastIndex)
     }
 
     fun remove(display: TweetsDisplay) {
-        val removedIndex = items.indexOfFirst { it.first.id == display.id }
+        val removedIndex = items.indexOfFirst { it.id == display.id }
         if (removedIndex != -1) {
-            items.removeIf { it.first.id == display.id }
+            items.removeIf { it.id == display.id }
             notifyItemRemoved(removedIndex)
         }
     }
 
     fun replace(to: TweetsDisplay, by: TweetsDisplay) {
-        val toIndex = items.indexOfFirst { to.id == it.first.id }
-        val byIndex = items.indexOfFirst { by.id == it.first.id }
+        val toIndex = items.indexOfFirst { to.id == it.id }
+        val byIndex = items.indexOfFirst { by.id == it.id }
         val temp = items[toIndex]
         items[toIndex] = items[byIndex]
         items[byIndex] = temp
         notifyItemMoved(byIndex, toIndex)
     }
 
-    fun get(position: Int) = items[position].first
+    fun get(position: Int) = items[position]
 
 
     companion object {

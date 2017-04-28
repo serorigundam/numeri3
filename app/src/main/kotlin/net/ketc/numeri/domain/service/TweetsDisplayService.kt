@@ -5,7 +5,6 @@ import net.ketc.numeri.util.copy
 import net.ketc.numeri.util.ormlite.Transaction
 import net.ketc.numeri.util.ormlite.delete
 import net.ketc.numeri.util.ormlite.transaction
-import net.ketc.numeri.util.toImmutableList
 import java.util.*
 
 interface TweetsDisplayService {
@@ -31,17 +30,16 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     init {
         transaction {
             val groupDao = dao(TweetsDisplayGroup::class)
-            val groups = groupDao.queryForAll().toImmutableList()
-            groups.forEach {
+            val groups = groupDao.queryForAll()
+            groups.forEach { group ->
                 val tweetsDisplayDao = dao(TweetsDisplay::class)
                 val tweetsDisplayList = tweetsDisplayDao.queryBuilder()
                         .orderBy("order", true)
                         .where()
-                        .eq("group_id", it.id)
+                        .eq("group_id", group.id)
                         .query()
-                displaysMap.put(it, tweetsDisplayList)
+                displaysMap.put(group, tweetsDisplayList)
             }
-            displaysMap.map { it.key }.toImmutableList()
         }
     }
 
@@ -64,7 +62,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     }
 
     override fun removeGroup(group: TweetsDisplayGroup): Unit = transaction {
-        displaysMap[group] ?: throw GroupDoesNotExistWasSpecifiedException()
+        displaysMap[group] ?: throw GroupDoesNotExistWasSpecifiedException(group)
         val displayDao = dao(TweetsDisplay::class)
         displayDao.delete { eq("group_id", group.id) }
         val groupDao = dao(TweetsDisplayGroup::class)
@@ -73,7 +71,8 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     }
 
     override fun remove(tweetsDisplay: TweetsDisplay): Unit = transaction {
-        val displays = displaysMap[tweetsDisplay.group] ?: throw  GroupDoesNotExistWasSpecifiedException()
+        val group = tweetsDisplay.group
+        val displays = displaysMap[group] ?: throw  GroupDoesNotExistWasSpecifiedException(group)
         if (!displays.remove(tweetsDisplay)) {
             throw DisplayDoesNotExistWasSpecifiedException()
         }
@@ -90,7 +89,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
     }
 
     override fun getDisplays(group: TweetsDisplayGroup): List<TweetsDisplay> {
-        return displaysMap[group]?.copy() ?: throw GroupDoesNotExistWasSpecifiedException()
+        return displaysMap[group]?.copy() ?: throw GroupDoesNotExistWasSpecifiedException(group)
     }
 
     override fun replace(to: TweetsDisplay, by: TweetsDisplay): Unit = transaction {
@@ -99,7 +98,7 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
         val temp = to.order
         to.order = by.order
         by.order = temp
-        val displays = displaysMap[to.group] ?: throw GroupDoesNotExistWasSpecifiedException()
+        val displays = displaysMap[to.group] ?: throw GroupDoesNotExistWasSpecifiedException(to.group)
         displays.first { it.id == to.id }.order = to.order
         displays.first { it.id == by.id }.order = by.order
         displays.sortBy { it.order }
@@ -110,9 +109,9 @@ class TweetsDisplayServiceImpl : TweetsDisplayService {
 
     private fun Transaction.checkExistence(group: TweetsDisplayGroup) {
         val groupDao = dao(TweetsDisplayGroup::class)
-        groupDao.queryForId(group.id) ?: throw GroupDoesNotExistWasSpecifiedException()
+        groupDao.queryForId(group.id) ?: throw GroupDoesNotExistWasSpecifiedException(group)
     }
 }
 
-class GroupDoesNotExistWasSpecifiedException : IllegalArgumentException("group that does not exist was specified")
+class GroupDoesNotExistWasSpecifiedException(group: TweetsDisplayGroup) : IllegalArgumentException("group[$group] that does not exist was specified")
 class DisplayDoesNotExistWasSpecifiedException : IllegalArgumentException("display that does not exist was specified")

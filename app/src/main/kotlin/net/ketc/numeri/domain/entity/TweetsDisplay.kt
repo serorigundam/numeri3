@@ -15,7 +15,7 @@ data class TweetsDisplay(
         override val id: Int = 0,
         @DatabaseField(canBeNull = false, foreign = true, uniqueCombo = true)
         val token: ClientToken = ClientToken(),
-        @DatabaseField(canBeNull = false, foreign = true, uniqueCombo = true)
+        @DatabaseField(canBeNull = false, foreign = true,foreignAutoRefresh = true ,uniqueCombo = true)
         val group: TweetsDisplayGroup = TweetsDisplayGroup(),
         @DatabaseField(canBeNull = false, uniqueCombo = true)
         val foreignId: Long = -1,

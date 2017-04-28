@@ -5,11 +5,10 @@ import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
 import net.ketc.numeri.R
 import net.ketc.numeri.presentation.view.activity.MediaActivity
+import net.ketc.numeri.presentation.view.component.mediaViewPager
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
-import org.jetbrains.anko.design.coordinatorLayout
-import org.jetbrains.anko.support.v4.viewPager
 
 class MediaActivityUI : IMediaActivityUI {
     override lateinit var toolbar: Toolbar
@@ -19,7 +18,8 @@ class MediaActivityUI : IMediaActivityUI {
 
 
     override fun createView(ui: AnkoContext<MediaActivity>) = with(ui) {
-        coordinatorLayout {
+        relativeLayout {
+            lparams(matchParent, matchParent)
             fitsSystemWindows = true
             appBarLayout {
                 backgroundColor = ctx.getColor(R.color.app_bar_transparent)
@@ -27,9 +27,11 @@ class MediaActivityUI : IMediaActivityUI {
                     toolbar = this
                 }.lparams(matchParent, wrapContent)
             }.lparams(matchParent, wrapContent)
-            viewPager {
-                fitsSystemWindows = true
+
+            mediaViewPager {
+                id = R.id.pager
                 pager = this
+                fitsSystemWindows = true
                 offscreenPageLimit = 4
                 backgroundColor = Color.BLACK
             }.lparams(matchParent, matchParent)

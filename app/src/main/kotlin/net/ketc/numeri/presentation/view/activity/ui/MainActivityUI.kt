@@ -6,6 +6,7 @@ import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
+import android.support.v7.widget.Toolbar
 import android.view.Gravity
 import android.view.View
 import android.view.ViewManager
@@ -39,6 +40,9 @@ class MainActivityUI : IMainActivityUI {
         private set
     override lateinit var columnGroupWrapper: CoordinatorLayout
         private set
+    override lateinit var toolbar: Toolbar
+        private set
+
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
         drawerLayout {
@@ -48,6 +52,7 @@ class MainActivityUI : IMainActivityUI {
                 appBarLayout {
                     toolbar {
                         id = R.id.toolbar
+                        toolbar = this
                     }.lparams(matchParent, wrapContent) {
                         scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or
                                 AppBarLayout.LayoutParams.SCROLL_FLAG_SCROLL
@@ -163,6 +168,7 @@ class MainActivityUI : IMainActivityUI {
 }
 
 interface IMainActivityUI : AnkoComponent<MainActivity> {
+    val toolbar: Toolbar
     val drawer: DrawerLayout
     val navigation: NavigationView
     val showAccountIndicator: ImageView

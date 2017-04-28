@@ -14,8 +14,9 @@
     </style>
 
     <style name="AppTheme.FullScreen" parent="AppTheme">
-        <item name="android:statusBarColor">@android:color/transparent</item>
-        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:statusBarColor">@color/transparent</item>
         <item name="android:windowTranslucentNavigation">true</item>
+        <item name="android:windowActionBarOverlay">true</item>
+        <item name="android:windowBackground">@color/transparent</item>
     </style>
 </resources>

@@ -11,9 +11,5 @@
             android:icon="@drawable/ic_view_carousel_white_24dp"
             android:title="@string/changing_column_group" />
 
-        <item
-            android:id="@+id/test_media"
-            android:icon="@drawable/ic_view_carousel_white_24dp"
-            android:title="MediaTest" />
     </group>
 </menu>

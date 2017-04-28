@@ -45,21 +45,19 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         }.success { pair ->
             if (pair.isEmpty()) {
                 activity.showAddAccountDialog()
+                return@success
             }
             pair.map { it.second }
                     .forEach {
                         activity.addAccount(it, this)
                     }
-            val client = pair.firstOrNull()?.first
-            if (client != null) {
-                val groups = tweetsDisplayService.getAllGroup()
-                this.groups.addAll(groups)
-                safePost {
-                    groups.forEach {
-                        activity.addGroup(it)
-                    }
-                    groups.firstOrNull()?.let { activity.showGroup(it) }
+            val groups = tweetsDisplayService.getAllGroup()
+            this.groups.addAll(groups)
+            safePost {
+                groups.forEach {
+                    activity.addGroup(it)
                 }
+                groups.firstOrNull()?.let { activity.showGroup(it) }
             }
             initialized = true
         }

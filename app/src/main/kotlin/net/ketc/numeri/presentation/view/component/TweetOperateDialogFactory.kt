@@ -11,6 +11,7 @@ import net.ketc.numeri.domain.model.cache.isRetweeted
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
 import net.ketc.numeri.presentation.view.activity.ConversationActivity
+import net.ketc.numeri.presentation.view.activity.MediaActivity
 import net.ketc.numeri.presentation.view.component.ui.menu.*
 import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
@@ -35,8 +36,13 @@ class TweetOperatorDialogFactory(private val ctx: Context,
         menuItems.openUrlMenuItems.forEach {
             dialog.addMenu(it)
         }
-        if ((tweet.retweetedTweet ?: tweet).inReplyToStatusId != -1L)
-            dialog.addMenu(menuItems.openDisplayConversationItem)
+        menuItems.openDisplayConversationItem?.let {
+            dialog.addMenu(it)
+        }
+        menuItems.openMediaItem?.let {
+            dialog.addMenu(it)
+        }
+        dialog.addMenu(menuItems.openTweetLink)
         return dialog
     }
 }
@@ -95,11 +101,16 @@ class TweetMenuItems(private val ctx: Context,
         }
 
 
-    val favoriteMenuItem: View = createFavoriteMenu()
-    val retweetMenuItem: View = createRetweetMenu()
-    val openUrlMenuItems: List<View> = createOpenUrlMenus()
-    val openDisplayConversationItem: View = createDisplayConversationMenu()
-    private fun createFavoriteMenu(): View {
+    val favoriteMenuItem = createFavoriteMenu()
+    val retweetMenuItem = createRetweetMenu()
+    val openUrlMenuItems = createOpenUrlMenus()
+    val openDisplayConversationItem = (tweet.retweetedTweet ?: tweet)
+            .inReplyToStatusId.takeUnless { it == -1L }?.let { createDisplayConversationMenu() }
+    val openMediaItem = tweet.mediaEntities.takeUnless { it.isEmpty() }?.let { createOpenMediaMenu() }
+    val openTweetLink = createOpenTweetLink()
+
+
+    fun createFavoriteMenu(): View {
         val textId: Int
         val iconId: Int
         if (client.isFavorite(tweet)) {
@@ -137,6 +148,18 @@ class TweetMenuItems(private val ctx: Context,
     private fun createDisplayConversationMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_chat_bubble_outline_white_24dp, R.string.follow_conversation) {
             ConversationActivity.start(ctx, (tweet.retweetedTweet ?: tweet).id, client.id)
+        }
+    }
+
+    private fun createOpenMediaMenu(): View {
+        return createIconMenu(ctx, R.drawable.ic_image_white_24dp, R.string.open_media) {
+            MediaActivity.start(ctx, tweet.mediaEntities)
+        }
+    }
+
+    private fun createOpenTweetLink(): View {
+        return createIconMenu(ctx, R.drawable.ic_open_in_browser_white_24dp, R.string.open_tweet_link) {
+            presenter.openUri("https://twitter.com/${tweet.user.screenName}/status/${tweet.id}")
         }
     }
 }

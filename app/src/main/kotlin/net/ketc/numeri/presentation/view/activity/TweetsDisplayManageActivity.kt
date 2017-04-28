@@ -112,7 +112,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
 
     override fun replace(to: TweetsDisplay, by: TweetsDisplay) = adapter.replace(to, by)
 
-    override fun add(display: Pair<TweetsDisplay, String>) = adapter.add(display)
+    override fun add(display: TweetsDisplay) = adapter.add(display)
 
     override fun remove(display: TweetsDisplay) = adapter.remove(display)
 
@@ -134,7 +134,7 @@ interface TweetsDisplayManageActivityInterface : ActivityInterface {
     val group: TweetsDisplayGroup
     fun addDisplays(clientPair: Pair<TwitterClient, TwitterUser>, displays: List<Pair<TweetsDisplay, String>>)
     fun replace(to: TweetsDisplay, by: TweetsDisplay)
-    fun add(display: Pair<TweetsDisplay, String>)
+    fun add(display: TweetsDisplay)
     fun remove(display: TweetsDisplay)
     fun closeNavigation()
 }

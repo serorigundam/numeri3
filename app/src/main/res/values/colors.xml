@@ -4,6 +4,6 @@
     <color name="colorPrimaryDark">#455A64</color>
     <color name="colorAccent">#448AFF</color>
     <color name="transparent">#00000000</color>
-    <color name="app_bar_transparent">#00000000</color>
+    <color name="app_bar_transparent">#66000000</color>
     <color name="image_background_transparency">#ABABABAB</color>
 </resources>
