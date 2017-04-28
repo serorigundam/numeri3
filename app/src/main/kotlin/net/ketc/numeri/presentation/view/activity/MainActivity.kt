@@ -25,7 +25,6 @@ import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
 import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
 import net.ketc.numeri.util.android.*
-import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
@@ -61,16 +60,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         super.onCreate(savedInstanceState)
         setContentView(this)
         initialize()
-        savedInstanceState?.let {
-            (savedInstanceState.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
-                if (it is TweetsDisplayGroup) {
-                    addGroupView(it.id)
-                    groups.add(it)
-                } else {
-                    throw IllegalStateException("EXTRA_GROUP contains non TweetsDisplayGroup")
-                }
-            }
-        }
+        restoreGroupViews(savedInstanceState)
         presenter.initialize(savedInstanceState)
     }
 
@@ -87,9 +77,20 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         addAccountButton.setOnClickListener { presenter.newAuthenticate() }
     }
 
+    private fun restoreGroupViews(savedInstanceState: Bundle?) {
+        savedInstanceState?.let {
+            (savedInstanceState.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
+                (it as? TweetsDisplayGroup)?.let {
+                    addGroupView(it.id)
+                    groups.add(it)
+                } ?: throw IllegalStateException("EXTRA_GROUP contains non TweetsDisplayGroup")
+            }
+        }
+    }
+
+
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
-        v("Main", "onNewIntent()")
         val oauthIntent = intent.getParcelableExtra<Intent>(INTENT_OAUTH) ?: return
         presenter.onNewIntent(oauthIntent)
     }

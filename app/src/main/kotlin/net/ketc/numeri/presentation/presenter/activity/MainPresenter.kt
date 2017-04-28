@@ -13,7 +13,6 @@ import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.activity.MainActivityInterface
 import net.ketc.numeri.presentation.view.activity.TweetsDisplayGroupManageActivity
-import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.rx.twitterThread
 import org.jetbrains.anko.startActivity
@@ -97,8 +96,6 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
             removed.forEach {
                 activity.removeGroup(it)
             }
-            v("MainActivity", "addedGroups:${added.joinToString { "$it" }}")
-            v("MainActivity", "removedGroups:${removed.joinToString { "$it" }}")
             groups.clear()
             groups.addAll(newGroups)
             if (groups.singleOrNull { (id) -> activity.showingGroupId == id } == null) {

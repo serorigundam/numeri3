@@ -10,7 +10,6 @@ import com.j256.ormlite.stmt.Where
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
-import net.ketc.numeri.util.log.d
 import java.io.Serializable
 import java.sql.SQLException
 import java.util.concurrent.locks.ReentrantLock
@@ -106,7 +105,6 @@ fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connecti
 val dataBaseConnectLock = ReentrantLock()
 
 inline fun <R> connectDataBase(func: (ConnectionSource, DataBaseHelper) -> R): R {
-    d("database connect lock", "hold count = ${dataBaseConnectLock.holdCount}")
     return dataBaseConnectLock.withLock {
         val helper = DataBaseHelperFactory.create()
         var connectionSource: ConnectionSource? = null

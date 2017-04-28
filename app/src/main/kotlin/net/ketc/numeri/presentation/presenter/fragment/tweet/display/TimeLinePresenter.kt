@@ -10,7 +10,6 @@ import net.ketc.numeri.presentation.presenter.fragment.AutoDisposableFragmentPre
 import net.ketc.numeri.presentation.view.component.ReadableMore
 import net.ketc.numeri.presentation.view.component.TweetOperatorDialogFactory
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragmentInterface
-import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
 import twitter4j.Paging
