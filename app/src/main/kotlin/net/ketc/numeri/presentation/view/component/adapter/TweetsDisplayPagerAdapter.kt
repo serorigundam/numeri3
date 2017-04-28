@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component
+package net.ketc.numeri.presentation.view.component.adapter
 
 import android.os.Bundle
 import android.os.Parcelable
@@ -9,7 +9,7 @@ import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragment
 import net.ketc.numeri.util.rx.AutoDisposable
-import net.ketc.numeri.util.rx.MySchedulers
+import net.ketc.numeri.util.rx. MySchedulers
 import java.util.*
 
 class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
@@ -93,7 +93,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
                     (fragments.mapIndexed { i, fragment -> i to fragment as TimeLineFragment }
                             .firstOrNull { pair ->
                                 pair.first == i && display.id == pair.second.display.id
-                            }?.second ?:  TimeLineFragment.create(display))
+                            }?.second ?:  TimeLineFragment.Companion.create(display))
                 }
                 true to fragments
             } else {

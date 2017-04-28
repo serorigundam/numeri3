@@ -97,6 +97,7 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
         companion object {
             private val DATE_FORMAT = "yyyy/MM/dd HH:mm:ss"
             private fun Date.format(): String = SimpleDateFormat(DATE_FORMAT, Locale.getDefault()).format(this)
+            @Suppress("DEPRECATION")
             private fun fromHtml(str: String) = if (Build.VERSION.SDK_INT >= 24) {
                 Html.fromHtml(str, Html.FROM_HTML_MODE_COMPACT)
             } else {

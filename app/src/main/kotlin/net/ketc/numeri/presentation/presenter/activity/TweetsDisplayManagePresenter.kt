@@ -57,7 +57,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
         }
 
         displayService.getDisplays(activity.group).forEach { display ->
-            activity.add(display to display.stringTo(userMap.map { it.value }.find { it.id == display.token.id }!!))
+            activity.add(display)
         }
         userList.forEach { user ->
             val displayPairs = ArrayList<Pair<TweetsDisplay, String>>()
@@ -90,7 +90,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
 
         val createdDisplay = displayService.createDisplay(activity.group, client, display.foreignId, display.type, text)
         activity.closeNavigation()
-        activity.add(createdDisplay to text)
+        activity.add(createdDisplay)
     }
 
     fun removeDisplay(display: TweetsDisplay) {

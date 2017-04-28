@@ -15,7 +15,7 @@ import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenter
 import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayManageActivityUI
-import net.ketc.numeri.presentation.view.component.TweetsDisplayRecyclerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayRecyclerAdapter
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
 import net.ketc.numeri.util.android.SimpleItemTouchHelper
 import net.ketc.numeri.util.android.defaultInit
@@ -112,7 +112,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
 
     override fun replace(to: TweetsDisplay, by: TweetsDisplay) = adapter.replace(to, by)
 
-    override fun add(display: Pair<TweetsDisplay, String>) = adapter.add(display)
+    override fun add(display: TweetsDisplay) = adapter.add(display)
 
     override fun remove(display: TweetsDisplay) = adapter.remove(display)
 
@@ -134,7 +134,7 @@ interface TweetsDisplayManageActivityInterface : ActivityInterface {
     val group: TweetsDisplayGroup
     fun addDisplays(clientPair: Pair<TwitterClient, TwitterUser>, displays: List<Pair<TweetsDisplay, String>>)
     fun replace(to: TweetsDisplay, by: TweetsDisplay)
-    fun add(display: Pair<TweetsDisplay, String>)
+    fun add(display: TweetsDisplay)
     fun remove(display: TweetsDisplay)
     fun closeNavigation()
 }

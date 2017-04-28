@@ -3,7 +3,7 @@ RxJava2とかankoとかMVP試すためにTwitterクライアント作る(n回目
 
 ## 開発環境
 * gradle3.3
-* kotlin-1.1.1
+* kotlin-1.1.2
 * android studio2.3.1
 
 ## ビルド前に

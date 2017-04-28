@@ -10,7 +10,6 @@ import com.j256.ormlite.stmt.Where
 import com.j256.ormlite.support.ConnectionSource
 import com.j256.ormlite.table.TableUtils
 import net.ketc.numeri.Numeri
-import net.ketc.numeri.util.log.d
 import java.io.Serializable
 import java.sql.SQLException
 import java.util.concurrent.locks.ReentrantLock
@@ -87,7 +86,7 @@ inline fun <R> transaction(crossinline handle: Transaction.() -> R) = connectDat
  * create tables
  * @param tables tables
  */
-fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
+fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connectionSource, _ ->
     tables.forEach {
         TableUtils.createTableIfNotExists(connectionSource, it.java)
     }
@@ -97,7 +96,7 @@ fun createTable(vararg tables: KClass<out Entity<*>>) = connectDataBase { connec
  * drop table
  * @param table table
  */
-fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, helper ->
+fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connectionSource, _ ->
     table.forEach {
         TableUtils.clearTable(connectionSource, it.java)
     }
@@ -106,7 +105,6 @@ fun clearTable(vararg table: KClass<out Entity<*>>) = connectDataBase { connecti
 val dataBaseConnectLock = ReentrantLock()
 
 inline fun <R> connectDataBase(func: (ConnectionSource, DataBaseHelper) -> R): R {
-    d("database connect lock", "hold count = ${dataBaseConnectLock.holdCount}")
     return dataBaseConnectLock.withLock {
         val helper = DataBaseHelperFactory.create()
         var connectionSource: ConnectionSource? = null

@@ -18,4 +18,11 @@
     <string name="label_column_group_manage">カラムグループ管理</string>
     <string name="follow_conversation">会話を辿る</string>
     <string name="label_conversation">会話</string>
+    <string name="label_image">画像</string>
+    <string name="open_media">メディアを開く</string>
+    <string name="open_tweet_link">ツイートのリンクを開く</string>
+    <string name="save_complete">保存完了</string>
+    <string name="save_failure">保存失敗</string>
+    <string name="save">保存</string>
+    <string name="open_link">リンクを開く</string>
 </resources>

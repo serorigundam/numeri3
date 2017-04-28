@@ -10,5 +10,6 @@
             android:id="@+id/changing_column_group"
             android:icon="@drawable/ic_view_carousel_white_24dp"
             android:title="@string/changing_column_group" />
+
     </group>
 </menu>

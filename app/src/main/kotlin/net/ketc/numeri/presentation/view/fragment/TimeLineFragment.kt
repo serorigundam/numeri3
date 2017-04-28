@@ -15,7 +15,7 @@ import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.fragment.tweet.display.*
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
-import net.ketc.numeri.presentation.view.component.TwitterRecyclerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TwitterRecyclerAdapter
 import net.ketc.numeri.util.android.DialogOwner
 import net.ketc.numeri.util.android.defaultInit
 import net.ketc.numeri.util.android.parent

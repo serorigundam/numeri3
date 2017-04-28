@@ -21,9 +21,13 @@ class TweetOperateDialogPresenter(private val ctx: Context, autoDisposable: Auto
         tweetMenuDialog.isFavoriteMenuClickable = false
         singleTask(MySchedulers.twitter) {
             if (!tweetMenuDialog.isFavorite) {
-                client.twitter.createFavorite(tweet.id)
+                client.twitter.createFavorite(tweet.id).apply {
+                    client.setFavorite(tweet)
+                }
             } else {
-                client.twitter.destroyFavorite(tweet.id)
+                client.twitter.destroyFavorite(tweet.id).apply {
+                    client.setUnFavorite(tweet)
+                }
             }.convertAndCacheOrGet(client)
         } error {
             error(it)
@@ -49,12 +53,13 @@ class TweetOperateDialogPresenter(private val ctx: Context, autoDisposable: Auto
                     TweetFactory.delete(myRetweet.id)
                 }
                 myRetweet == null
+            }.apply {
+                RetweetStateCache.changeState(client, tweet, this)
             }
         } error {
             error(it)
             tweetMenuDialog.isRetweetMenuClickable = true
         } success {
-            RetweetStateCache.changeState(client, tweet, it)
             tweetMenuDialog.isRetweeted = it
             tweetMenuDialog.isRetweetMenuClickable = true
         }

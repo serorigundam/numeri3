@@ -9,7 +9,6 @@ import android.support.design.widget.NavigationView
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.support.v7.widget.Toolbar
 import android.text.TextUtils
 import android.view.*
 import android.widget.ImageView
@@ -61,11 +60,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         super.onCreate(savedInstanceState)
         setContentView(this)
         initialize()
+        restoreGroupViews(savedInstanceState)
         presenter.initialize(savedInstanceState)
     }
 
     private fun initialize() {
-        setSupportActionBar(find<Toolbar>(R.id.toolbar))
+        setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true
@@ -76,6 +76,18 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
 
         addAccountButton.setOnClickListener { presenter.newAuthenticate() }
     }
+
+    private fun restoreGroupViews(savedInstanceState: Bundle?) {
+        savedInstanceState?.let {
+            (savedInstanceState.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
+                (it as? TweetsDisplayGroup)?.let {
+                    addGroupView(it.id)
+                    groups.add(it)
+                } ?: throw IllegalStateException("EXTRA_GROUP contains non TweetsDisplayGroup")
+            }
+        }
+    }
+
 
     override fun onNewIntent(intent: Intent) {
         super.onNewIntent(intent)
@@ -132,6 +144,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         dialogOwner.onPause()
     }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putSerializable(EXTRA_GROUP, groups.toTypedArray())
+        super.onSaveInstanceState(outState)
+    }
+
     override fun onResume() {
         super.onResume()
         dialogOwner.onResume()
@@ -147,11 +164,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             navigation.menu.setGroupVisible(R.id.main_menu, false)
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_less_white_24dp)
             navigationContent.visibility = View.VISIBLE
-            navigationContent.fadeIn()
+            navigationContent.fadeIn().execute()
         } else if (navigationContent.visibility == View.VISIBLE) {
             showAccountIndicator.image = getDrawable(R.drawable.ic_expand_more_white_24dp)
             navigationContent.visibility = View.GONE
-            navigationContent.fadeOut()
+            navigationContent.fadeOut().execute()
             navigation.menu.setGroupVisible(R.id.main_menu, true)
         }
     }
@@ -171,10 +188,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         accountItemViewHolderList.add(holder)
         mAccounts.add(twitterUser)
         accountsLinear.addView(holder.view)
-        holder.view.fadeIn().end {
-            toggleNavigationState()
-            drawer.closeDrawer(navigation)
-        }.execute()
+        holder.view.fadeIn().execute()
     }
 
     override fun updateAccount(user: TwitterUser) {
@@ -186,10 +200,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     override fun addGroup(group: TweetsDisplayGroup) {
         if (groups.contains(group))
             return
-        addGroupView(group.id)
+        val id = group.id
+        addGroupView(id)
         groups.add(group)
         supportFragmentManager.beginTransaction()
-                .replace(group.id, TimeLinesFragment.create(group), group.id.toString())
+                .replace(id, TimeLinesFragment.create(group), id.toString())
                 .commit()
     }
 
@@ -198,7 +213,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             return
         val removed = (0..columnGroupWrapper.childCount)
                 .map { columnGroupWrapper.getChildAt(it) }
-                .find { it.id == group.id } ?: throw InternalError()
+                .find { it.id == group.id } ?: throw IllegalStateException()
         val removedFragment = supportFragmentManager.fragments
                 .filter { it is TimeLinesFragment }
                 .map { it as TimeLinesFragment }
@@ -226,7 +241,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
             }
         }
         supportActionBar!!.subtitle = group.name
-        columnGroupWrapper.fadeIn()
+        columnGroupWrapper.fadeIn().execute()
     }
 
     override fun showAddAccountDialog() {
@@ -318,6 +333,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
 
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
+        val EXTRA_GROUP = "EXTRA_GROUPS"
     }
 }
 

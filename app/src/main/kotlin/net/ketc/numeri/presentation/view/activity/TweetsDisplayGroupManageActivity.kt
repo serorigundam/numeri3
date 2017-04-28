@@ -6,7 +6,7 @@ import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayGroupManagePresenter
 import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayGroupManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayGroupManageActivityUI
-import net.ketc.numeri.presentation.view.component.TweetsDisplayGroupsRecyclerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayGroupsRecyclerAdapter
 import net.ketc.numeri.util.android.SimpleItemTouchHelper
 import net.ketc.numeri.util.android.defaultInit
 import net.ketc.numeri.util.copy

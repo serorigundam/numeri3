@@ -3,7 +3,7 @@ package net.ketc.numeri.presentation.presenter.fragment
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
-import net.ketc.numeri.presentation.view.component.TweetsDisplayPagerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayPagerAdapter
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragmentInterface
 import javax.inject.Inject
 

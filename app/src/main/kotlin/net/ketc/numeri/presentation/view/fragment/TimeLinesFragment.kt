@@ -12,7 +12,7 @@ import android.view.ViewGroup
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.presentation.presenter.fragment.TimeLinesPresenter
-import net.ketc.numeri.presentation.view.component.TweetsDisplayPagerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayPagerAdapter
 import net.ketc.numeri.util.android.parent
 import org.jetbrains.anko.below
 import org.jetbrains.anko.design.tabLayout
