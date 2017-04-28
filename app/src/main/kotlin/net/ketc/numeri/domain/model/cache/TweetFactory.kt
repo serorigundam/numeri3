@@ -28,9 +28,16 @@ object TweetFactory {
         fun setTweetState(t: Tweet) {
             FavoriteStateCache.changeState(twitterClient, t, status.isFavorited)
             RetweetStateCache.changeState(twitterClient, t, status.isRetweeted)
-            t.retweetedTweet?.let {
-                RetweetStateCache.changeState(twitterClient, it, twitterClient.isMyTweet(tweet))
-                FavoriteStateCache.changeState(twitterClient, it, status.isFavorited)
+            t.retweetedTweet?.let { retweet ->
+                var s: Status? = null
+                if (RetweetStateCache.getStateOrNull(twitterClient, retweet) == null) {
+                    s = twitterClient.twitter.showStatus(retweet.id)
+                    RetweetStateCache.changeState(twitterClient, retweet, s.isRetweeted)
+                }
+                if (FavoriteStateCache.getStateOrNull(twitterClient, retweet) == null) {
+                    val s2 = s ?: twitterClient.twitter.showStatus(retweet.id)
+                    FavoriteStateCache.changeState(twitterClient, retweet, s2.isFavorited)
+                }
             }
             t.quotedTweet?.let(::setTweetState)
         }
