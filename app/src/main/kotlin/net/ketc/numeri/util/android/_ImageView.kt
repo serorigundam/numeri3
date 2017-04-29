@@ -10,7 +10,6 @@ import android.util.LruCache
 import android.widget.ImageView
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
-import org.jetbrains.anko.imageBitmap
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -101,7 +100,8 @@ fun ImageView.download(url: String, autoDisposable: AutoDisposable, cache: Boole
  */
 fun ImageView.save() {
     var outputStream: FileOutputStream? = null
-    val file = File("${Environment.getExternalStorageDirectory().path}/numetter")
+    val dirName = "numetter"
+    val file = File("${Environment.getExternalStorageDirectory().path}/$dirName")
     try {
         val imageBitmap = this.drawable as? BitmapDrawable ?: throw IllegalStateException("bitmap is not set")
         file.takeIf { file.exists() || file.mkdir() }?.let {

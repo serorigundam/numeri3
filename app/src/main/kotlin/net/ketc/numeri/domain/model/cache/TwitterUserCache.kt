@@ -57,7 +57,7 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
             get() = mIconUrl
         override val originalIconUrl: String
             get() = mOriginalIconUrl
-        override val headerImageUrl: String
+        override val headerImageUrl: String?
             get() = mHeaderImageUrl
         override val profileBackgroundColor: String
             get() = mProfileBackgroundColor
@@ -67,39 +67,29 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
             get() = mFollowersCount
         override val friendsCount: Int
             get() = mFriendsCount
+        override val favoriteCount: Int
+            get() = mFavoriteCount
+        override val statusesCount: Int
+            get() = mStatusesCount
         override val urlEntities: List<UrlEntity>
             get() = mUrlEntities
 
-        private var mName: String
-        private var mScreenName: String
-        private var mLocation: String
-        private var mDescription: String
-        private var mIconUrl: String
-        private var mOriginalIconUrl: String
-        private var mHeaderImageUrl: String
-        private var mProfileBackgroundColor: String
-        private var mIsProtected: Boolean
-        private var mFollowersCount: Int
-        private var mFriendsCount: Int
-        private var mUrlEntities: List<UrlEntity>
-
+        private var mName: String = user.name ?: ""
+        private var mScreenName: String = user.screenName ?: ""
+        private var mLocation: String = user.location ?: ""
+        private var mDescription: String = user.description ?: ""
+        private var mIconUrl: String = user.biggerProfileImageURL
+        private var mOriginalIconUrl: String = user.originalProfileImageURL
+        private var mHeaderImageUrl: String? = user.profileBannerRetinaURL
+        private var mProfileBackgroundColor: String = user.profileBackgroundColor
+        private var mIsProtected: Boolean = user.isProtected
+        private var mFollowersCount: Int = user.followersCount
+        private var mFriendsCount: Int = user.friendsCount
+        private var mUrlEntities: List<UrlEntity> = user.descriptionURLEntities.orEmpty().map(::UrlEntity)
+        private var mStatusesCount: Int = user.statusesCount
+        private var mFavoriteCount: Int = user.favouritesCount
         var updateCallback: (TwitterUser) -> Unit = {}
 
-
-        init {
-            mName = user.name ?: ""
-            mScreenName = user.screenName ?: ""
-            mLocation = user.location ?: ""
-            mDescription = user.description ?: ""
-            mIconUrl = user.biggerProfileImageURL
-            mOriginalIconUrl = user.originalProfileImageURL
-            mHeaderImageUrl = user.profileBannerRetinaURL ?: ""
-            mProfileBackgroundColor = user.profileBackgroundColor
-            mIsProtected = user.isProtected
-            mFollowersCount = user.followersCount
-            mFriendsCount = user.friendsCount
-            mUrlEntities = user.descriptionURLEntities.orEmpty().map(::UrlEntity)
-        }
 
         fun update(user: User) {
             if (!isUpdate(user))
@@ -110,11 +100,13 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
             mDescription = user.description ?: ""
             mIconUrl = user.biggerProfileImageURL
             mOriginalIconUrl = user.originalProfileImageURL
-            mHeaderImageUrl = user.profileBannerRetinaURL ?: ""
+            mHeaderImageUrl = user.profileBannerRetinaURL
             mProfileBackgroundColor = user.profileBackgroundColor
             mIsProtected = user.isProtected
             mFollowersCount = user.followersCount
             mFriendsCount = user.friendsCount
+            mStatusesCount = user.statusesCount
+            mFavoriteCount = user.favouritesCount
 
             val descriptionURLEntities = user.descriptionURLEntities.orEmpty()
             if (urlEntities.size != descriptionURLEntities.size) {
@@ -145,6 +137,8 @@ object TwitterUserCache : ConversionCache<User, TwitterUser, Long> {
                     || isProtected != user.isProtected
                     || followersCount != user.followersCount
                     || friendsCount != user.friendsCount
+                    || statusesCount != user.statusesCount
+                    || favoriteCount != user.favouritesCount
         }
 
         override fun equals(other: Any?): Boolean {

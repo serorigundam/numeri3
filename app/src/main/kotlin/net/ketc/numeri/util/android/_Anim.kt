@@ -7,7 +7,7 @@ import android.view.animation.Animation
 /**
  * @param durationMillis Duration in milliseconds
  */
-fun View.fadeIn(durationMillis: Long = 50L): AnimationCallback {
+fun View.fadeIn(durationMillis: Long = 300L): AnimationCallback {
     val anim = AlphaAnimation(0f, 1f)
     anim.duration = durationMillis
     return AnimationCallback(anim, this)
@@ -16,7 +16,7 @@ fun View.fadeIn(durationMillis: Long = 50L): AnimationCallback {
 /**
  * @param durationMillis Duration in milliseconds
  */
-fun View.fadeOut(durationMillis: Long = 50L): AnimationCallback {
+fun View.fadeOut(durationMillis: Long = 300L): AnimationCallback {
     val anim = AlphaAnimation(1f, 0f)
     anim.duration = durationMillis
     return AnimationCallback(anim, this)

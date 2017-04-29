@@ -9,10 +9,12 @@ interface TwitterUser : Cacheable<Long> {
     val description: String
     val iconUrl: String
     val originalIconUrl: String
-    val headerImageUrl: String
+    val headerImageUrl: String?
     val profileBackgroundColor: String
     val isProtected: Boolean
     val followersCount: Int
     val friendsCount: Int
+    val statusesCount: Int
+    val favoriteCount: Int
     val urlEntities: List<UrlEntity>
 }
