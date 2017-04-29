@@ -49,6 +49,7 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
     }
 
     private fun initializeLoad() {
+        fragment.isRefreshing = true
         singleTask(MySchedulers.twitter) {
             getTweets(Paging().apply {
                 count = DEFAULT_COUNT
@@ -57,9 +58,11 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
             it.printStackTrace()
             fragment.activity.toast("error")
             fragment.isReadMorEnabled = true
+            fragment.isRefreshing = false
         } success {
             fragment.addAll(it)
             fragment.isReadMorEnabled = true
+            fragment.isRefreshing = false
         }
     }
 
