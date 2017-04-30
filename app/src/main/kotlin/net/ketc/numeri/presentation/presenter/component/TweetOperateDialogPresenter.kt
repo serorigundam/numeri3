@@ -28,7 +28,7 @@ class TweetOperateDialogPresenter(private val ctx: Context, autoDisposable: Auto
                 client.twitter.destroyFavorite(tweet.id).apply {
                     client.setUnFavorite(tweet)
                 }
-            }.convertAndCacheOrGet(client)
+            }.convert(client)
         } error {
             error(it)
             tweetMenuDialog.isFavoriteMenuClickable = true

@@ -52,7 +52,7 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
                 TweetsDisplayType.HOME -> "Home:${clientUser.screenName}"
                 TweetsDisplayType.MENTIONS -> "Mentions:${clientUser.screenName}"
                 TweetsDisplayType.USER_LIST -> "List:${userListMap[clientUser]!!.find { it.id == foreignId }!!.name}"
-                TweetsDisplayType.PUBLIC -> throw InternalError()
+                else -> throw InternalError()
             }
         }
 

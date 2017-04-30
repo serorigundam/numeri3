@@ -14,6 +14,8 @@ import net.ketc.numeri.domain.entity.*
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.fragment.tweet.display.*
+import net.ketc.numeri.presentation.view.Refreshable
+import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.adapter.TwitterRecyclerAdapter
 import net.ketc.numeri.util.android.DialogOwner
@@ -62,6 +64,9 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
     override val displayName: String by lazy { display.name }
 
+    override val contentName: String
+        get() = displayName
+    
     private var mTwitterAdapter: TwitterRecyclerAdapter<Tweet>? = null
     private val twitterAdapter: TwitterRecyclerAdapter<Tweet>
         get() = mTwitterAdapter ?: throw IllegalStateException("TwitterClient is not set")
@@ -95,6 +100,8 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             TweetsDisplayType.MENTIONS -> MentionsPresenter(this)
             TweetsDisplayType.USER_LIST -> UserListPresenter(this)
             TweetsDisplayType.PUBLIC -> PublicTimeLinePresenter(this)
+            TweetsDisplayType.FAVORITE -> FavoritePresenter(this)
+            TweetsDisplayType.MEDIA -> MediaTimeLinePresenter(this)
             else -> throw InternalError()
         }
     }
@@ -133,6 +140,14 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         }
     }
 
+    override fun refresh(callback: () -> Unit) {
+        if (!isRefreshing) {
+            presenter.update(callback)
+        } else {
+            callback()
+        }
+    }
+
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
 
@@ -159,7 +174,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
 }
 
-interface TimeLineFragmentInterface : FragmentInterface {
+interface TimeLineFragmentInterface : FragmentInterface, Refreshable, SimplePagerContent {
     val display: TweetsDisplay
     val lastTweet: Tweet?
     val firstTweet: Tweet?

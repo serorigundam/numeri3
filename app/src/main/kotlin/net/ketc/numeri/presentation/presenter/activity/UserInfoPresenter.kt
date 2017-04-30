@@ -26,6 +26,7 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
             oAuthService.clients().single { it.id == activity.twitterClientId }
         } error Throwable::printStackTrace success {
             loadUser(it)
+            activity.setClient(it)
         }
     }
 

@@ -11,8 +11,9 @@ import org.jetbrains.anko.design.coordinatorLayout
 import android.support.design.widget.AppBarLayout.LayoutParams.*
 import android.support.design.widget.CollapsingToolbarLayout
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.nestedScrollView
 import android.support.design.widget.CollapsingToolbarLayout.LayoutParams.*
+import android.support.design.widget.TabLayout
+import android.support.v4.view.ViewPager
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
@@ -23,6 +24,8 @@ import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.util.android.*
 import org.jetbrains.anko.custom.ankoView
+import org.jetbrains.anko.design.tabLayout
+import org.jetbrains.anko.support.v4.viewPager
 
 class UserInfoActivityUI : IUserInfoActivityUI {
     override lateinit var appBar: AppBarLayout
@@ -61,6 +64,11 @@ class UserInfoActivityUI : IUserInfoActivityUI {
     override lateinit var subInfoText: TextView
         private set
 
+    override lateinit var userProfileTabLayout: TabLayout
+        private set
+    override lateinit var pager: ViewPager
+        private set
+
     override fun createView(ui: AnkoContext<UserInfoActivity>) = with(ui) {
         coordinatorLayout {
             appBarLayout {
@@ -70,119 +78,9 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                     collapsingToolbar = this
                     isTitleEnabled = false
                     setContentScrimColor(color(R.color.transparent))
-                    relativeLayout {
-                        infoRelative = this
-                        headerImageView {
-                            id = R.id.dummy_header
-                            visibility = View.INVISIBLE
-                        }.lparams(matchParent, wrapContent)
-                        relativeLayout {
-                            textView {
-                                userNameText = this
-                                id = R.id.user_name_text
-                                maxLines = 1
-                                ellipsize = TextUtils.TruncateAt.END
-                                textSizeDimen = R.dimen.text_size_large
-                                textColor = color(resourceId(android.R.attr.textColorPrimary))
-                            }.lparams(wrapContent, wrapContent) {
-                                marginBottom = dimen(R.dimen.margin_text_small)
-                            }
-
-                            textView {
-                                screenNameText = this
-                                id = R.id.screen_name_text
-                                maxLines = 1
-                                ellipsize = TextUtils.TruncateAt.END
-                                textSizeDimen = R.dimen.text_size_small
-                                textColor = color(resourceId(android.R.attr.textColorSecondary))
-                            }.lparams(wrapContent, wrapContent) {
-                                bottomOf(R.id.user_name_text)
-                                marginBottom = dimen(R.dimen.margin_text_medium)
-                            }
-                            textView {
-                                descriptionText = this
-                                id = R.id.description_text
-                                textSizeDimen = R.dimen.text_size_medium
-                                textColor = color(resourceId(android.R.attr.textColorPrimary))
-                            }.lparams(wrapContent, wrapContent) {
-                                bottomOf(R.id.screen_name_text)
-                                marginBottom = dimen(R.dimen.margin_text_small)
-                            }
-                            textView {
-                                locationText = this
-                                id = R.id.location_text
-                                textSizeDimen = R.dimen.text_size_medium
-                                ellipsize = TextUtils.TruncateAt.END
-                                maxLines = 1
-                                textColor = color(resourceId(android.R.attr.textColorPrimary))
-                            }.lparams(wrapContent, wrapContent) {
-                                bottomOf(R.id.description_text)
-                                marginBottom = dimen(R.dimen.margin_text_small)
-                            }
-
-                            textView {
-                                subInfoText = this
-                                textSizeDimen = R.dimen.text_size_small
-                                textColor = color(resourceId(android.R.attr.textColorSecondary))
-                            }.lparams(wrapContent, wrapContent) {
-                                bottomOf(R.id.location_text)
-                            }
-
-
-                        }.lparams(matchParent, matchParent) {
-                            margin = dimen(R.dimen.margin_medium)
-                            marginTop = dip(40)
-                            bottomOf(R.id.dummy_header)
-                            alignParentStart()
-                        }
-                    }.collapsingToolbarlparams(matchParent, matchParent) {
-                        margin = dip(0)
-                        padding = dip(0)
-                        collapseMode = COLLAPSE_MODE_OFF
-                    }
-
-                    relativeLayout {
-                        id = R.id.header_relative
-                        headerImageView {
-                            id = R.id.header_image
-                            headerImage = this
-                            scaleType = ImageView.ScaleType.CENTER_CROP
-                        }.lparams(matchParent, wrapContent)
-                        view {
-                            this.background = drawable(R.drawable.header_image_gradation)
-                        }.lparams(matchParent, wrapContent) {
-                            sameBottom(R.id.header_image)
-                            sameTop(R.id.header_image)
-                        }
-                    }.collapsingToolbarlparams(wrapContent, wrapContent) {
-                        collapseMode = COLLAPSE_MODE_PIN
-                    }
-                    relativeLayout {
-                        id = R.id.icon_frame
-                        headerImageView {
-                            id = R.id.dummy_header2
-                            visibility = View.INVISIBLE
-                        }.lparams(matchParent, wrapContent)
-                        relativeLayout {
-                            iconRelative = this
-                            imageView {
-                                iconImage = this
-                                backgroundColor = color(R.color.image_background)
-                            }.lparams(dip(53), dip(53)) { centerInParent() }
-
-                            view {
-                                background = drawable(R.drawable.image_frame)
-                            }.lparams(dip(56), dip(56))
-                        }.lparams(wrapContent, wrapContent) {
-                            sameBottom(R.id.dummy_header2)
-                            marginBottom = dimen(R.dimen.margin_large)
-                        }
-                    }.collapsingToolbarlparams(wrapContent, wrapContent) {
-                        collapseMode = COLLAPSE_MODE_OFF
-                        margin = dimen(R.dimen.margin_medium)
-                        marginTop = dimen(R.dimen.app_bar_standard_height)
-                    }
-
+                    userProfileContent(this)
+                    userProfileHeader(this)
+                    userProfileIcon(this)
                     toolbar {
                         toolbar = this
                         expandedTitleGravity = Gravity.BOTTOM or Gravity.START
@@ -196,14 +94,138 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                 }
             }.lparams(matchParent, wrapContent)
 
-            nestedScrollView {
-                textView {
-                    text = (0..100).map(Int::toString).joinToString("\n")
-                }
+            coordinatorLayout {
+                relativeLayout {
+                    tabLayout {
+                        userProfileTabLayout = this
+                        id = R.id.user_profile_tab
+                    }.lparams(matchParent, wrapContent)
+                    viewPager {
+                        pager = this
+                        id = R.id.pager
+                        offscreenPageLimit = 5
+                    }.lparams(matchParent, matchParent) {
+                        below(R.id.user_profile_tab)
+                    }
+                }.lparams(matchParent, matchParent)
             }.lparams(matchParent, matchParent) {
                 behavior = AppBarLayout.ScrollingViewBehavior()
             }
         }
+    }
+
+    //collapsingToolbarContent
+    private fun AnkoContext<*>.userProfileContent(manager: ViewManager) = manager.relativeLayout {
+        infoRelative = this
+        headerImageView {
+            id = R.id.dummy_header
+            visibility = View.INVISIBLE
+        }.lparams(matchParent, wrapContent)
+        relativeLayout {
+            textView {
+                userNameText = this
+                id = R.id.user_name_text
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                textSizeDimen = R.dimen.text_size_large
+                textColor = color(resourceId(android.R.attr.textColorPrimary))
+            }.lparams(wrapContent, wrapContent) {
+                marginBottom = dimen(R.dimen.margin_text_small)
+            }
+
+            textView {
+                screenNameText = this
+                id = R.id.screen_name_text
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                textSizeDimen = R.dimen.text_size_small
+                textColor = color(resourceId(android.R.attr.textColorSecondary))
+            }.lparams(wrapContent, wrapContent) {
+                bottomOf(R.id.user_name_text)
+                marginBottom = dimen(R.dimen.margin_text_medium)
+            }
+            textView {
+                descriptionText = this
+                id = R.id.description_text
+                textSizeDimen = R.dimen.text_size_medium
+                textColor = color(resourceId(android.R.attr.textColorPrimary))
+            }.lparams(wrapContent, wrapContent) {
+                bottomOf(R.id.screen_name_text)
+                marginBottom = dimen(R.dimen.margin_text_small)
+            }
+            textView {
+                locationText = this
+                id = R.id.location_text
+                textSizeDimen = R.dimen.text_size_medium
+                ellipsize = TextUtils.TruncateAt.END
+                maxLines = 1
+                textColor = color(resourceId(android.R.attr.textColorPrimary))
+            }.lparams(wrapContent, wrapContent) {
+                bottomOf(R.id.description_text)
+                marginBottom = dimen(R.dimen.margin_text_small)
+            }
+
+            textView {
+                subInfoText = this
+                textSizeDimen = R.dimen.text_size_small
+                textColor = color(resourceId(android.R.attr.textColorSecondary))
+            }.lparams(wrapContent, wrapContent) {
+                bottomOf(R.id.location_text)
+            }
+
+
+        }.lparams(matchParent, matchParent) {
+            margin = dimen(R.dimen.margin_medium)
+            marginTop = dip(40)
+            bottomOf(R.id.dummy_header)
+            alignParentStart()
+        }
+    }.collapsingToolbarlparams(matchParent, matchParent) {
+        margin = dip(0)
+        collapseMode = COLLAPSE_MODE_OFF
+    }
+
+    private fun AnkoContext<*>.userProfileHeader(manager: ViewManager) = manager.relativeLayout {
+        id = R.id.header_relative
+        headerImageView {
+            id = R.id.header_image
+            headerImage = this
+            scaleType = ImageView.ScaleType.CENTER_CROP
+        }.lparams(matchParent, wrapContent)
+        view {
+            this.background = drawable(R.drawable.header_image_gradation)
+        }.lparams(matchParent, wrapContent) {
+            sameBottom(R.id.header_image)
+            sameTop(R.id.header_image)
+        }
+    }.collapsingToolbarlparams(wrapContent, wrapContent) {
+        collapseMode = COLLAPSE_MODE_PIN
+    }
+
+    private fun AnkoContext<*>.userProfileIcon(manager: ViewManager) = manager.relativeLayout {
+        id = R.id.icon_frame
+        headerImageView {
+            id = R.id.dummy_header2
+            visibility = View.INVISIBLE
+        }.lparams(matchParent, wrapContent)
+        relativeLayout {
+            iconRelative = this
+            imageView {
+                iconImage = this
+                backgroundColor = color(R.color.image_background)
+            }.lparams(dip(53), dip(53)) { centerInParent() }
+
+            view {
+                background = drawable(R.drawable.image_frame)
+            }.lparams(dip(56), dip(56))
+        }.lparams(wrapContent, wrapContent) {
+            sameBottom(R.id.dummy_header2)
+            marginBottom = dimen(R.dimen.margin_large)
+        }
+    }.collapsingToolbarlparams(wrapContent, wrapContent) {
+        collapseMode = COLLAPSE_MODE_OFF
+        margin = dimen(R.dimen.margin_medium)
+        marginTop = dimen(R.dimen.app_bar_standard_height)
     }
 
     class HeaderImageView(ctx: Context) : ImageView(ctx) {
@@ -233,4 +255,6 @@ interface IUserInfoActivityUI : AnkoComponent<UserInfoActivity> {
     val descriptionText: TextView
     val locationText: TextView
     val subInfoText: TextView
+    val userProfileTabLayout: TabLayout
+    val pager: ViewPager
 }

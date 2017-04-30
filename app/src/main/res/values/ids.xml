@@ -48,4 +48,10 @@
     <item name="header_image" type="id" />
     <item name="description_text" type="id" />
     <item name="location_text" type="id" />
+    <item name="tab_tweets" type="id" />
+    <item name="user_profile_tab" type="id" />
+    <item name="tab_favorite" type="id" />
+    <item name="tab_media" type="id" />
+    <item name="tab_following" type="id" />
+    <item name="tab_follower" type="id" />
 </resources>

@@ -4,6 +4,7 @@ import android.graphics.drawable.Drawable
 import android.support.annotation.AttrRes
 import android.support.annotation.ColorRes
 import android.support.annotation.DrawableRes
+import android.support.annotation.StringRes
 import android.view.ViewGroup
 import android.widget.RelativeLayout
 import org.jetbrains.anko.*
@@ -21,7 +22,9 @@ fun RelativeLayout.LayoutParams.endOf(id: Int) = rightOf(id)
 
 fun AnkoContext<*>.drawable(@DrawableRes id: Int): Drawable = ctx.getDrawable(id)
 fun AnkoContext<*>.color(@ColorRes id: Int): Int = ctx.getColor(id)
+fun AnkoContext<*>.string(@StringRes id: Int): String = ctx.getString(id)
 fun AnkoContext<*>.resourceId(@AttrRes id: Int) = ctx.getResourceId(id)
+
 var ViewGroup.MarginLayoutParams.marginTop: Int
     get() = topMargin
     set(value) {

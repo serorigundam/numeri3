@@ -3,7 +3,6 @@ package net.ketc.numeri.presentation.presenter.activity
 import android.os.Bundle
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.Tweet
-import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.getTweet
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient

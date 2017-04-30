@@ -5,11 +5,11 @@ import net.ketc.numeri.domain.model.cache.convert
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragmentInterface
 import twitter4j.Paging
 
-class PublicTimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : TimeLinePresenter(timeLineFragment) {
+class FavoritePresenter(timeLineFragment: TimeLineFragmentInterface) : TimeLinePresenter(timeLineFragment) {
 
     val targetUserId = fragment.display.foreignId
 
-    override fun getTweets(paging: Paging): List<Tweet> = client.twitter.getUserTimeline(targetUserId, paging).map { it.convert(client) }
+    override fun getTweets(paging: Paging): List<Tweet> = client.twitter.getFavorites(targetUserId, paging).map { it.convert(client) }
 
     override fun beforeInitializeLoad() {
     }

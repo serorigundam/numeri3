@@ -25,4 +25,9 @@
     <string name="save_failure">保存失敗</string>
     <string name="save">保存</string>
     <string name="open_link">リンクを開く</string>
+    <string name="tab_tweet">ツイート</string>
+    <string name="tab_favorite">お気に入り</string>
+    <string name="tab_media">メディア</string>
+    <string name="tab_follow">フォロー</string>
+    <string name="tab_follower">フォロワー</string>
 </resources>
