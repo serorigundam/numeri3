@@ -84,7 +84,7 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
                 fragment.firstTweet?.let {
                     sinceId = it.id
                 }
-            }).reversed()
+            })
         } error {
             it.printStackTrace()
             fragment.isRefreshing = false
