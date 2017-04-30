@@ -8,15 +8,11 @@ buildscript {
     ext.kt_coroutines = '0.14'
     repositories {
         jcenter()
-        dependencies {
-            classpath "org.jetbrains.kotlin:kotlin-android-extensions:$kotlin_version"
-        }
     }
 }
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
-apply plugin: 'kotlin-android-extensions'
 
 android {
     compileSdkVersion 25
@@ -67,7 +63,6 @@ android {
         disable 'InvalidPackage'
         abortOnError false
     }
-
 }
 
 kapt {
