@@ -44,7 +44,6 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
             }.autoDispose()
             beforeInitializeLoad()
             initializeLoad()
-            afterInitializeLoad()
         }
     }
 
@@ -59,10 +58,12 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
             fragment.activity.toast("error")
             fragment.isReadMorEnabled = true
             fragment.isRefreshing = false
+            afterInitializeLoad()
         } success {
             fragment.addAll(it)
             fragment.isReadMorEnabled = true
             fragment.isRefreshing = false
+            afterInitializeLoad()
         }
     }
 
