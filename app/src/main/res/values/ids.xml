@@ -54,4 +54,5 @@
     <item name="tab_media" type="id" />
     <item name="tab_following" type="id" />
     <item name="tab_follower" type="id" />
+    <item name="buttons_relative" type="id" />
 </resources>

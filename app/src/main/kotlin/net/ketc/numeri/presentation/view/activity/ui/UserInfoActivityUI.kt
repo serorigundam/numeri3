@@ -14,20 +14,23 @@ import org.jetbrains.anko.*
 import android.support.design.widget.CollapsingToolbarLayout.LayoutParams.*
 import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
+import android.support.v4.widget.SwipeRefreshLayout
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
 import android.view.ViewManager
-import android.widget.ImageView
-import android.widget.RelativeLayout
-import android.widget.TextView
+import android.widget.*
 import net.ketc.numeri.R
 import net.ketc.numeri.util.android.*
 import org.jetbrains.anko.custom.ankoView
 import org.jetbrains.anko.design.tabLayout
+import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import org.jetbrains.anko.support.v4.viewPager
 
 class UserInfoActivityUI : IUserInfoActivityUI {
+    override lateinit var swipeRefresh: SwipeRefreshLayout
+        private set
+
     override lateinit var appBar: AppBarLayout
         private set
 
@@ -66,50 +69,68 @@ class UserInfoActivityUI : IUserInfoActivityUI {
 
     override lateinit var userProfileTabLayout: TabLayout
         private set
+
     override lateinit var pager: ViewPager
         private set
 
-    override fun createView(ui: AnkoContext<UserInfoActivity>) = with(ui) {
-        coordinatorLayout {
-            appBarLayout {
-                appBar = this
-                backgroundColor = color(R.color.colorPrimaryDark)
-                collapsingToolbarLayout {
-                    collapsingToolbar = this
-                    isTitleEnabled = false
-                    setContentScrimColor(color(R.color.transparent))
-                    userProfileContent(this)
-                    userProfileHeader(this)
-                    userProfileIcon(this)
-                    toolbar {
-                        toolbar = this
-                        expandedTitleGravity = Gravity.BOTTOM or Gravity.START
-                        background = drawable(R.drawable.app_bar_gradation)
-                        navigationIcon = drawable(resourceId(android.R.attr.homeAsUpIndicator))
-                    }.collapsingToolbarlparams(matchParent, dimen(R.dimen.app_bar_standard_height)) {
-                        collapseMode = COLLAPSE_MODE_PIN
-                    }
-                }.lparams(matchParent, matchParent) {
-                    scrollFlags = SCROLL_FLAG_SCROLL or SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
-                }
-            }.lparams(matchParent, wrapContent)
+    override lateinit var followButton: ImageButton
+        private set
 
+    override lateinit var protectedImage: ImageView
+        private set
+
+    override lateinit var relationInfoText: TextView
+        private set
+
+    override lateinit var profileEditButton: Button
+        private set
+
+    override fun createView(ui: AnkoContext<UserInfoActivity>) = with(ui) {
+        swipeRefreshLayout {
+            swipeRefresh = this
+            isEnabled = false
             coordinatorLayout {
-                relativeLayout {
-                    tabLayout {
-                        userProfileTabLayout = this
-                        id = R.id.user_profile_tab
-                    }.lparams(matchParent, wrapContent)
-                    viewPager {
-                        pager = this
-                        id = R.id.pager
-                        offscreenPageLimit = 5
+                appBarLayout {
+                    appBar = this
+                    backgroundColor = color(R.color.colorPrimaryDark)
+                    collapsingToolbarLayout {
+                        collapsingToolbar = this
+                        isTitleEnabled = false
+                        setContentScrimColor(color(R.color.transparent))
+                        userProfileContent(this)
+                        userProfileHeader(this)
+                        userProfileIcon(this)
+                        toolbar {
+                            toolbar = this
+                            expandedTitleGravity = Gravity.BOTTOM or Gravity.START
+                            background = drawable(R.drawable.app_bar_gradation)
+                            navigationIcon = drawable(resourceId(android.R.attr.homeAsUpIndicator))
+                        }.collapsingToolbarlparams(matchParent, dimen(R.dimen.app_bar_standard_height)) {
+                            collapseMode = COLLAPSE_MODE_PIN
+                        }
                     }.lparams(matchParent, matchParent) {
-                        below(R.id.user_profile_tab)
+                        scrollFlags = SCROLL_FLAG_SCROLL or SCROLL_FLAG_EXIT_UNTIL_COLLAPSED
                     }
-                }.lparams(matchParent, matchParent)
-            }.lparams(matchParent, matchParent) {
-                behavior = AppBarLayout.ScrollingViewBehavior()
+                }.lparams(matchParent, wrapContent)
+
+                coordinatorLayout {
+                    relativeLayout {
+                        tabLayout {
+                            userProfileTabLayout = this
+                            id = R.id.user_profile_tab
+                            tabMode = TabLayout.MODE_SCROLLABLE
+                        }.lparams(matchParent, wrapContent)
+                        viewPager {
+                            pager = this
+                            id = R.id.pager
+                            offscreenPageLimit = 5
+                        }.lparams(matchParent, matchParent) {
+                            below(R.id.user_profile_tab)
+                        }
+                    }.lparams(matchParent, matchParent)
+                }.lparams(matchParent, matchParent) {
+                    behavior = AppBarLayout.ScrollingViewBehavior()
+                }
             }
         }
     }
@@ -121,6 +142,27 @@ class UserInfoActivityUI : IUserInfoActivityUI {
             id = R.id.dummy_header
             visibility = View.INVISIBLE
         }.lparams(matchParent, wrapContent)
+
+        relativeLayout {
+            id = R.id.buttons_relative
+            imageButton {
+                followButton = this
+                isClickable = false
+                background = drawable(R.drawable.ripple_frame)
+                scaleType = ImageView.ScaleType.CENTER_INSIDE
+            }.lparams(matchParent, matchParent)
+            button {
+                profileEditButton = this
+                visibility = View.GONE
+                text = string(R.string.edit_profile)
+            }.lparams(matchParent, matchParent)
+        }.lparams(dip(72), dip(40)) {
+            marginTop = dimen(R.dimen.margin_medium)
+            marginEnd = dimen(R.dimen.margin_medium)
+            below(R.id.dummy_header)
+            alignParentEnd()
+        }
+
         relativeLayout {
             textView {
                 userNameText = this
@@ -131,6 +173,22 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                 textColor = color(resourceId(android.R.attr.textColorPrimary))
             }.lparams(wrapContent, wrapContent) {
                 marginBottom = dimen(R.dimen.margin_text_small)
+            }
+            relativeLayout {
+                imageView {
+                    protectedImage = this
+                    backgroundColor = color(R.color.transparent)
+                    image = drawable(R.drawable.ic_lock_outline_white_24dp)
+                    scaleType = ImageView.ScaleType.CENTER_INSIDE
+                }.lparams(dip(16), dip(16)) {
+                    centerVertically()
+                }
+            }.lparams(wrapContent, wrapContent) {
+                endOf(R.id.user_name_text)
+                sameTop(R.id.user_name_text)
+                sameBottom((R.id.user_name_text))
+                alignParentEnd()
+                marginStart = dimen(R.dimen.margin_medium)
             }
 
             textView {
@@ -144,6 +202,20 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                 bottomOf(R.id.user_name_text)
                 marginBottom = dimen(R.dimen.margin_text_medium)
             }
+
+            textView {
+                relationInfoText = this
+                maxLines = 1
+                ellipsize = TextUtils.TruncateAt.END
+                textSizeDimen = R.dimen.text_size_small
+                textColor = color(resourceId(android.R.attr.textColorSecondary))
+            }.lparams(wrapContent, wrapContent) {
+                endOf(R.id.screen_name_text)
+                bottomOf(R.id.user_name_text)
+                marginStart = dimen(R.dimen.margin_text_small)
+                alignParentEnd()
+            }
+
             textView {
                 descriptionText = this
                 id = R.id.description_text
@@ -176,12 +248,10 @@ class UserInfoActivityUI : IUserInfoActivityUI {
 
         }.lparams(matchParent, matchParent) {
             margin = dimen(R.dimen.margin_medium)
-            marginTop = dip(40)
-            bottomOf(R.id.dummy_header)
+            bottomOf(R.id.buttons_relative)
             alignParentStart()
         }
     }.collapsingToolbarlparams(matchParent, matchParent) {
-        margin = dip(0)
         collapseMode = COLLAPSE_MODE_OFF
     }
 
@@ -243,6 +313,7 @@ class UserInfoActivityUI : IUserInfoActivityUI {
 }
 
 interface IUserInfoActivityUI : AnkoComponent<UserInfoActivity> {
+    val swipeRefresh: SwipeRefreshLayout
     val appBar: AppBarLayout
     val toolbar: Toolbar
     val collapsingToolbar: CollapsingToolbarLayout
@@ -257,4 +328,8 @@ interface IUserInfoActivityUI : AnkoComponent<UserInfoActivity> {
     val subInfoText: TextView
     val userProfileTabLayout: TabLayout
     val pager: ViewPager
+    val followButton: ImageButton
+    val protectedImage: ImageView
+    val relationInfoText: TextView
+    val profileEditButton: Button
 }

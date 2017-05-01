@@ -5,7 +5,9 @@ import android.content.Context
 import android.graphics.Color
 import android.os.Bundle
 import android.support.design.widget.AppBarLayout
+import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
+import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
 import android.view.LayoutInflater
 import android.view.View
@@ -17,8 +19,11 @@ import net.ketc.numeri.domain.entity.TweetsDisplayType
 import net.ketc.numeri.domain.entity.createTweetsDisplay
 import net.ketc.numeri.domain.entity.toClientToken
 import net.ketc.numeri.domain.model.TwitterUser
+import net.ketc.numeri.domain.model.cache.RelationType
+import net.ketc.numeri.domain.model.cache.UserRelation
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.UserInfoPresenter
+import net.ketc.numeri.presentation.view.Refreshable
 import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.activity.ui.IUserInfoActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.UserInfoActivityUI
@@ -28,6 +33,7 @@ import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.fadeOut
 import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.nestedScrollView
 
 class UserInfoActivity
     : ApplicationActivity<UserInfoPresenter>(),
@@ -37,9 +43,33 @@ class UserInfoActivity
     override val targetUserId: Long by lazy { intent.getLongExtra(EXTRA_TARGET_USER_ID, -1L).takeIf { it != -1L } ?: throw IllegalStateException() }
     override val ctx: Context = this
     override val presenter = UserInfoPresenter(this)
+    override var isRefreshing: Boolean
+        get() = swipeRefresh.isRefreshing
+        set(value) {
+            swipeRefresh.isRefreshing = value
+        }
+    override var followButtonIsEnabled: Boolean
+        get() = followButton.isClickable
+        set(value) {
+            followButton.isClickable = value
+        }
     private var previousAppBarOffset = -1
     private var titleIsVisible = false
     private var iconIsVisible = true
+
+
+    private val onTabSelectedListener = object : TabLayout.OnTabSelectedListener {
+        override fun onTabReselected(tab: TabLayout.Tab) {
+            val fragment = (pager.adapter as? SimplePagerAdapter)?.getItem(tab.position)
+            (fragment as? TimeLineFragment)?.scrollToTop()
+        }
+
+        override fun onTabUnselected(tab: TabLayout.Tab) {
+        }
+
+        override fun onTabSelected(tab: TabLayout.Tab) {
+        }
+    }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -76,7 +106,12 @@ class UserInfoActivity
                     iconIsVisible = true
                     iconRelative.fadeIn().end { visibility = View.VISIBLE }.execute()
                 }
+                if (currentAppBarHeight == appBarHeight && !swipeRefresh.isEnabled) {
+                    swipeRefresh.isEnabled = true
+                }
             } else {
+                if (swipeRefresh.isEnabled)
+                    swipeRefresh.isEnabled = false
                 if (currentAppBarHeight < headerHeight && !titleIsVisible) {
                     titleIsVisible = true
                     toolbar.setTitleVisibility(true)
@@ -113,8 +148,9 @@ class UserInfoActivity
         user.headerImageUrl?.let {
             headerImage.download(it, presenter, false, success = { headerImage.fadeIn().execute() })
         }
+        protectedImage.visibility = if (user.isProtected) View.VISIBLE else View.INVISIBLE
         userNameText.text = user.name
-        screenNameText.text = user.screenName
+        screenNameText.text = "@${user.screenName}"
         descriptionText.text = user.description
         locationText.text = "Location : ${user.location}"
         subInfoText.text = "following : ${user.friendsCount}" +
@@ -124,9 +160,63 @@ class UserInfoActivity
     }
 
     override fun setClient(client: TwitterClient) {
+        pager.initialize(client)
+        swipeRefresh.setOnRefreshListener {
+            val refreshableList = pager.components.filter { it is Refreshable }
+                    .map { it as Refreshable }
+            var refreshedCount = 0
+            isRefreshing = true
+            refreshableList.forEach {
+                it.refresh {
+                    refreshedCount++
+                    if (refreshedCount == refreshableList.size) {
+                        isRefreshing = false
+                    }
+                }
+            }
+        }
+    }
+
+    override fun setUserRelation(userRelation: UserRelation) {
+        setRelationText(userRelation)
+        setFollowButtonState(userRelation)
+    }
+
+    private fun setRelationText(userRelation: UserRelation) = when (userRelation.type) {
+        RelationType.FOLLOWED, RelationType.MUTUAL ->
+            relationInfoText.text = getString(R.string.following_you)
+        RelationType.BLOCkING ->
+            relationInfoText.text = getString(R.string.blocking)
+        else -> {
+            relationInfoText.text = ""
+        }
+    }
+
+    private fun setFollowButtonState(userRelation: UserRelation) {
+        fun fadeIn() {
+            followButton.fadeIn().execute()
+        }
+        when (userRelation.type) {
+            RelationType.FOLLOWING, RelationType.MUTUAL -> {
+                followButton.setImageDrawable(ctx.getDrawable(R.drawable.ic_person_white_24dp))
+                fadeIn()
+            }
+            RelationType.FOLLOWED, RelationType.NOTHING -> {
+                followButton.setImageDrawable(ctx.getDrawable(R.drawable.ic_person_add_white_24dp))
+                fadeIn()
+            }
+            else -> {
+                followButton.visibility = View.INVISIBLE
+                followButton.fadeOut().execute()
+            }
+        }
+        followButton.setOnClickListener { presenter.relationUpdate() }
+    }
+
+    private fun ViewPager.initialize(client: TwitterClient) {
         fun createFragment(type: TweetsDisplayType, name: String): Fragment {
             return TimeLineFragment.create(createTweetsDisplay(client.toClientToken(),
-                    TweetsDisplayGroup(), targetUserId, type, name))
+                    TweetsDisplayGroup(), targetUserId, type, name), false)
         }
 
         val fragments = ArrayList<Fragment>().apply {
@@ -136,20 +226,26 @@ class UserInfoActivity
             add(EmptyFragment())
             add(EmptyFragment())
         }
-        pager.adapter = SimplePagerAdapter(supportFragmentManager, fragments)
-        userProfileTabLayout.setupWithViewPager(pager)
+        this.adapter = SimplePagerAdapter(supportFragmentManager, fragments)
+        userProfileTabLayout.setupWithViewPager(this)
+        userProfileTabLayout.addOnTabSelectedListener(onTabSelectedListener)
     }
+
+    private val ViewPager.components: List<Fragment>
+        get() = (adapter as SimplePagerAdapter).itemList
+
 
     class EmptyFragment : Fragment(), SimplePagerContent {
         override val contentName: String = "empty"
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-            return context.relativeLayout {
-                lparams(matchParent, matchParent)
-                textView {
-                    text = "empty"
-                }.lparams(wrapContent, wrapContent) {
-                    centerInParent()
-                }
+            return context.nestedScrollView {
+                relativeLayout {
+                    textView {
+                        text = "empty"
+                    }.lparams(wrapContent, wrapContent) {
+                        centerInParent()
+                    }
+                }.lparams(matchParent, matchParent)
             }
         }
     }
@@ -168,6 +264,9 @@ class UserInfoActivity
 interface UserInfoActivityInterface : ActivityInterface {
     val twitterClientId: Long
     val targetUserId: Long
+    var isRefreshing: Boolean
+    var followButtonIsEnabled: Boolean
     fun setTwitterUser(user: TwitterUser)
     fun setClient(client: TwitterClient)
+    fun setUserRelation(userRelation: UserRelation)
 }

@@ -15,7 +15,7 @@ class UserListPresenter(timeLineFragment: TimeLineFragmentInterface) : TimeLineP
     }
 
     override fun afterInitializeLoad() {
-        fragment.isRefreshable = true
+        fragment.isRefreshable = fragment.refreshableConfig
     }
 
 }

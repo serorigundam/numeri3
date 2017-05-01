@@ -2,6 +2,10 @@ package net.ketc.numeri.presentation.presenter.activity
 
 import android.os.Bundle
 import net.ketc.numeri.domain.inject
+import net.ketc.numeri.domain.model.TwitterUser
+import net.ketc.numeri.domain.model.cache.RelationType
+import net.ketc.numeri.domain.model.cache.UserRelation
+import net.ketc.numeri.domain.model.cache.convert
 import net.ketc.numeri.domain.model.cache.showUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient
@@ -15,6 +19,8 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
     @Inject
     lateinit var oAuthService: OAuthService
 
+    private var userRelation: UserRelation? = null
+    private lateinit var client: TwitterClient
 
     init {
         inject()
@@ -25,7 +31,9 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().single { it.id == activity.twitterClientId }
         } error Throwable::printStackTrace success {
+            client = it
             loadUser(it)
+            loadRelation(it, activity.targetUserId)
             activity.setClient(it)
         }
     }
@@ -41,4 +49,38 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
         }
     }
 
+    private fun loadRelation(client: TwitterClient, targetUserId: Long) {
+        singleTask(MySchedulers.twitter) {
+            client.twitter.showFriendship(client.id, targetUserId).convert()
+        } error {
+            it.printStackTrace()
+            activity.ctx.toast("error")
+        } success {
+            activity.setUserRelation(it)
+            userRelation = it
+        }
+    }
+
+    fun relationUpdate() {
+        userRelation?.let {
+            activity.followButtonIsEnabled = false
+            singleTask(MySchedulers.twitter) {
+                val twitter = client.twitter
+                val targetUserId = activity.targetUserId
+                when (it.type) {
+                    RelationType.MUTUAL, RelationType.FOLLOWING -> twitter.destroyFriendship(targetUserId)
+                    RelationType.FOLLOWED, RelationType.NOTHING -> twitter.createFriendship(targetUserId)
+                    else -> throw IllegalStateException()
+                }
+                twitter.showFriendship(client.id, targetUserId).convert()
+            } error {
+                it.printStackTrace()
+                activity.ctx.toast("失敗しました")
+                activity.followButtonIsEnabled = true
+            } success {
+                activity.setUserRelation(it)
+                activity.followButtonIsEnabled = true
+            }
+        }
+    }
 }

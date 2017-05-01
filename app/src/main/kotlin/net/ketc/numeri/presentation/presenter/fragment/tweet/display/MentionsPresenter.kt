@@ -12,6 +12,7 @@ class MentionsPresenter(timeLineFragment: TimeLineFragmentInterface) : TimeLineP
 
 
     override fun beforeInitializeLoad() {
+        fragment.isRefreshable = false
     }
 
     override fun afterInitializeLoad() {

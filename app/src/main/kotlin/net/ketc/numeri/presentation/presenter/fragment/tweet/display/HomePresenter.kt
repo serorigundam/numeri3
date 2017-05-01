@@ -9,6 +9,7 @@ class HomePresenter(timeLineFragment: TimeLineFragmentInterface) : TimeLinePrese
     override fun getTweets(paging: Paging): List<Tweet> = client.twitter.getHomeTimeline(paging).map { it.convert(client) }
 
     override fun beforeInitializeLoad() {
+        fragment.isRefreshable = false
     }
 
     override fun afterInitializeLoad() {

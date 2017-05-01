@@ -24,7 +24,7 @@ class MediaTimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : Time
     }
 
     override fun afterInitializeLoad() {
-        fragment.isRefreshable = true
+        fragment.isRefreshable = fragment.refreshableConfig
     }
 
     companion object {

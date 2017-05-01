@@ -62,11 +62,13 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             twitterAdapter.isReadMoreEnable = value
         }
 
+    override val refreshableConfig: Boolean by lazy { arguments.getBoolean(EXTRA_REFRESHABLE) }
+
     override val displayName: String by lazy { display.name }
 
     override val contentName: String
         get() = displayName
-    
+
     private var mTwitterAdapter: TwitterRecyclerAdapter<Tweet>? = null
     private val twitterAdapter: TwitterRecyclerAdapter<Tweet>
         get() = mTwitterAdapter ?: throw IllegalStateException("TwitterClient is not set")
@@ -150,10 +152,11 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
-
-        fun create(display: TweetsDisplay) = TimeLineFragment().apply {
+        val EXTRA_REFRESHABLE = "EXTRA_REFRESHABLE"
+        fun create(display: TweetsDisplay, refreshable: Boolean = true) = TimeLineFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(EXTRA_DISPLAY, display)
+                putBoolean(EXTRA_REFRESHABLE, refreshable)
             }
         }
 
@@ -162,7 +165,6 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             swipeRefreshLayout {
                 lparams(matchParent, matchParent)
                 id = R.id.swipe_refresh
-                isEnabled = false
                 recyclerView {
                     id = R.id.tweets_recycler
                     isVerticalScrollBarEnabled = true
@@ -181,6 +183,7 @@ interface TimeLineFragmentInterface : FragmentInterface, Refreshable, SimplePage
     var isRefreshing: Boolean
     var isRefreshable: Boolean
     var isReadMorEnabled: Boolean
+    val refreshableConfig: Boolean
     val displayName: String
     fun setClient(client: TwitterClient)
     fun addAll(tweets: List<Tweet>)
