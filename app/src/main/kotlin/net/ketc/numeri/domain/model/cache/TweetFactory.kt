@@ -93,7 +93,7 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
             get() = mRetweetCount
         override val hashtags: List<String> = status.hashtagEntities.map { it.text }.toImmutableList()
         override val urlEntities: List<UrlEntity> = status.urlEntities.map(::UrlEntity).toImmutableList()
-        override val mediaEntities: List<MediaEntity> = status.extendedMediaEntities.map(::MediaEntity).toImmutableList()
+        override val mediaEntities: List<MediaEntity> = status.mediaEntities.map(::MediaEntity).toImmutableList()
         override val userMentionEntities: List<UserMentionEntity> = status.userMentionEntities.map(::UserMentionEntity).toImmutableList()
         override val inReplyToStatusId: Long = status.inReplyToStatusId
 
