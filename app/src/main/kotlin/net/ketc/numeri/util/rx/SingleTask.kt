@@ -4,9 +4,7 @@ import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
-import io.reactivex.exceptions.UndeliverableException
 import net.ketc.numeri.util.log.v
-import java.io.InterruptedIOException
 
 /**
  *SingleTask
@@ -31,6 +29,7 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
                     v("singleTask", "catch disposed : $eName")
                     emitter.onError(ie)
                 } else {
+                    //Avoiding bugs that occur when using OkHttpClient after dispose()
                     v("singleTask", "catch : $eName")
                 }
             }
