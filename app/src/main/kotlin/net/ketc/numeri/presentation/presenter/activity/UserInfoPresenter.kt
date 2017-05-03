@@ -2,7 +2,6 @@ package net.ketc.numeri.presentation.presenter.activity
 
 import android.os.Bundle
 import net.ketc.numeri.domain.inject
-import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.domain.model.cache.RelationType
 import net.ketc.numeri.domain.model.cache.UserRelation
 import net.ketc.numeri.domain.model.cache.convert
@@ -31,10 +30,13 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().single { it.id == activity.twitterClientId }
         } error Throwable::printStackTrace success {
-            client = it
-            loadUser(it)
-            loadRelation(it, activity.targetUserId)
-            activity.setClient(it)
+            safePost {
+                client = it
+                loadUser(it)
+                activity.setClient(it)
+                if (client.id != activity.targetUserId)
+                    loadRelation(it, activity.targetUserId)
+            }
         }
     }
 

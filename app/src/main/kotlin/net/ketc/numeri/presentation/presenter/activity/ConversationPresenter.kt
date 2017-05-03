@@ -18,7 +18,6 @@ class ConversationPresenter(override val activity: ConversationActivityInterface
     @Inject
     lateinit var clientService: OAuthService
     lateinit var client: TwitterClient
-    lateinit var tweet: Tweet
 
     init {
         inject()
@@ -32,7 +31,7 @@ class ConversationPresenter(override val activity: ConversationActivityInterface
         } error Throwable::printStackTrace success {
             client = it.first
             activity.client = it.first
-            tweet = it.second
+            val tweet = it.second
             activity.insert(tweet)
             traceConversation(tweet.inReplyToStatusId)
         }

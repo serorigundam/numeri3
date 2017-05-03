@@ -150,6 +150,7 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                 isClickable = false
                 background = drawable(R.drawable.ripple_frame)
                 scaleType = ImageView.ScaleType.CENTER_INSIDE
+                visibility = View.INVISIBLE
             }.lparams(matchParent, matchParent)
             button {
                 profileEditButton = this

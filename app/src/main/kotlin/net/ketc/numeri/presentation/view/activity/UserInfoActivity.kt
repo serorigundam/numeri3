@@ -3,7 +3,9 @@ package net.ketc.numeri.presentation.view.activity
 import android.annotation.SuppressLint
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Animatable
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
@@ -33,6 +35,7 @@ import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.fadeOut
 import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.nestedScrollView
 
 class UserInfoActivity
@@ -157,6 +160,9 @@ class UserInfoActivity
                 "\nfollowers : ${user.followersCount}" +
                 "\ntweets : ${user.statusesCount}" +
                 "\nfavorites : ${user.favoriteCount}"
+        if (twitterClientId == targetUserId) {
+            relationInfoText.text = getString(R.string.myself)
+        }
     }
 
     override fun setClient(client: TwitterClient) {
@@ -192,18 +198,27 @@ class UserInfoActivity
         }
     }
 
+    private val followButtonVisibleHandler = Handler()
+    private val followButtonVisibleListener: () -> Unit = {
+        followButton.fadeIn().end { visibility = View.VISIBLE }.execute()
+    }
+
     private fun setFollowButtonState(userRelation: UserRelation) {
-        fun fadeIn() {
-            followButton.fadeIn().execute()
+        fun anim(id: Int) {
+            val drawable = ctx.getDrawable(id)
+            val animatable = drawable as Animatable
+            followButton.setImageDrawable(drawable)
+            animatable.start()
+            if (followButton.visibility != View.VISIBLE) {
+                followButtonVisibleHandler.postDelayed(followButtonVisibleListener, 300)
+            }
         }
         when (userRelation.type) {
             RelationType.FOLLOWING, RelationType.MUTUAL -> {
-                followButton.setImageDrawable(ctx.getDrawable(R.drawable.ic_person_white_24dp))
-                fadeIn()
+                anim(R.drawable.vector_anim_person)
             }
             RelationType.FOLLOWED, RelationType.NOTHING -> {
-                followButton.setImageDrawable(ctx.getDrawable(R.drawable.ic_person_add_white_24dp))
-                fadeIn()
+                anim(R.drawable.vector_anim_person_add)
             }
             else -> {
                 followButton.visibility = View.INVISIBLE
@@ -211,6 +226,11 @@ class UserInfoActivity
             }
         }
         followButton.setOnClickListener { presenter.relationUpdate() }
+    }
+
+    override fun onDestroy() {
+        super.onDestroy()
+        followButtonVisibleHandler.removeCallbacks(followButtonVisibleListener)
     }
 
     private fun ViewPager.initialize(client: TwitterClient) {
