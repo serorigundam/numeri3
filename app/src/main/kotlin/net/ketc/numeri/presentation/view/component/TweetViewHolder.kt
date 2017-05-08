@@ -74,7 +74,7 @@ class TweetViewHolder(ui: ITweetViewUI,
         val thumbs = displayTweet.mediaEntities.map { it.url + ":thumb" }
         previousLoadThumbDisposable.forEach(Disposable::dispose)
         previousLoadThumbDisposable.clear()
-        (0..3).map { thumbs.getOrElse(it) { "" } }.forEachIndexed { i, url ->
+        (0..thumbnails.lastIndex).map { thumbs.getOrElse(it) { "" } }.forEachIndexed { i, url ->
             if (url.isNotEmpty()) {
                 thumbnails[i].visibility = View.VISIBLE
                 val imageView = thumbnails[i].second
