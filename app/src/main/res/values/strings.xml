@@ -36,4 +36,5 @@
     <string name="myself">自分自身</string>
     <string name="friends">フォロー</string>
     <string name="follower">フォロワー</string>
+    <string name="via">via</string>
 </resources>

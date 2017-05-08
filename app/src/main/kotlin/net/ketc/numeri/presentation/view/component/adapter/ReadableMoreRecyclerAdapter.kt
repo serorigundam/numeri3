@@ -8,6 +8,7 @@ import net.ketc.numeri.presentation.view.component.FooterViewHolder
 import net.ketc.numeri.presentation.view.component.ReadableMore
 import net.ketc.numeri.presentation.view.component.ui.UI
 import net.ketc.numeri.presentation.view.component.ui.footer.EmptyViewUI
+import net.ketc.numeri.presentation.view.component.ui.footer.FooterViewUI
 import net.ketc.numeri.util.indexesIf
 import net.ketc.numeri.util.rx.AutoDisposable
 import kotlin.collections.ArrayList
@@ -74,8 +75,8 @@ class ReadableMoreRecyclerAdapter<T>(private val autoDisposable: AutoDisposable,
 
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): ReadableMoreViewHolder<T> {
         return when (viewType) {
-            TYPE_READ_MORE.first -> FooterViewHolder(readableMore ?: throw IllegalStateException("readableMore is not initialized"),
-                    autoDisposable, parent.context)
+            TYPE_READ_MORE.first -> FooterViewHolder(FooterViewUI(parent.context), readableMore ?: throw IllegalStateException("readableMore is not initialized"),
+                    autoDisposable)
             TYPE_EMPTY.first -> EmptyViewHolder(parent.context)
             else -> create()
         }

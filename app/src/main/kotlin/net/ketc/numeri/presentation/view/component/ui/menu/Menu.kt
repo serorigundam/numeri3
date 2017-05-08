@@ -3,11 +3,9 @@ package net.ketc.numeri.presentation.view.component.ui.menu
 import android.content.Context
 import android.support.annotation.DrawableRes
 import android.support.annotation.StringRes
-import android.support.design.widget.BottomSheetDialog
 import android.text.TextUtils
 import android.view.Gravity
 import android.view.View
-import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.TextView
 import net.ketc.numeri.R

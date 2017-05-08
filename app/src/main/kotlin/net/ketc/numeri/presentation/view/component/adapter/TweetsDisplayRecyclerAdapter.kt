@@ -5,6 +5,7 @@ import android.view.ViewGroup
 import net.ketc.numeri.domain.entity.TweetsDisplay
 import net.ketc.numeri.presentation.view.component.EmptyViewHolder
 import net.ketc.numeri.presentation.view.component.SimpleTextViewHolder
+import net.ketc.numeri.presentation.view.component.ui.simple.SimpleTextItemUI
 import net.ketc.numeri.util.android.getResourceId
 import java.util.*
 
@@ -25,7 +26,7 @@ class TweetsDisplayRecyclerAdapter : RecyclerView.Adapter<RecyclerView.ViewHolde
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         val ctx = parent.context
         return when (viewType) {
-            DISPLAY -> SimpleTextViewHolder(ctx).apply {
+            DISPLAY -> SimpleTextViewHolder(SimpleTextItemUI(parent.context)).apply {
                 itemView.background = ctx.getDrawable(ctx.getResourceId(android.R.attr.selectableItemBackground))
                 itemView.isClickable = true
             }

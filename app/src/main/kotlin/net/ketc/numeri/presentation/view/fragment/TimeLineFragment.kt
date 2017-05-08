@@ -19,6 +19,7 @@ import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreRecyclerAdapter
 import net.ketc.numeri.presentation.view.component.adapter.remove
+import net.ketc.numeri.presentation.view.component.ui.TweetViewUI
 import net.ketc.numeri.util.android.DialogOwner
 import net.ketc.numeri.util.android.defaultInit
 import net.ketc.numeri.util.android.parent
@@ -138,7 +139,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     override fun showDialog(dialog: AppCompatDialog) = dialogOwner.showDialog(dialog)
     override fun setClient(client: TwitterClient) {
         mReadableMoreAdapter = ReadableMoreRecyclerAdapter(presenter, {
-            TweetViewHolder(parent, presenter, client, { presenter.onClickTweet(it) })
+            TweetViewHolder(TweetViewUI(parent), presenter, client, { presenter.onClickTweet(it) })
         }, presenter)
         tweetsRecycler.adapter = readableMoreAdapter
     }

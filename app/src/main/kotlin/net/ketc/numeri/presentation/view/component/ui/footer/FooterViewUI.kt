@@ -9,10 +9,16 @@ import net.ketc.numeri.R
 import net.ketc.numeri.presentation.view.component.ui.UI
 import org.jetbrains.anko.*
 
-class FooterViewUI(override val ctx: Context) : UI {
+class FooterViewUI(override val ctx: Context) : IFooterViewUI {
+    override lateinit var readMoreText: TextView
+        private set
+    override lateinit var progressBar: ProgressBar
+        private set
+
     override fun createView(): View = ctx.relativeLayout {
         lparams(matchParent, wrapContent)
         textView {
+            readMoreText = this
             id = R.id.read_more_text
             textSize = 16F
             text = ctx.getString(R.string.read_more)
@@ -23,6 +29,7 @@ class FooterViewUI(override val ctx: Context) : UI {
 
         progressBar {
             id = R.id.progress_bar
+            progressBar = this
             visibility = View.INVISIBLE
         }.lparams(dimen(R.dimen.progress_bar_size), dimen(R.dimen.progress_bar_size)) {
             centerInParent()
@@ -31,7 +38,8 @@ class FooterViewUI(override val ctx: Context) : UI {
     }
 }
 
-val View.readMoreText: TextView
-    get() = find(R.id.read_more_text)
-val View.progressBar: ProgressBar
-    get() = find(R.id.progress_bar)
+
+interface IFooterViewUI : UI {
+    val readMoreText: TextView
+    val progressBar: ProgressBar
+}

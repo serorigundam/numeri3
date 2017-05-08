@@ -4,6 +4,7 @@ import android.support.v7.widget.RecyclerView
 import android.view.ViewGroup
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.presentation.view.component.SimpleTextViewHolder
+import net.ketc.numeri.presentation.view.component.ui.simple.SimpleTextItemUI
 import net.ketc.numeri.util.android.getResourceId
 import java.util.*
 
@@ -11,7 +12,7 @@ class TweetsDisplayGroupsRecyclerAdapter(private val onClick: (TweetsDisplayGrou
 
     private val items = ArrayList<TweetsDisplayGroup>()
 
-    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SimpleTextViewHolder((parent.context)).apply {
+    override fun onCreateViewHolder(parent: ViewGroup, viewType: Int) = SimpleTextViewHolder(SimpleTextItemUI(parent.context)).apply {
         val ctx = parent.context
         itemView.background = ctx.getDrawable(ctx.getResourceId(android.R.attr.selectableItemBackground))
     }
