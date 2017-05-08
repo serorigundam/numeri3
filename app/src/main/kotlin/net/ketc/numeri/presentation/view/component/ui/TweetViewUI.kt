@@ -1,4 +1,4 @@
-package net.ketc.numeri.presentation.view.component.ui.tweet
+package net.ketc.numeri.presentation.view.component.ui
 
 import android.content.Context
 import android.text.TextUtils
@@ -7,20 +7,55 @@ import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
 import net.ketc.numeri.R
-import net.ketc.numeri.presentation.view.component.ui.UI
+import net.ketc.numeri.util.android.endOf
+import net.ketc.numeri.util.android.startOf
+import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
 
-class TweetViewUI(override val ctx: Context) : UI {
+class TweetViewUI(override val ctx: Context) : ITweetViewUI {
+    override lateinit var iconImage: ImageView
+        private set
+
+    override lateinit var subInfoIcon: ImageView
+        private set
+
+    override lateinit var subInfoText: TextView
+        private set
+
+    override lateinit var screenNameText: TextView
+        private set
+
+    override lateinit var userNameText: TextView
+        private set
+
+    override lateinit var createdAtText: TextView
+        private set
+
+    override lateinit var text: TextView
+        private set
+
+    override val thumbnails: List<ImageView>
+        get() = mThumbnails.toImmutableList()
+
+    private val mThumbnails = ArrayList<ImageView>()
+
+    override lateinit var sourceText: TextView
+        private set
+
+    override lateinit var overlayRelative: RelativeLayout
+        private set
 
     override fun createView(): View = ctx.frameLayout {
         lparams(matchParent, wrapContent)
         relativeLayout {
+            overlayRelative = this
             id = R.id.overlay_relative
             lparams(matchParent, wrapContent) {
                 padding = dimen(R.dimen.margin_small)
             }
 
             imageView {
+                iconImage = this
                 id = R.id.icon_image
                 backgroundColor = ctx.getColor(R.color.image_background_transparency)
             }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon)) {
@@ -30,6 +65,7 @@ class TweetViewUI(override val ctx: Context) : UI {
             }
 
             imageView {
+                subInfoIcon = this
                 id = R.id.sub_info_icon
             }.lparams(dip(16), dip(16)) {
                 alignEnd(R.id.icon_image)
@@ -38,13 +74,14 @@ class TweetViewUI(override val ctx: Context) : UI {
 
 
             textView {
+                subInfoText = this
                 id = R.id.sub_info_text
                 lines = 1
                 ellipsize = TextUtils.TruncateAt.END
                 visibility = View.GONE
             }.lparams(matchParent, wrapContent) {
-                rightOf(R.id.icon_image)
-                leftOf(R.id.twitter_bird_image)
+                endOf(R.id.icon_image)
+                startOf(R.id.twitter_bird_image)
                 bottomMargin = dimen(R.dimen.margin_text_small)
             }
 
@@ -58,28 +95,31 @@ class TweetViewUI(override val ctx: Context) : UI {
             }
 
             textView {
+                userNameText = this
                 id = R.id.user_name_text
                 lines = 1
                 ellipsize = TextUtils.TruncateAt.END
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.sub_info_text)
-                rightOf(R.id.icon_image)
-                leftOf(R.id.created_at_text)
+                endOf(R.id.icon_image)
+                startOf(R.id.created_at_text)
                 marginEnd = dimen(R.dimen.margin_text_small)
             }
 
             textView {
+                screenNameText = this
                 id = R.id.screen_name_text
                 lines = 1
                 ellipsize = TextUtils.TruncateAt.END
             }.lparams(wrapContent, wrapContent) {
                 bottomOf(R.id.user_name_text)
-                rightOf(R.id.icon_image)
-                leftOf(R.id.created_at_text)
+                endOf(R.id.icon_image)
+                startOf(R.id.created_at_text)
                 marginEnd = dimen(R.dimen.margin_text_small)
             }
 
             textView {
+                createdAtText = this
                 id = R.id.created_at_text
                 lines = 1
             }.lparams(wrapContent, wrapContent) {
@@ -88,28 +128,30 @@ class TweetViewUI(override val ctx: Context) : UI {
             }
 
             textView {
+                this@TweetViewUI.text = this
                 id = R.id.text
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.icon_image)
-                rightOf(R.id.icon_image)
+                endOf(R.id.icon_image)
             }
 
             thumbnails()
 
             textView {
                 id = R.id.via_text
-                text = "via"
+                text = context.getString(R.string.via)
             }.lparams(wrapContent, wrapContent) {
-                rightOf(R.id.icon_image)
+                endOf(R.id.icon_image)
                 below(R.id.thumbnails_relative)
                 topMargin = dimen(R.dimen.margin_text_small)
             }
 
             textView {
+                sourceText = this
                 id = R.id.source_text
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.thumbnails_relative)
-                rightOf(R.id.via_text)
+                endOf(R.id.via_text)
                 topMargin = dimen(R.dimen.margin_text_small)
             }
         }
@@ -118,58 +160,47 @@ class TweetViewUI(override val ctx: Context) : UI {
     private fun _RelativeLayout.thumbnails() {
 
         fun _RelativeLayout.thumb(id: Int, init: RelativeLayout.LayoutParams.() -> Unit = {}) {
-            imageView {
+            val thumb = imageView {
                 this.id = id
                 backgroundColor = ctx.getColor(R.color.image_background_transparency)
             }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon), init)
+            mThumbnails.add(thumb)
         }
 
         relativeLayout {
             id = R.id.thumbnails_relative
             lparams(matchParent, matchParent) {
-                rightOf(R.id.icon_image)
+                endOf(R.id.icon_image)
                 topMargin = dimen(R.dimen.margin_small)
                 below(R.id.text)
             }
 
             thumb(R.id.thumb_image1)
             thumb(R.id.thumb_image2) {
-                rightOf(R.id.thumb_image1)
+                endOf(R.id.thumb_image1)
                 marginStart = dimen(R.dimen.margin_small)
             }
             thumb(R.id.thumb_image3) {
-                rightOf(R.id.thumb_image2)
+                endOf(R.id.thumb_image2)
                 marginStart = dimen(R.dimen.margin_small)
             }
             thumb(R.id.thumb_image4) {
-                rightOf(R.id.thumb_image3)
+                endOf(R.id.thumb_image3)
                 marginStart = dimen(R.dimen.margin_small)
             }
         }
     }
 }
 
-val View.iconImage: ImageView
-    get() = find(R.id.icon_image)
-val View.subInfoIcon: ImageView
-    get() = find(R.id.sub_info_icon)
-val View.subInfoText: TextView
-    get() = find(R.id.sub_info_text)
-val View.screenNameText: TextView
-    get() = find(R.id.screen_name_text)
-val View.userNameText: TextView
-    get() = find(R.id.user_name_text)
-val View.createdAtText: TextView
-    get() = find(R.id.created_at_text)
-val View.text: TextView
-    get() = find(R.id.text)
-val View.thumbnails: List<ImageView>
-    get() {
-        return listOf(find(R.id.thumb_image1), find(R.id.thumb_image2),
-                find(R.id.thumb_image3), find(R.id.thumb_image4))
-    }
-
-val View.sourceText: TextView
-    get() = find(R.id.source_text)
-val View.overlayRelative: RelativeLayout
-    get() = find(R.id.overlay_relative)
+interface ITweetViewUI : UI {
+    val iconImage: ImageView
+    val subInfoIcon: ImageView
+    val subInfoText: TextView
+    val screenNameText: TextView
+    val userNameText: TextView
+    val createdAtText: TextView
+    val text: TextView
+    val thumbnails: List<ImageView>
+    val sourceText: TextView
+    val overlayRelative: RelativeLayout
+}

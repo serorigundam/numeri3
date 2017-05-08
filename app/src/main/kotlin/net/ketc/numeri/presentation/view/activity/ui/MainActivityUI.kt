@@ -16,6 +16,7 @@ import android.widget.RelativeLayout
 import net.ketc.numeri.R
 import net.ketc.numeri.presentation.view.activity.MainActivity
 import net.ketc.numeri.util.android.getResourceId
+import net.ketc.numeri.util.android.startOf
 import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
@@ -108,7 +109,7 @@ class MainActivityUI : IMainActivityUI {
                     text = "アカウント一覧"
                     lines = 1
                 }.lparams {
-                    leftOf(R.id.show_account_indicator)
+                    startOf(R.id.show_account_indicator)
                     alignParentStart()
                     centerVertically()
                     margin = dimen(R.dimen.margin_text_medium)

@@ -1,12 +1,11 @@
 package net.ketc.numeri.presentation.view.component
 
-import android.content.Context
 import android.support.v7.widget.RecyclerView
+import net.ketc.numeri.presentation.view.component.ui.simple.ISimpleTextItemUI
 import net.ketc.numeri.presentation.view.component.ui.simple.SimpleTextItemUI
-import net.ketc.numeri.presentation.view.component.ui.simple.text
 
-class SimpleTextViewHolder(ctx: Context) : RecyclerView.ViewHolder(SimpleTextItemUI(ctx).createView()) {
+class SimpleTextViewHolder(ui: SimpleTextItemUI) : RecyclerView.ViewHolder(ui.createView()), ISimpleTextItemUI by ui {
     fun bind(text: String) {
-        itemView.text.text = text
+        this.text.text = text
     }
 }

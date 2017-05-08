@@ -11,5 +11,4 @@ class EmptyViewUI(override val ctx: Context) : UI {
     override fun createView(): View = ctx.frameLayout {
         lparams(matchParent, dip(104))
     }
-
 }
