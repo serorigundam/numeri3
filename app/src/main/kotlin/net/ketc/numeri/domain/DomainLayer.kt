@@ -11,6 +11,7 @@ import net.ketc.numeri.domain.service.TweetsDisplayServiceImpl
 import net.ketc.numeri.presentation.presenter.activity.*
 import net.ketc.numeri.presentation.presenter.fragment.TimeLinesPresenter
 import net.ketc.numeri.presentation.presenter.fragment.tweet.display.TimeLinePresenter
+import net.ketc.numeri.presentation.presenter.fragment.user.display.UsersPresenter
 import javax.inject.Singleton
 
 @Module
@@ -36,6 +37,8 @@ interface DomainComponent {
     fun inject(tweetsDisplayManagePresenter: TweetsDisplayManagePresenter)
     fun inject(createDisplayGroupPresenter: CreateDisplayGroupPresenter)
     fun inject(conversationPresenter: ConversationPresenter)
+    fun inject(userInfoPresenter: UserInfoPresenter)
+    fun inject(usersPresenter: UsersPresenter)
 }
 
 //extension
@@ -64,5 +67,13 @@ fun CreateDisplayGroupPresenter.inject() {
 }
 
 fun ConversationPresenter.inject() {
+    Injectors.domainComponent.inject(this)
+}
+
+fun UserInfoPresenter.inject() {
+    Injectors.domainComponent.inject(this)
+}
+
+fun UsersPresenter.inject() {
     Injectors.domainComponent.inject(this)
 }

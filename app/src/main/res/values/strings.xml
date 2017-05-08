@@ -25,4 +25,15 @@
     <string name="save_failure">保存失敗</string>
     <string name="save">保存</string>
     <string name="open_link">リンクを開く</string>
+    <string name="tab_tweet">ツイート</string>
+    <string name="tab_favorite">お気に入り</string>
+    <string name="tab_media">メディア</string>
+    <string name="tab_follow">フォロー</string>
+    <string name="tab_follower">フォロワー</string>
+    <string name="edit_profile">編集する</string>
+    <string name="following_you">あなたをフォローしています。</string>
+    <string name="blocking">ブロック中</string>
+    <string name="myself">自分自身</string>
+    <string name="friends">フォロー</string>
+    <string name="follower">フォロワー</string>
 </resources>

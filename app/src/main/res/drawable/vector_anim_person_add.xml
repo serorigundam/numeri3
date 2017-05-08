@@ -1,0 +1,42 @@
+<animated-vector
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:aapt="http://schemas.android.com/aapt">
+    <aapt:attr name="android:drawable">
+        <vector
+            xmlns:android="http://schemas.android.com/apk/res/android"
+            android:width="960dp"
+            android:height="960dp"
+            android:viewportWidth="960"
+            android:viewportHeight="960"
+            android:alpha="1">
+            <path
+                android:name="path"
+                android:pathData="M280,741c0,-70 19,-99 85,-131 139,-68 331,-68 470,0 66,32 85,61 85,131l0,59 -320,0 -320,0 0,-59z"
+                android:fillColor="#ffffff"
+                android:strokeColor="#00000000"/>
+            <path
+                android:name="path_1"
+                android:pathData="M160,540l0,-60 -60,0 -60,0 0,-40 0,-40 60,0 60,0 0,-60 0,-60 40,0 40,0 0,60 0,60 60,0 60,0 0,40 0,40 -60,0 -60,0 0,60 0,60 -40,0 -40,0 0,-60z"
+                android:fillColor="#ffffff"
+                android:strokeColor="#00000000"/>
+            <path
+                android:name="path_2"
+                android:pathData="M512,460c-48,-30 -72,-75 -72,-140 0,-100 60,-160 160,-160 100,0 160,60 160,160 0,65 -24,110 -72,140 -45,27 -131,27 -176,0z"
+                android:fillColor="#ffffff"
+                android:strokeColor="#00000000"/>
+        </vector>
+    </aapt:attr>
+    <target android:name="path_1">
+        <aapt:attr name="android:animation">
+            <objectAnimator
+                xmlns:android="http://schemas.android.com/apk/res/android"
+                android:name="path_1"
+                android:propertyName="pathData"
+                android:duration="300"
+                android:valueFrom="M160,540l0,00 -00,0 -00,0 0,-00 0,-00 0,0 0,0 0,-0 0,0 0,0 0,0 0,0 0,0 0,0 0,0 0,00 0,00 -00,0 -00,0 0,00 0,00 -00,0 -00,0 0,-00z"
+                android:valueTo="M160,540l0,-60 -60,0 -60,0 0,-40 0,-40 60,0 60,0 0,-60 0,-60 40,0 40,0 0,60 0,60 60,0 60,0 0,40 0,40 -60,0 -60,0 0,60 0,60 -40,0 -40,0 0,-60z"
+                android:valueType="pathType"
+                android:interpolator="@android:anim/accelerate_decelerate_interpolator"/>
+        </aapt:attr>
+    </target>
+</animated-vector>

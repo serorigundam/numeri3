@@ -3,12 +3,13 @@ package net.ketc.numeri.presentation.view.component
 import android.content.Context
 import android.graphics.Color
 import android.view.View
-import kotlinx.coroutines.experimental.channels.buildChannel
+import io.reactivex.disposables.Disposable
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.isMention
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.view.activity.MediaActivity
-import net.ketc.numeri.presentation.view.component.adapter.TwitterViewHolder
+import net.ketc.numeri.presentation.view.activity.UserInfoActivity
+import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreViewHolder
 import net.ketc.numeri.presentation.view.component.ui.menu.iconImage
 import net.ketc.numeri.presentation.view.component.ui.tweet.*
 import net.ketc.numeri.util.android.download
@@ -22,17 +23,18 @@ class TweetViewHolder(ctx: Context,
                       override val autoDisposable: AutoDisposable,
                       private val client: TwitterClient,
                       onClick: (Tweet) -> Unit) :
-        TwitterViewHolder<Tweet>(TweetViewUI(ctx).createView(), onClick),
+        ReadableMoreViewHolder<Tweet>(TweetViewUI(ctx), onClick),
         AutoDisposable by autoDisposable {
+    private var previousLoadImageDisposable: Disposable? = null
 
     init {
         itemView.backgroundResource = ctx.getResourceId(android.R.attr.selectableItemBackground)
         itemView.isClickable = true
     }
 
-    override fun bind(cacheable: Tweet) {
-        itemView.bind(cacheable)
-        itemView.setOnClickListener { onClick(cacheable) }
+    override fun bind(value: Tweet) {
+        itemView.bind(value)
+        itemView.setOnClickListener { onClick(value) }
     }
 
     private fun View.bind(tweet: Tweet) {
@@ -59,7 +61,9 @@ class TweetViewHolder(ctx: Context,
         createdAtText.text = displayTweet.createdAt
         screenNameText.text = displayTweet.user.screenName
         userNameText.text = displayTweet.user.name
-        iconImage.download(displayTweet.user.iconUrl, autoDisposable)
+        previousLoadImageDisposable?.takeUnless { it.isDisposed }?.dispose()
+        previousLoadImageDisposable = iconImage.download(displayTweet.user.iconUrl, autoDisposable)
+        iconImage.setOnClickListener { UserInfoActivity.start(context, client.id, displayTweet.user.id) }
         text.text = displayTweet.text
         sourceText.text = displayTweet.source
     }

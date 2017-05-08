@@ -8,9 +8,9 @@ import android.os.Environment
 import android.provider.MediaStore
 import android.util.LruCache
 import android.widget.ImageView
+import io.reactivex.disposables.Disposable
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
-import org.jetbrains.anko.imageBitmap
 import java.io.File
 import java.io.FileOutputStream
 import java.io.IOException
@@ -32,18 +32,19 @@ object ImageCache {
 
     private val queue: MutableList<Triple<String, (Bitmap) -> Unit, (Throwable) -> Unit>> = ArrayList()
 
-    fun download(urlStr: String, cache: Boolean, autoDisposable: AutoDisposable, error: (Throwable) -> Unit, success: (Bitmap) -> Unit) {
+    fun download(urlStr: String, cache: Boolean, autoDisposable: AutoDisposable, error: (Throwable) -> Unit, success: (Bitmap) -> Unit): Disposable? {
         if (!urlStr.matches(URL_REGEX)) {
             throw IllegalArgumentException("passed urlStr is not in the form of URL")
         }
         bitmapCache[urlStr]?.let {
             success(it)
-            return
+            return null
         }
         if (queue.any { it.first == urlStr }) {
             queue.add(Triple(urlStr, success, error))
+            return null
         } else {
-            autoDisposable.singleTask(MySchedulers.imageLoad) {
+            return autoDisposable.singleTask(MySchedulers.imageLoad) {
                 var connection: HttpURLConnection? = null
                 var inputStream: InputStream? = null
                 return@singleTask try {
@@ -85,9 +86,9 @@ object ImageCache {
 
 fun ImageView.download(url: String, autoDisposable: AutoDisposable, cache: Boolean = true,
                        error: (Throwable) -> Unit = {},
-                       success: () -> Unit = {}) {
+                       success: () -> Unit = {}): Disposable? {
     this.setImageDrawable(null)
-    ImageCache.download(url, cache, autoDisposable, {
+    return ImageCache.download(url, cache, autoDisposable, {
         this.setImageDrawable(null)
         error(it)
     }, {
@@ -101,7 +102,8 @@ fun ImageView.download(url: String, autoDisposable: AutoDisposable, cache: Boole
  */
 fun ImageView.save() {
     var outputStream: FileOutputStream? = null
-    val file = File("${Environment.getExternalStorageDirectory().path}/numetter")
+    val dirName = "numetter"
+    val file = File("${Environment.getExternalStorageDirectory().path}/$dirName")
     try {
         val imageBitmap = this.drawable as? BitmapDrawable ?: throw IllegalStateException("bitmap is not set")
         file.takeIf { file.exists() || file.mkdir() }?.let {

@@ -1,7 +1,5 @@
 package net.ketc.numeri.presentation.presenter.fragment.tweet.display
 
-import android.os.Handler
-import net.ketc.numeri.R
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.service.OAuthService
@@ -24,8 +22,6 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
     protected val client: TwitterClient
         get() = mClient
 
-    private val handler = Handler()
-    private val unlockUpdate: () -> Unit = { fragment.isRefreshable = true }
 
     init {
         inject()
@@ -44,11 +40,11 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
             }.autoDispose()
             beforeInitializeLoad()
             initializeLoad()
-            afterInitializeLoad()
         }
     }
 
     private fun initializeLoad() {
+        fragment.isRefreshing = true
         singleTask(MySchedulers.twitter) {
             getTweets(Paging().apply {
                 count = DEFAULT_COUNT
@@ -56,10 +52,16 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         } error {
             it.printStackTrace()
             fragment.activity.toast("error")
-            fragment.isReadMorEnabled = true
+            fragment.isEmptyFooterEnabled = true
+            fragment.isReadMoreEnabled = true
+            fragment.isRefreshing = false
+            afterInitializeLoad()
         } success {
             fragment.addAll(it)
-            fragment.isReadMorEnabled = true
+            fragment.isEmptyFooterEnabled = true
+            fragment.isReadMoreEnabled = true
+            fragment.isRefreshing = false
+            afterInitializeLoad()
         }
     }
 
@@ -73,7 +75,7 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
      */
     abstract fun afterInitializeLoad()
 
-    fun update() {
+    fun update(callback: () -> Unit = {}) {
         fragment.isRefreshing = true
         singleTask(MySchedulers.twitter) {
             getTweets(Paging().apply {
@@ -81,23 +83,17 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
                 fragment.firstTweet?.let {
                     sinceId = it.id
                 }
-            }).reversed()
+            })
         } error {
             it.printStackTrace()
             fragment.isRefreshing = false
             fragment.activity.toast("error")
-            lockUpdate()
+            callback()
         } success {
             fragment.isRefreshing = false
             fragment.insertAllToTop(it)
-            lockUpdate()
+            callback()
         }
-    }
-
-    private fun lockUpdate() {
-        fragment.activity.run { toast(getString(R.string.lock_tweet_cquisition)) }
-        fragment.isRefreshable = false
-        handler.postDelayed(unlockUpdate, UPDATE_LOCK_MILLS)
     }
 
     fun onClickTweet(tweet: Tweet) {
@@ -130,14 +126,8 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         fragment.addAll(t)
     }
 
-    override fun onDestroyView() {
-        super.onDestroyView()
-        handler.removeCallbacks(unlockUpdate)
-    }
-
     companion object {
         val DEFAULT_COUNT = 40
-        val UPDATE_LOCK_MILLS: Long = 30 * 1000
     }
 }
 

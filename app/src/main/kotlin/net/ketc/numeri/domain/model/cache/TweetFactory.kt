@@ -23,14 +23,27 @@ object TweetFactory {
 
     }
 
-    fun create(twitterClient: TwitterClient, status: Status): Tweet {
+    fun create(twitterClient: TwitterClient, status: Status, update: Boolean = false): Tweet {
         val tweet = TweetCache.putOrGet(status)
         fun setTweetState(t: Tweet) {
-            FavoriteStateCache.changeState(twitterClient, t, status.isFavorited)
-            RetweetStateCache.changeState(twitterClient, t, status.isRetweeted)
-            t.retweetedTweet?.let {
-                RetweetStateCache.changeState(twitterClient, it, twitterClient.isMyTweet(tweet))
-                FavoriteStateCache.changeState(twitterClient, it, status.isFavorited)
+            if (update) {
+                val updateStatus = twitterClient.twitter.showStatus(status.id)
+                FavoriteStateCache.changeState(twitterClient, t, updateStatus.isFavorited)
+                RetweetStateCache.changeState(twitterClient, t, updateStatus.isRetweeted)
+            } else {
+                FavoriteStateCache.changeState(twitterClient, t, status.isFavorited)
+                RetweetStateCache.changeState(twitterClient, t, status.isRetweeted)
+            }
+            t.retweetedTweet?.let { retweet ->
+                var s: Status? = null
+                if (RetweetStateCache.getStateOrNull(twitterClient, retweet) == null) {
+                    s = twitterClient.twitter.showStatus(retweet.id)
+                    RetweetStateCache.changeState(twitterClient, retweet, s.isRetweeted)
+                }
+                if (FavoriteStateCache.getStateOrNull(twitterClient, retweet) == null) {
+                    val s2 = s ?: twitterClient.twitter.showStatus(retweet.id)
+                    FavoriteStateCache.changeState(twitterClient, retweet, s2.isFavorited)
+                }
             }
             t.quotedTweet?.let(::setTweetState)
         }
@@ -39,7 +52,9 @@ object TweetFactory {
     }
 }
 
-fun Status.convertAndCacheOrGet(twitterClient: TwitterClient) = TweetFactory.create(twitterClient, this)
+fun Status.convert(twitterClient: TwitterClient) = TweetFactory.create(twitterClient, this)
+
+fun Status.updateAndCache(twitterClient: TwitterClient) = TweetFactory.create(twitterClient, this, true)
 
 private object TweetCache : ConversionCache<Status, Tweet, Long> {
     private val map = LinkedHashMap<Long, Tweet>()
@@ -78,7 +93,7 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
             get() = mRetweetCount
         override val hashtags: List<String> = status.hashtagEntities.map { it.text }.toImmutableList()
         override val urlEntities: List<UrlEntity> = status.urlEntities.map(::UrlEntity).toImmutableList()
-        override val mediaEntities: List<MediaEntity> = status.extendedMediaEntities.map(::MediaEntity).toImmutableList()
+        override val mediaEntities: List<MediaEntity> = status.mediaEntities.map(::MediaEntity).toImmutableList()
         override val userMentionEntities: List<UserMentionEntity> = status.userMentionEntities.map(::UserMentionEntity).toImmutableList()
         override val inReplyToStatusId: Long = status.inReplyToStatusId
 
@@ -107,4 +122,4 @@ private object TweetCache : ConversionCache<Status, Tweet, Long> {
     }
 }
 
-fun TwitterClient.getTweet(id: Long) = TweetFactory.get(id) ?: twitter.showStatus(id).convertAndCacheOrGet(this)
+fun TwitterClient.getTweet(id: Long) = TweetFactory.get(id) ?: twitter.showStatus(id).convert(this)

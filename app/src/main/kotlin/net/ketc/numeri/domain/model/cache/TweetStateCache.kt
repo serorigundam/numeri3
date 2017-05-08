@@ -25,8 +25,12 @@ abstract class TweetStateCache<State : Serializable> {
     }
 
     fun getState(twitterClient: TwitterClient, tweet: Tweet): State {
+        return getStateOrNull(twitterClient, tweet) ?: throw IllegalStateException()
+    }
+
+    fun getStateOrNull(twitterClient: TwitterClient, tweet: Tweet): State? {
         val stateMap = map[twitterClient.id] ?: throw IllegalStateException()
-        return stateMap[tweet.id] ?: throw IllegalStateException()
+        return stateMap[tweet.id]
     }
 
     fun deleteState(twitterClient: TwitterClient) {

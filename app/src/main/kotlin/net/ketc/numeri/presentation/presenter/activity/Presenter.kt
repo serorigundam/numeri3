@@ -8,6 +8,7 @@ import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.AutoDisposableImpl
 import net.ketc.numeri.presentation.view.activity.ApplicationActivity
 import net.ketc.numeri.util.android.SafePostDelegate
+import net.ketc.numeri.util.log.v
 
 /**
  * Presenter
@@ -28,6 +29,7 @@ interface Presenter<out T : ActivityInterface> {
      * This method is bound to [ApplicationActivity.onPause]
      */
     fun onPause() {
+        v(this.javaClass.simpleName, "onPause")
     }
 
     /**
@@ -46,12 +48,14 @@ interface Presenter<out T : ActivityInterface> {
      * This method is bound to [ApplicationActivity.onResume]
      */
     fun onResume() {
+        v(this.javaClass.simpleName, "onResume")
     }
 
     /**
      * This method is bound to [ApplicationActivity.onDestroy]
      */
     fun onDestroy() {
+        v(this.javaClass.simpleName, "onDestroy")
     }
 }
 
@@ -61,11 +65,21 @@ interface Presenter<out T : ActivityInterface> {
 abstract class AutoDisposablePresenter<out T : ActivityInterface> : Presenter<T>, AutoDisposable by AutoDisposableImpl() {
     private val safePostDelegate = SafePostDelegate()
 
+
     fun safePost(task: () -> Unit) = safePostDelegate.safePost(task)
 
-    override fun onPause() = safePostDelegate.onPause()
+    override fun onPause() {
+        super.onPause()
+        safePostDelegate.onPause()
+    }
 
-    override fun onResume() = safePostDelegate.onResume()
+    override fun onResume() {
+        super.onResume()
+        safePostDelegate.onResume()
+    }
 
-    override fun onDestroy() = dispose()
+    override fun onDestroy() {
+        super.onDestroy()
+        dispose()
+    }
 }

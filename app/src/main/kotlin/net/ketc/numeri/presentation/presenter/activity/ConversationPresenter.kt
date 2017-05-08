@@ -3,7 +3,6 @@ package net.ketc.numeri.presentation.presenter.activity
 import android.os.Bundle
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.Tweet
-import net.ketc.numeri.domain.model.cache.convertAndCacheOrGet
 import net.ketc.numeri.domain.model.cache.getTweet
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient
@@ -19,7 +18,6 @@ class ConversationPresenter(override val activity: ConversationActivityInterface
     @Inject
     lateinit var clientService: OAuthService
     lateinit var client: TwitterClient
-    lateinit var tweet: Tweet
 
     init {
         inject()
@@ -33,7 +31,7 @@ class ConversationPresenter(override val activity: ConversationActivityInterface
         } error Throwable::printStackTrace success {
             client = it.first
             activity.client = it.first
-            tweet = it.second
+            val tweet = it.second
             activity.insert(tweet)
             traceConversation(tweet.inReplyToStatusId)
         }

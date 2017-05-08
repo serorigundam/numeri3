@@ -132,20 +132,20 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUserListMemberAddition(addedMember: User, listOwner: User, list: UserList) {
-            val source = addedMember.convertAndCacheOrGet()
-            val target = listOwner.convertAndCacheOrGet()
+            val source = addedMember.convert()
+            val target = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListMemberAddition(UserListMemberNotice(source, target, list))
             }
         }
 
         override fun onFavorite(source: User, target: User, favoritedStatus: Status) {
-            val source1 = source.convertAndCacheOrGet()
-            val target1 = target.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target1 = target.convert()
             val isRetweeted = TweetFactory.get(favoritedStatus.id)?.let {
                 client.isRetweeted(it)
             }
-            val tweet = favoritedStatus.convertAndCacheOrGet(client)
+            val tweet = favoritedStatus.convert(client)
             if (source.id == client.id) {
                 client.setFavorite(tweet)
             }
@@ -158,15 +158,15 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onBlock(source: User, blockedUser: User) {
-            val source1 = source.convertAndCacheOrGet()
-            val target = blockedUser.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target = blockedUser.convert()
             streamAdapterList.forEach {
                 it.onBlock(UserNotice(source1, target))
             }
         }
 
         override fun onUserListUpdate(listOwner: User, list: UserList) {
-            val source = listOwner.convertAndCacheOrGet()
+            val source = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListUpdate(UserListNotice(source, list))
             }
@@ -179,8 +179,8 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUserListSubscription(subscriber: User, listOwner: User, list: UserList) {
-            val source = subscriber.convertAndCacheOrGet()
-            val target = listOwner.convertAndCacheOrGet()
+            val source = subscriber.convert()
+            val target = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListSubscription(UserListMemberNotice(source, target, list))
             }
@@ -209,7 +209,7 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUserProfileUpdate(updatedUser: User) {
-            val user = updatedUser.convertAndCacheOrGet()
+            val user = updatedUser.convert()
             streamAdapterList.forEach {
                 it.onUserProfileUpdate(user)
             }
@@ -222,55 +222,55 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUserListUnsubscription(subscriber: User, listOwner: User, list: UserList) {
-            val source = subscriber.convertAndCacheOrGet()
-            val target = listOwner.convertAndCacheOrGet()
+            val source = subscriber.convert()
+            val target = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListUnsubscription(UserListMemberNotice(source, target, list))
             }
         }
 
         override fun onFollow(source: User, followedUser: User) {
-            val source1 = source.convertAndCacheOrGet()
-            val target = followedUser.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target = followedUser.convert()
             streamAdapterList.forEach {
                 it.onFollow(UserNotice(source1, target))
             }
         }
 
         override fun onUserListMemberDeletion(deletedMember: User, listOwner: User, list: UserList) {
-            val source = deletedMember.convertAndCacheOrGet()
-            val target = listOwner.convertAndCacheOrGet()
+            val source = deletedMember.convert()
+            val target = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListMemberDeletion(UserListMemberNotice(source, target, list))
             }
         }
 
         override fun onUserListDeletion(listOwner: User, list: UserList) {
-            val source = listOwner.convertAndCacheOrGet()
+            val source = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListDeletion(UserListNotice(source, list))
             }
         }
 
         override fun onUnfollow(source: User, unfollowedUser: User) {
-            val source1 = source.convertAndCacheOrGet()
-            val target = unfollowedUser.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target = unfollowedUser.convert()
             streamAdapterList.forEach {
                 it.onUnfollow(UserNotice(source1, target))
             }
         }
 
         override fun onRetweetedRetweet(source: User, target: User, retweetedStatus: Status) {
-            val source1 = source.convertAndCacheOrGet()
-            val target1 = target.convertAndCacheOrGet()
-            val tweet = retweetedStatus.convertAndCacheOrGet(client)
+            val source1 = source.convert()
+            val target1 = target.convert()
+            val tweet = retweetedStatus.convert(client)
             streamAdapterList.forEach {
                 it.onRetweetedRetweet(StatusNotice(source1, target1, tweet))
             }
         }
 
         override fun onUserListCreation(listOwner: User, list: UserList) {
-            val source = listOwner.convertAndCacheOrGet()
+            val source = listOwner.convert()
             streamAdapterList.forEach {
                 it.onUserListCreation(UserListNotice(source, list))
             }
@@ -292,12 +292,12 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUnfavorite(source: User, target: User, unfavoritedStatus: Status) {
-            val source1 = source.convertAndCacheOrGet()
-            val target1 = target.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target1 = target.convert()
             val retweeted = TweetFactory.get(unfavoritedStatus.id)?.let {
                 client.isRetweeted(it)
             }
-            val tweet = unfavoritedStatus.convertAndCacheOrGet(client)
+            val tweet = unfavoritedStatus.convert(client)
             if (source.id == client.id) {
                 client.setUnFavorite(tweet)
             }
@@ -322,15 +322,15 @@ class StreamFlowableHolderImpl(twitterApp: TwitterApp, twitterClient: TwitterCli
         }
 
         override fun onUnblock(source: User, unblockedUser: User) {
-            val source1 = source.convertAndCacheOrGet()
-            val target = unblockedUser.convertAndCacheOrGet()
+            val source1 = source.convert()
+            val target = unblockedUser.convert()
             streamAdapterList.forEach {
                 it.onUnblock(UserNotice(source1, target))
             }
         }
 
         override fun onStatus(status: Status) {
-            val tweet = status.convertAndCacheOrGet(client)
+            val tweet = status.convert(client)
             streamAdapterList.forEach {
                 it.onStatus(tweet)
             }

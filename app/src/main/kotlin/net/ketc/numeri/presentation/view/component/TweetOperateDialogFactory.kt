@@ -12,12 +12,14 @@ import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
 import net.ketc.numeri.presentation.view.activity.ConversationActivity
 import net.ketc.numeri.presentation.view.activity.MediaActivity
+import net.ketc.numeri.presentation.view.activity.UserInfoActivity
 import net.ketc.numeri.presentation.view.component.ui.menu.*
 import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
 import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
+import java.util.ArrayList
 
 class TweetOperatorDialogFactory(private val ctx: Context,
                                  private val tweet: Tweet,
@@ -33,6 +35,9 @@ class TweetOperatorDialogFactory(private val ctx: Context,
         dialog.messageText.text = tweet.text
         dialog.addMenu(menuItems.favoriteMenuItem)
         dialog.addMenu(menuItems.retweetMenuItem)
+        menuItems.openUserMenuItems.forEach {
+            dialog.addMenu(it)
+        }
         menuItems.openUrlMenuItems.forEach {
             dialog.addMenu(it)
         }
@@ -103,6 +108,7 @@ class TweetMenuItems(private val ctx: Context,
 
     val favoriteMenuItem = createFavoriteMenu()
     val retweetMenuItem = createRetweetMenu()
+    val openUserMenuItems = createOpenUserMenus()
     val openUrlMenuItems = createOpenUrlMenus()
     val openDisplayConversationItem = (tweet.retweetedTweet ?: tweet)
             .inReplyToStatusId.takeUnless { it == -1L }?.let { createDisplayConversationMenu() }
@@ -143,6 +149,23 @@ class TweetMenuItems(private val ctx: Context,
             }
         }
         return tweet.urlEntities.map(UrlEntity::createMenu).toImmutableList()
+    }
+
+    private fun createOpenUserMenus(): List<View> {
+        fun Pair<Long, String>.createMenu(): View {
+            return createIconMenu(ctx, R.drawable.ic_account_circle_white_24dp, "@$second") {
+                UserInfoActivity.start(ctx, client.id, first)
+            }
+        }
+
+        val list1 = ArrayList<Pair<Long, String>>().apply {
+            tweet.retweetedTweet?.user?.let {
+                add(it.id to it.screenName)
+            }
+            add(tweet.user.id to tweet.user.screenName)
+        }
+        val list2 = tweet.userMentionEntities.map { it.id to it.screenName }
+        return (list1 + list2).distinctBy { it.first }.map(Pair<Long, String>::createMenu)
     }
 
     private fun createDisplayConversationMenu(): View {

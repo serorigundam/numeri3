@@ -29,7 +29,7 @@ class ConversationActivityUI : IConversationActivityUI {
                 }
             }.lparams(matchParent, wrapContent)
             recyclerView {
-                id = R.id.tweets_recycler
+                id = R.id.users_recycler
                 tweetsRecycler = this
                 isVerticalScrollBarEnabled = true
             }.lparams(matchParent, matchParent) {

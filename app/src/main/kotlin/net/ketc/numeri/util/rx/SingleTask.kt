@@ -4,6 +4,7 @@ import io.reactivex.Scheduler
 import io.reactivex.Single
 import io.reactivex.android.schedulers.AndroidSchedulers
 import io.reactivex.disposables.Disposable
+import net.ketc.numeri.util.log.v
 
 /**
  *SingleTask
@@ -19,8 +20,19 @@ class SingleTask<T>(private val subscribeOn: Scheduler, private val observeOn: S
      */
     infix fun success(success: (T) -> Unit): Disposable {
         val disposable = Single.create<T> { emitter ->
-            val t = task()
-            emitter.onSuccess(t)
+            try {
+                val t = task()
+                emitter.onSuccess(t)
+            } catch (ie: Exception) {
+                val eName = ie.javaClass.name
+                if (!emitter.isDisposed) {
+                    v("singleTask", "catch disposed : $eName")
+                    emitter.onError(ie)
+                } else {
+                    //Avoiding bugs that occur when using OkHttpClient after dispose()
+                    v("singleTask", "catch : $eName")
+                }
+            }
         }.subscribeOn(subscribeOn)
                 .observeOn(observeOn)
                 .subscribe(success) {

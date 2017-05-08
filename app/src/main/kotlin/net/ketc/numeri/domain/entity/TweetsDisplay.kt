@@ -15,7 +15,7 @@ data class TweetsDisplay(
         override val id: Int = 0,
         @DatabaseField(canBeNull = false, foreign = true, uniqueCombo = true)
         val token: ClientToken = ClientToken(),
-        @DatabaseField(canBeNull = false, foreign = true,foreignAutoRefresh = true ,uniqueCombo = true)
+        @DatabaseField(canBeNull = false, foreign = true, foreignAutoRefresh = true, uniqueCombo = true)
         val group: TweetsDisplayGroup = TweetsDisplayGroup(),
         @DatabaseField(canBeNull = false, uniqueCombo = true)
         val foreignId: Long = -1,
@@ -30,5 +30,5 @@ fun createTweetsDisplay(token: ClientToken, group: TweetsDisplayGroup, foreignId
         = TweetsDisplay(token = token, group = group, foreignId = foreignId, type = type, name = name)
 
 enum class TweetsDisplayType {
-    HOME, MENTIONS, USER_LIST, PUBLIC
+    HOME, MENTIONS, USER_LIST, PUBLIC, FAVORITE, MEDIA
 }
