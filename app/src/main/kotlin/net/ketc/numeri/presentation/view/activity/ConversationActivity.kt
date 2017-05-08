@@ -9,7 +9,7 @@ import net.ketc.numeri.presentation.presenter.activity.ConversationPresenter
 import net.ketc.numeri.presentation.view.activity.ui.ConversationActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.IConversationActivityUI
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
-import net.ketc.numeri.presentation.view.component.adapter.TwitterRecyclerAdapter
+import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreRecyclerAdapter
 import net.ketc.numeri.util.android.DialogOwner
 import net.ketc.numeri.util.android.defaultInit
 import org.jetbrains.anko.setContentView
@@ -25,7 +25,7 @@ class ConversationActivity : ApplicationActivity<ConversationPresenter>(), Conve
     override val clientId: Long by lazy { intent.getLongExtra(EXTRA_CLIENT_ID, -1) }
     private var mClient: TwitterClient? = null
     private val adapter by lazy {
-        TwitterRecyclerAdapter(presenter, {
+        ReadableMoreRecyclerAdapter(presenter, {
             TweetViewHolder(ctx, presenter, client) {
                 presenter.onClickTweet(it)
             }

@@ -13,7 +13,7 @@
     <item name="accounts_linear" type="id" />
     <item name="tweet_text" type="id" />
     <item name="swipe_refresh" type="id" />
-    <item name="tweets_recycler" type="id" />
+    <item name="users_recycler" type="id" />
     <item name="column_group_wrapper_coordinator" type="id" />
     <item name="read_more_text" type="id" />
     <item name="progress_bar" type="id" />
@@ -55,4 +55,6 @@
     <item name="tab_following" type="id" />
     <item name="tab_follower" type="id" />
     <item name="buttons_relative" type="id" />
+    <item name="follow_button" type="id" />
+    <item name="tweet_recycler" type="id" />
 </resources>

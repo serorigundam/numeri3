@@ -21,8 +21,8 @@ import net.ketc.numeri.domain.entity.TweetsDisplayType
 import net.ketc.numeri.domain.entity.createTweetsDisplay
 import net.ketc.numeri.domain.entity.toClientToken
 import net.ketc.numeri.domain.model.TwitterUser
-import net.ketc.numeri.domain.model.cache.RelationType
-import net.ketc.numeri.domain.model.cache.UserRelation
+import net.ketc.numeri.domain.model.RelationType
+import net.ketc.numeri.domain.model.UserRelation
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.UserInfoPresenter
 import net.ketc.numeri.presentation.view.Refreshable
@@ -30,12 +30,14 @@ import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.activity.ui.IUserInfoActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.UserInfoActivityUI
 import net.ketc.numeri.presentation.view.component.adapter.SimplePagerAdapter
+import net.ketc.numeri.presentation.view.component.ui.TwitterUserViewUI
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragment
+import net.ketc.numeri.presentation.view.fragment.UsersFragment
+import net.ketc.numeri.presentation.view.fragment.UsersFragmentInterface
 import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.fadeOut
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.act
 import org.jetbrains.anko.support.v4.nestedScrollView
 
 class UserInfoActivity
@@ -243,8 +245,8 @@ class UserInfoActivity
             add(createFragment(TweetsDisplayType.PUBLIC, ctx.getString(R.string.tab_tweet)))
             add(createFragment(TweetsDisplayType.FAVORITE, ctx.getString(R.string.tab_favorite)))
             add(createFragment(TweetsDisplayType.MEDIA, ctx.getString(R.string.tab_media)))
-            add(EmptyFragment())
-            add(EmptyFragment())
+            add(UsersFragment.create(client.id, targetUserId, UsersFragmentInterface.Type.FRIENDS))
+            add(UsersFragment.create(client.id, targetUserId, UsersFragmentInterface.Type.FOLLOWERS))
         }
         this.adapter = SimplePagerAdapter(supportFragmentManager, fragments)
         userProfileTabLayout.setupWithViewPager(this)
@@ -258,15 +260,8 @@ class UserInfoActivity
     class EmptyFragment : Fragment(), SimplePagerContent {
         override val contentName: String = "empty"
         override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-            return context.nestedScrollView {
-                relativeLayout {
-                    textView {
-                        text = "empty"
-                    }.lparams(wrapContent, wrapContent) {
-                        centerInParent()
-                    }
-                }.lparams(matchParent, matchParent)
-            }
+            return TwitterUserViewUI(context).createView()
+
         }
     }
 

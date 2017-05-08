@@ -34,4 +34,6 @@
     <string name="following_you">あなたをフォローしています。</string>
     <string name="blocking">ブロック中</string>
     <string name="myself">自分自身</string>
+    <string name="friends">フォロー</string>
+    <string name="follower">フォロワー</string>
 </resources>

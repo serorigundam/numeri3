@@ -50,13 +50,15 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
                     .forEach {
                         activity.addAccount(it, this)
                     }
-            val groups = tweetsDisplayService.getAllGroup()
-            this.groups.addAll(groups)
-            safePost {
-                groups.forEach {
-                    activity.addGroup(it)
+            if (savedInstanceState == null) {
+                val groups = tweetsDisplayService.getAllGroup()
+                this.groups.addAll(groups)
+                safePost {
+                    groups.forEach {
+                        activity.addGroup(it)
+                    }
+                    groups.firstOrNull()?.let { activity.showGroup(it) }
                 }
-                groups.firstOrNull()?.let { activity.showGroup(it) }
             }
             initialized = true
         }

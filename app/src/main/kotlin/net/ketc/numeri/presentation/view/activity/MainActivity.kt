@@ -79,12 +79,18 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
 
     private fun restoreGroupViews(savedInstanceState: Bundle?) {
         savedInstanceState?.let {
-            (savedInstanceState.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
+            (it.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
                 (it as? TweetsDisplayGroup)?.let {
                     addGroupView(it.id)
                     groups.add(it)
                 } ?: throw IllegalStateException("EXTRA_GROUP contains non TweetsDisplayGroup")
             }
+            val id = it.getInt(EXTRA_CURRENT_SHOW_GROUP_ID, -1)
+            if (groups.isEmpty()) return
+            id.takeIf { it != -1 }?.let {
+                val group = groups.firstOrNull { it.id == id } ?: return
+                showGroup(group)
+            } ?: showGroup(groups.first())
         }
     }
 
@@ -146,6 +152,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putSerializable(EXTRA_GROUP, groups.toTypedArray())
+        outState.putInt(EXTRA_CURRENT_SHOW_GROUP_ID, showingGroupId)
         super.onSaveInstanceState(outState)
     }
 
@@ -174,6 +181,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     }
 
     fun addGroupView(id: Int) {
+        if (columnGroupWrapper.toList().any { it.id == id }) return
         columnGroupWrapper.addView(ctx.frameLayout {
             this.id = id
             tag = id.toString()
@@ -235,6 +243,12 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         columnGroupWrapper.forEachChild {
             if (it.id == group.id) {
                 showingGroupId = group.id
+                val f = supportFragmentManager.findFragmentById(it.id)
+                if (f == null) {
+                    supportFragmentManager.beginTransaction()
+                            .replace(it.id, TimeLinesFragment.create(group), it.id.toString())
+                            .commit()
+                }
                 it.visibility = View.VISIBLE
             } else {
                 it.visibility = View.GONE
@@ -334,6 +348,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
         val EXTRA_GROUP = "EXTRA_GROUPS"
+        val EXTRA_CURRENT_SHOW_GROUP_ID = "EXTRA_CURRENT_SHOW_GROUP_ID"
     }
 }
 

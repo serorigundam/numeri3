@@ -1,4 +1,4 @@
-package net.ketc.numeri.domain.model.cache
+package net.ketc.numeri.domain.model
 
 import net.ketc.numeri.domain.service.TwitterClient
 import twitter4j.Friendship

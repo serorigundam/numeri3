@@ -1,9 +1,9 @@
 package net.ketc.numeri.presentation.view.component
 
 import android.content.Context
-import android.support.v7.widget.RecyclerView
 import android.view.View
 import net.ketc.numeri.R
+import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreViewHolder
 import net.ketc.numeri.presentation.view.component.ui.footer.FooterViewUI
 import net.ketc.numeri.presentation.view.component.ui.footer.progressBar
 import net.ketc.numeri.presentation.view.component.ui.footer.readMoreText
@@ -11,9 +11,13 @@ import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 
-class FooterViewHolder<T>(private val readableMore: ReadableMore<T>,
-                          private val autoDisposable: AutoDisposable,
-                          ctx: Context) : RecyclerView.ViewHolder(FooterViewUI(ctx).createView()), AutoDisposable by autoDisposable {
+class FooterViewHolder<T, in RMT>(private val readableMore: ReadableMore<T>,
+                                  override val autoDisposable: AutoDisposable,
+                                  ctx: Context) : ReadableMoreViewHolder<RMT>(FooterViewUI(ctx), {}), AutoDisposable by autoDisposable {
+    override fun bind(value: RMT) {
+
+    }
+
     init {
         val context = itemView.context
         val resourceId = context.getResourceId(R.attr.selectableItemBackground)

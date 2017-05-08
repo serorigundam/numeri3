@@ -1,5 +1,7 @@
 package net.ketc.numeri.domain.model.cache
 
+import net.ketc.numeri.domain.model.RelationType
+import net.ketc.numeri.domain.model.UserRelation
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.util.log.v
 import twitter4j.Friendship

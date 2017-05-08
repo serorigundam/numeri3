@@ -2,8 +2,8 @@ package net.ketc.numeri.presentation.presenter.activity
 
 import android.os.Bundle
 import net.ketc.numeri.domain.inject
-import net.ketc.numeri.domain.model.cache.RelationType
-import net.ketc.numeri.domain.model.cache.UserRelation
+import net.ketc.numeri.domain.model.RelationType
+import net.ketc.numeri.domain.model.UserRelation
 import net.ketc.numeri.domain.model.cache.convert
 import net.ketc.numeri.domain.model.cache.showUser
 import net.ketc.numeri.domain.service.OAuthService
