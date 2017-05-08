@@ -12,6 +12,7 @@ import net.ketc.numeri.presentation.presenter.component.TwitterUserViewPresenter
 import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreViewHolder
 import net.ketc.numeri.presentation.view.component.ui.ITwitterUserViewUI
 import net.ketc.numeri.util.android.download
+import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
 import org.jetbrains.anko.backgroundResource
@@ -32,7 +33,8 @@ class UserViewHolder(ui: ITwitterUserViewUI, override val autoDisposable: AutoDi
         val user = value.first
         val relation = value.second
         previousLoadImageDisposable?.takeUnless { it.isDisposed }?.dispose()
-        previousLoadImageDisposable = iconImage.download(user.iconUrl, autoDisposable)
+        previousLoadImageDisposable = iconImage.download(user.iconUrl, autoDisposable,
+                success = { iconImage.fadeIn().execute() })
         screenNameText.text = user.screenName
         userNameText.text = user.name
         descriptionText.text = user.description

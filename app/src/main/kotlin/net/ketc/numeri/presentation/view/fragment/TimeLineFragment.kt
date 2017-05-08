@@ -72,6 +72,8 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
 
     override val refreshableConfig: Boolean by lazy { arguments.getBoolean(EXTRA_REFRESHABLE) }
 
+    override val emptyFooterConfig: Boolean by lazy { arguments.getBoolean(EXTRA_FOOTER_EMPTY_ENABLE) }
+
     override val displayName: String by lazy { display.name }
 
     override val contentName: String
@@ -161,10 +163,12 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
     companion object {
         val EXTRA_DISPLAY = "EXTRA_DISPLAY"
         val EXTRA_REFRESHABLE = "EXTRA_REFRESHABLE"
-        fun create(display: TweetsDisplay, refreshable: Boolean = true) = TimeLineFragment().apply {
+        val EXTRA_FOOTER_EMPTY_ENABLE = "EXTRA_FOOTER_EMPTY_ENABLE"
+        fun create(display: TweetsDisplay, refreshable: Boolean = true, emptyFooterEnable: Boolean = true) = TimeLineFragment().apply {
             arguments = Bundle().apply {
                 putSerializable(EXTRA_DISPLAY, display)
                 putBoolean(EXTRA_REFRESHABLE, refreshable)
+                putBoolean(EXTRA_FOOTER_EMPTY_ENABLE, emptyFooterEnable)
             }
         }
 
@@ -193,6 +197,7 @@ interface TimeLineFragmentInterface : FragmentInterface, Refreshable, SimplePage
     var isReadMoreEnabled: Boolean
     var isEmptyFooterEnabled: Boolean
     val refreshableConfig: Boolean
+    val emptyFooterConfig: Boolean
     val displayName: String
     fun setClient(client: TwitterClient)
     fun addAll(tweets: List<Tweet>)

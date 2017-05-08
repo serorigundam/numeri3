@@ -3,6 +3,7 @@ package net.ketc.numeri.presentation.view.component.ui
 import android.content.Context
 import android.text.TextUtils
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -34,10 +35,10 @@ class TweetViewUI(override val ctx: Context) : ITweetViewUI {
     override lateinit var text: TextView
         private set
 
-    override val thumbnails: List<ImageView>
+    override val thumbnails: List<Pair<FrameLayout, ImageView>>
         get() = mThumbnails.toImmutableList()
 
-    private val mThumbnails = ArrayList<ImageView>()
+    private val mThumbnails = ArrayList<Pair<FrameLayout, ImageView>>()
 
     override lateinit var sourceText: TextView
         private set
@@ -54,10 +55,13 @@ class TweetViewUI(override val ctx: Context) : ITweetViewUI {
                 padding = dimen(R.dimen.margin_small)
             }
 
-            imageView {
-                iconImage = this
-                id = R.id.icon_image
+            frameLayout {
                 backgroundColor = ctx.getColor(R.color.image_background_transparency)
+                id = R.id.icon_image
+                imageView {
+                    iconImage = this
+                    backgroundColor = ctx.getColor(R.color.transparent)
+                }
             }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon)) {
                 alignParentLeft()
                 below(R.id.sub_info_text)
@@ -160,11 +164,15 @@ class TweetViewUI(override val ctx: Context) : ITweetViewUI {
     private fun _RelativeLayout.thumbnails() {
 
         fun _RelativeLayout.thumb(id: Int, init: RelativeLayout.LayoutParams.() -> Unit = {}) {
-            val thumb = imageView {
-                this.id = id
+            val background = frameLayout {
                 backgroundColor = ctx.getColor(R.color.image_background_transparency)
             }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon), init)
-            mThumbnails.add(thumb)
+
+            val thumb = imageView {
+                this.id = id
+                backgroundColor = ctx.getColor(R.color.transparent)
+            }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon), init)
+            mThumbnails.add(background to thumb)
         }
 
         relativeLayout {
@@ -200,7 +208,7 @@ interface ITweetViewUI : UI {
     val userNameText: TextView
     val createdAtText: TextView
     val text: TextView
-    val thumbnails: List<ImageView>
+    val thumbnails: List<Pair<FrameLayout, ImageView>>
     val sourceText: TextView
     val overlayRelative: RelativeLayout
 }
