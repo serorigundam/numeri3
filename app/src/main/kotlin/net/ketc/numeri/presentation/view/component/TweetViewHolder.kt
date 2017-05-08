@@ -2,6 +2,8 @@ package net.ketc.numeri.presentation.view.component
 
 import android.graphics.Color
 import android.view.View
+import android.widget.FrameLayout
+import android.widget.ImageView
 import io.reactivex.disposables.Disposable
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.isMention
@@ -11,6 +13,7 @@ import net.ketc.numeri.presentation.view.activity.UserInfoActivity
 import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreViewHolder
 import net.ketc.numeri.presentation.view.component.ui.ITweetViewUI
 import net.ketc.numeri.util.android.download
+import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.getResourceId
 import net.ketc.numeri.util.rx.AutoDisposable
 import org.jetbrains.anko.backgroundColor
@@ -25,6 +28,7 @@ class TweetViewHolder(ui: ITweetViewUI,
         AutoDisposable by autoDisposable,
         ITweetViewUI by ui {
     private var previousLoadImageDisposable: Disposable? = null
+    private val previousLoadThumbDisposable: MutableList<Disposable> = ArrayList()
 
     init {
         itemView.backgroundResource = ctx.getResourceId(android.R.attr.selectableItemBackground)
@@ -58,7 +62,9 @@ class TweetViewHolder(ui: ITweetViewUI,
         screenNameText.text = displayTweet.user.screenName
         userNameText.text = displayTweet.user.name
         previousLoadImageDisposable?.takeUnless { it.isDisposed }?.dispose()
-        previousLoadImageDisposable = iconImage.download(displayTweet.user.iconUrl, autoDisposable)
+        previousLoadImageDisposable = iconImage.download(displayTweet.user.iconUrl, autoDisposable, success = {
+            iconImage.fadeIn().execute()
+        })
         iconImage.setOnClickListener { UserInfoActivity.start(ctx, client.id, displayTweet.user.id) }
         text.text = displayTweet.text
         sourceText.text = displayTweet.source
@@ -66,17 +72,31 @@ class TweetViewHolder(ui: ITweetViewUI,
 
     private fun setThumbs(displayTweet: Tweet) {
         val thumbs = displayTweet.mediaEntities.map { it.url + ":thumb" }
+        previousLoadThumbDisposable.forEach(Disposable::dispose)
+        previousLoadThumbDisposable.clear()
         (0..3).map { thumbs.getOrElse(it) { "" } }.forEachIndexed { i, url ->
             if (url.isNotEmpty()) {
                 thumbnails[i].visibility = View.VISIBLE
-                thumbnails[i].download(url, autoDisposable)
-                thumbnails[i].setOnClickListener { MediaActivity.start(ctx, displayTweet.mediaEntities, i) }
+                val imageView = thumbnails[i].second
+                imageView.download(url, autoDisposable, success = { imageView.fadeIn().execute() })?.let {
+                    previousLoadThumbDisposable.add(it)
+                }
+
+                imageView.setOnClickListener { MediaActivity.start(ctx, displayTweet.mediaEntities, i) }
             } else {
-                thumbnails[i].setImageDrawable(null)
+                thumbnails[i].second.setImageDrawable(null)
                 thumbnails[i].visibility = View.GONE
             }
         }
     }
+
+    var Pair<FrameLayout, ImageView>.visibility: Int
+        get() = first.visibility
+        set(value) {
+            first.visibility = value
+            second.visibility = value
+        }
+
 
     private fun setColor(tweet: Tweet) {
         if (tweet.isMention(client)) {

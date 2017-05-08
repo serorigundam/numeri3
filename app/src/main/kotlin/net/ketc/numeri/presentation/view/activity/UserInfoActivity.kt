@@ -238,7 +238,7 @@ class UserInfoActivity
     private fun ViewPager.initialize(client: TwitterClient) {
         fun createFragment(type: TweetsDisplayType, name: String): Fragment {
             return TimeLineFragment.create(createTweetsDisplay(client.toClientToken(),
-                    TweetsDisplayGroup(), targetUserId, type, name), false)
+                    TweetsDisplayGroup(), targetUserId, type, name), false, false)
         }
 
         val fragments = ArrayList<Fragment>().apply {

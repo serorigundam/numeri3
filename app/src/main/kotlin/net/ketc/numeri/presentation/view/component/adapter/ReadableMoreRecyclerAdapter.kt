@@ -44,16 +44,19 @@ class ReadableMoreRecyclerAdapter<T>(private val autoDisposable: AutoDisposable,
         val key = pair.second
         val upperEnabledCount = enabledAdditions.filterIndexed { i, _ -> key < i }.count { it }
         val changingPosition = viewAddition - upperEnabledCount + itemList.size
+        val previous = enabledAdditions[key]
         enabledAdditions[key] = enabled
         val index = changingPosition - itemList.size
-        if (enabled) {
-            notifyItemInserted(changingPosition)
-            enabledTypeList.add(index, pair.first)
-            viewAddition++
-        } else {
-            notifyItemRemoved(changingPosition)
-            enabledTypeList.removeAt(index)
-            viewAddition--
+        if (previous != enabled) {
+            if (enabled) {
+                notifyItemInserted(changingPosition)
+                enabledTypeList.add(index, pair.first)
+                viewAddition++
+            } else {
+                notifyItemRemoved(changingPosition)
+                enabledTypeList.removeAt(index)
+                viewAddition--
+            }
         }
     }
 

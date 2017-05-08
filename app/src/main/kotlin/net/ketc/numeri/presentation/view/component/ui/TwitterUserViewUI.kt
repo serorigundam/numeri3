@@ -31,10 +31,13 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
 
 
     override fun createView() = ctx.relativeLayout {
-        imageView {
-            iconImage = this
+        frameLayout {
             id = R.id.icon_image
             backgroundColor = ctx.getColor(R.color.image_background_transparency)
+            imageView {
+                iconImage = this
+                backgroundColor = ctx.getColor(R.color.transparent)
+            }
         }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon)) {
             marginTop = dimen(R.dimen.margin_medium)
             marginStart = dimen(R.dimen.margin_medium)

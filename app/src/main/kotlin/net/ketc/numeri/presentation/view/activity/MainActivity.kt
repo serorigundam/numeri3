@@ -3,6 +3,7 @@ package net.ketc.numeri.presentation.view.activity
 import android.content.Context
 import android.content.Intent
 import android.content.res.Configuration
+import android.graphics.drawable.Drawable
 import android.os.Bundle
 import android.support.design.widget.BottomSheetDialog
 import android.support.design.widget.NavigationView
@@ -167,16 +168,19 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     }
 
     private fun toggleNavigationState() {
+        val drawable: Drawable
         if (navigationContent.visibility == View.GONE) {
             navigation.menu.setGroupVisible(R.id.main_menu, false)
-            showAccountIndicator.image = getDrawable(R.drawable.ic_expand_less_white_24dp)
-            navigationContent.visibility = View.VISIBLE
-            navigationContent.fadeIn().execute()
-        } else if (navigationContent.visibility == View.VISIBLE) {
-            showAccountIndicator.image = getDrawable(R.drawable.ic_expand_more_white_24dp)
+            drawable = getDrawable(R.drawable.ic_expand_less_white_24dp)
+            showAccountIndicator.image = drawable
+            navigationContent.fadeIn().end { visibility = View.VISIBLE }.execute()
+        } else {
+            drawable = getDrawable(R.drawable.ic_expand_more_white_24dp)
+            showAccountIndicator.image = drawable
             navigationContent.visibility = View.GONE
-            navigationContent.fadeOut().execute()
-            navigation.menu.setGroupVisible(R.id.main_menu, true)
+            navigationContent.fadeOut().end {
+                navigation.menu.setGroupVisible(R.id.main_menu, true)
+            }.execute()
         }
     }
 

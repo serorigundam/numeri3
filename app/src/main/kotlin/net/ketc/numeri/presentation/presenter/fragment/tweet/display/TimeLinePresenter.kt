@@ -52,13 +52,13 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
         } error {
             it.printStackTrace()
             fragment.activity.toast("error")
-            fragment.isEmptyFooterEnabled = true
+            fragment.isEmptyFooterEnabled = fragment.emptyFooterConfig
             fragment.isReadMoreEnabled = true
             fragment.isRefreshing = false
             afterInitializeLoad()
         } success {
             fragment.addAll(it)
-            fragment.isEmptyFooterEnabled = true
+            fragment.isEmptyFooterEnabled = fragment.emptyFooterConfig
             fragment.isReadMoreEnabled = true
             fragment.isRefreshing = false
             afterInitializeLoad()
