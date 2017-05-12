@@ -108,6 +108,9 @@
 
         <service android:name=".domain.android.service.TweetService" />
 
-    </application>
+        <meta-data
+            android:name="io.fabric.ApiKey"
+            android:value="e54ae92d8ec83fbb6267d6e4d3b62dad5e0b6b9e" />
 
+    </application>
 </manifest>
