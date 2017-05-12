@@ -86,6 +86,7 @@ class MovieMediaFragment : ApplicationFragment<MovieMediaPresenter>(), MovieMedi
             playButton = this
             background = ctx.getDrawable(R.drawable.ripple_transparent)
             image = ctx.getDrawable(R.drawable.ic_play_circle_outline_white_48dp)
+            scaleType = ImageView.ScaleType.CENTER_CROP
             visibility = View.GONE
         }.lparams(dip(64), dip(64)) {
             centerInParent()

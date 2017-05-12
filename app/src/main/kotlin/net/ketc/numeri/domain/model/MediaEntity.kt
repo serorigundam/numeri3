@@ -13,7 +13,7 @@ data class MediaEntity(val url: String, val type: MediaType, val variants: List<
 
     constructor(entity: MediaEntity) : this(entity.mediaURL,
             entity.type.toType(),
-            entity.videoVariants.orEmpty().map(::Variant))
+            entity.videoVariants.orEmpty().map(::Variant).sortedBy { it.bitrate })
 }
 
 private fun String.toType() = MediaType.values().find { it.typeStr == this }!!

@@ -29,6 +29,8 @@ import java.io.IOException
 import android.graphics.Bitmap
 import net.ketc.numeri.util.android.*
 import net.ketc.numeri.util.rx.MySchedulers
+import android.Manifest.permission.*
+import android.content.pm.PackageManager
 
 
 class TweetActivity
@@ -83,8 +85,16 @@ class TweetActivity
         sendTweetButton.setOnClickListener {
             presenter.sendTweet()
         }
-        selectMediaButton.setOnClickListener { selectMedia() }
-        cameraButton.setOnClickListener { executeCamera() }
+        selectMediaButton.setOnClickListener {
+            checkPermissions(READ_EXTERNAL_STORAGE, REQUEST_CODE_STORAGE_ACCESS_SELECT_IMAGE) {
+                selectMedia()
+            }
+        }
+        cameraButton.setOnClickListener {
+            checkPermissions(READ_EXTERNAL_STORAGE, REQUEST_CODE_STORAGE_ACCESS_CAMERA) {
+                executeCamera()
+            }
+        }
         editText.addTextChangedListener(this)
     }
 
@@ -235,12 +245,21 @@ class TweetActivity
         if (resultCode == Activity.RESULT_OK)
             when (requestCode) {
                 REQUEST_CODE_SELECT_IMAGE -> addMedia(data)
-
                 REQUEST_CODE_CAMERA -> addCaptchaMedia(data)
-                else -> {
-                    //do nothing
-                }
             }
+    }
+
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.size != 1) return
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            when (requestCode) {
+                REQUEST_CODE_STORAGE_ACCESS_SELECT_IMAGE -> selectMedia()
+                REQUEST_CODE_STORAGE_ACCESS_CAMERA -> executeCamera()
+            }
+        } else {
+            toast(getString(R.string.message_not_granted_permission))
+        }
     }
 
     private fun addMedia(intent: Intent?) {
@@ -299,6 +318,9 @@ class TweetActivity
         val EXTRA_MEDIA_PATH_ARRAY = "EXTRA_MEDIA_PATH_ARRAY"
         val REQUEST_CODE_SELECT_IMAGE = 100
         val REQUEST_CODE_CAMERA = 200
+        val REQUEST_CODE_STORAGE_ACCESS_SELECT_IMAGE = 300
+        val REQUEST_CODE_STORAGE_ACCESS_CAMERA = 400
+
         fun start(ctx: Context, clientId: Long? = null, replyTo: Tweet? = null) {
             val list = ArrayList<Pair<String, Any>>()
             list.add(EXTRA_CLIENT_ID to (clientId ?: -1))
