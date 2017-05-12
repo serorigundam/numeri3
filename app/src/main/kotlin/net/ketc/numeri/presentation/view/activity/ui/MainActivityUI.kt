@@ -4,6 +4,7 @@ import android.content.Context
 import android.graphics.Color
 import android.support.design.widget.AppBarLayout
 import android.support.design.widget.CoordinatorLayout
+import android.support.design.widget.FloatingActionButton
 import android.support.design.widget.NavigationView
 import android.support.v4.widget.DrawerLayout
 import android.support.v7.widget.Toolbar
@@ -21,6 +22,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
 import org.jetbrains.anko.design.coordinatorLayout
+import org.jetbrains.anko.design.floatingActionButton
 import org.jetbrains.anko.design.navigationView
 import org.jetbrains.anko.support.v4.drawerLayout
 
@@ -43,7 +45,8 @@ class MainActivityUI : IMainActivityUI {
         private set
     override lateinit var toolbar: Toolbar
         private set
-
+    override lateinit var tweetButton: FloatingActionButton
+        private set
 
     override fun createView(ui: AnkoContext<MainActivity>) = with(ui) {
         drawerLayout {
@@ -64,6 +67,16 @@ class MainActivityUI : IMainActivityUI {
                     id = R.id.column_group_wrapper_coordinator
                 }.lparams(matchParent, matchParent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
+                }
+
+                floatingActionButton {
+                    tweetButton = this
+                    image = ctx.getDrawable(R.drawable.ic_mode_edit_white_24dp)
+                    size = FloatingActionButton.SIZE_AUTO
+                }.lparams {
+                    margin = dimen(R.dimen.margin_medium)
+                    anchorGravity = Gravity.BOTTOM or Gravity.END
+                    anchorId = R.id.column_group_wrapper_coordinator
                 }
             }
 
@@ -178,4 +191,5 @@ interface IMainActivityUI : AnkoComponent<MainActivity> {
     val addAccountButton: RelativeLayout
     val accountsLinear: LinearLayout
     val columnGroupWrapper: CoordinatorLayout
+    val tweetButton: FloatingActionButton
 }

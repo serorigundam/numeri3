@@ -10,22 +10,21 @@ import android.support.design.widget.NavigationView
 import android.support.v7.app.ActionBarDrawerToggle
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
-import android.text.TextUtils
 import android.view.*
-import android.widget.ImageView
-import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
 import net.ketc.numeri.presentation.view.activity.ui.IMainActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
+import net.ketc.numeri.presentation.view.component.ui.AccountViewUI
 import net.ketc.numeri.presentation.view.component.ui.menu.createIconMenu
 import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
 import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.presentation.view.fragment.TimeLinesFragment
 import net.ketc.numeri.util.android.*
+import net.ketc.numeri.util.log.v
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.toImmutableList
 import org.jetbrains.anko.*
@@ -74,7 +73,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         showAccountRelative.setOnClickListener {
             toggleNavigationState()
         }
-
+        tweetButton.setOnClickListener { TweetActivity.start(this) }
         addAccountButton.setOnClickListener { presenter.newAuthenticate() }
     }
 
@@ -82,8 +81,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         savedInstanceState?.let {
             (it.getSerializable(EXTRA_GROUP) as Array<*>).forEach {
                 (it as? TweetsDisplayGroup)?.let {
-                    addGroupView(it.id)
-                    groups.add(it)
+                    addGroup(it)
                 } ?: throw IllegalStateException("EXTRA_GROUP contains non TweetsDisplayGroup")
             }
             val id = it.getInt(EXTRA_CURRENT_SHOW_GROUP_ID, -1)
@@ -110,12 +108,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
 
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.column_manage -> {
-                presenter.startTweetsDisplayGroupManageActivity()
-            }
-            R.id.changing_column_group -> {
-                showChangeColumnGroupDialog()
-            }
+            R.id.column_manage -> TweetsDisplayGroupManageActivity.start(this)
+            R.id.changing_column_group -> showChangeColumnGroupDialog()
             else -> return super.onOptionsItemSelected(item)
         }
         drawer.closeDrawer(navigation)
@@ -210,14 +204,11 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     }
 
     override fun addGroup(group: TweetsDisplayGroup) {
-        if (groups.contains(group))
-            return
-        val id = group.id
-        addGroupView(id)
-        groups.add(group)
-        supportFragmentManager.beginTransaction()
-                .replace(id, TimeLinesFragment.create(group), id.toString())
-                .commit()
+        if (!groups.contains(group)) {
+            val id = group.id
+            addGroupView(id)
+            groups.add(group)
+        }
     }
 
     override fun removeGroup(group: TweetsDisplayGroup) {
@@ -247,13 +238,13 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         columnGroupWrapper.forEachChild {
             if (it.id == group.id) {
                 showingGroupId = group.id
-                val f = supportFragmentManager.findFragmentById(it.id)
-                if (f == null) {
+                it.visibility = View.VISIBLE
+                if (supportFragmentManager.findFragmentByTag(group.id.toString()) == null) {
+                    v(javaClass.simpleName, "replace:$group")
                     supportFragmentManager.beginTransaction()
-                            .replace(it.id, TimeLinesFragment.create(group), it.id.toString())
+                            .replace(group.id, TimeLinesFragment.create(group), group.id.toString())
                             .commit()
                 }
-                it.visibility = View.VISIBLE
             } else {
                 it.visibility = View.GONE
             }
@@ -293,60 +284,18 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     }
 
     class AccountItemViewHolder(ctx: Context, val twitterUser: TwitterUser, val autoDisposable: AutoDisposable) {
-        val view: View = createAccountItem(ctx)
+        private val ui = AccountViewUI(ctx)
+        val view: View = ui.createView()
 
         init {
             update()
         }
 
         fun update() {
-            view.find<TextView>(R.id.screen_name_text).text = twitterUser.screenName
-            view.find<TextView>(R.id.user_name_text).text = twitterUser.name
-            view.find<ImageView>(R.id.icon_image).download(twitterUser.iconUrl, autoDisposable)
+            ui.screenNameText.text = twitterUser.screenName
+            ui.userNameText.text = twitterUser.name
+            ui.iconImage.download(twitterUser.iconUrl, autoDisposable)
         }
-
-
-        companion object {
-            private fun createAccountItem(ctx: Context) = ctx.relativeLayout {
-                lparams(matchParent, wrapContent) {
-                    padding = dimen(R.dimen.margin_medium)
-                    gravity = Gravity.CENTER_VERTICAL
-                }
-                backgroundResource = context.getResourceId(android.R.attr.selectableItemBackground)
-                isClickable = true
-
-                imageView {
-                    id = R.id.icon_image
-                    backgroundColor = ctx.getColor(R.color.image_background_transparency)
-                }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon)) {
-                    marginEnd = dimen(R.dimen.margin_medium)
-                }
-
-                textView {
-                    id = R.id.user_name_text
-                    ellipsize = TextUtils.TruncateAt.END
-                    lines = 1
-                    textColor = ctx.getColor(ctx.getResourceId(android.R.attr.textColorPrimary))
-                    textSizeDimen = R.dimen.text_size_medium
-                }.lparams {
-                    marginEnd = dimen(R.dimen.margin_medium)
-                    sameTop(R.id.icon_image)
-                    rightOf(R.id.icon_image)
-                }
-                textView {
-                    id = R.id.screen_name_text
-                    ellipsize = TextUtils.TruncateAt.END
-                    lines = 1
-                    textSizeDimen = R.dimen.text_size_medium
-                }.lparams {
-                    marginEnd = dimen(R.dimen.margin_medium)
-                    sameBottom(R.id.icon_image)
-                    rightOf(R.id.icon_image)
-                    below(R.id.user_name_text)
-                }
-            }
-        }
-
     }
 
     companion object {
