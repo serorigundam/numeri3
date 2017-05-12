@@ -97,7 +97,7 @@ abstract class TimeLinePresenter(timeLineFragment: TimeLineFragmentInterface) : 
     }
 
     fun onClickTweet(tweet: Tweet) {
-        val dialog = TweetOperatorDialogFactory(fragment.activity, tweet.retweetedTweet ?: tweet, this) {
+        val dialog = TweetOperatorDialogFactory(fragment.activity, tweet, this) {
             it.printStackTrace()
             fragment.activity.toast("error")
         }.create(client)

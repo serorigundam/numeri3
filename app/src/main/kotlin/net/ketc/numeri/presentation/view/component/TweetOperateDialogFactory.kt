@@ -32,7 +32,7 @@ class TweetOperatorDialogFactory(private val ctx: Context,
 
 
     fun create(client: TwitterClient): BottomSheetDialog {
-        val menuItems = TweetMenuItems(ctx, tweet, client, autoDisposable, error)
+        val menuItems = TweetMenuItems(ctx, tweet, client, dialog, autoDisposable, error)
         dialog.messageText.text = tweet.text
         dialog.addMenu(menuItems.favoriteMenuItem)
         if (!(tweet.retweetedTweet ?: tweet).user.isProtected) {
@@ -69,11 +69,13 @@ interface TweetMenuItemsInterface {
 class TweetMenuItems(private val ctx: Context,
                      override val tweet: Tweet,
                      override val client: TwitterClient,
+                     private val dialog: BottomSheetDialog,
                      autoDisposable: AutoDisposable,
                      error: (Throwable) -> Unit) : TweetMenuItemsInterface {
     private val presenter = TweetOperateDialogPresenter(ctx, autoDisposable, this, error)
+    private val displayTweet = tweet.retweetedTweet ?: tweet
     override var isFavorite: Boolean
-        get() = client.isFavorite(tweet)
+        get() = client.isFavorite(displayTweet)
         set(value) {
             val ctx = favoriteMenuItem.context
             if (value) {
@@ -91,7 +93,7 @@ class TweetMenuItems(private val ctx: Context,
             favoriteMenuItem.isClickable = value
         }
     override var isRetweeted: Boolean
-        get() = client.isRetweeted(tweet)
+        get() = client.isRetweeted(displayTweet)
         set(value) {
             val ctx = retweetMenuItem.context
             if (value) {
@@ -124,7 +126,7 @@ class TweetMenuItems(private val ctx: Context,
     private fun createFavoriteMenu(): View {
         val textId: Int
         val iconId: Int
-        if (client.isFavorite(tweet)) {
+        if (client.isFavorite(displayTweet)) {
             textId = R.string.destroy_favorite
             iconId = R.drawable.ic_star_white_24dp
         } else {
@@ -137,7 +139,7 @@ class TweetMenuItems(private val ctx: Context,
     private fun createRetweetMenu(): View {
         val textId: Int
         val iconId: Int
-        if (client.isRetweeted(tweet)) {
+        if (client.isRetweeted(displayTweet)) {
             textId = R.string.destroy_retweet
             iconId = R.drawable.ic_check_white_24dp
         } else {
@@ -151,15 +153,17 @@ class TweetMenuItems(private val ctx: Context,
         fun UrlEntity.createMenu(): View {
             return createIconMenu(ctx, R.drawable.ic_open_in_browser_white_24dp, expandUrl) {
                 presenter.openUri(expandUrl)
+                dialog.dismiss()
             }
         }
-        return tweet.urlEntities.map(UrlEntity::createMenu).toImmutableList()
+        return displayTweet.urlEntities.map(UrlEntity::createMenu).toImmutableList()
     }
 
     private fun createOpenUserMenus(): List<View> {
         fun Pair<Long, String>.createMenu(): View {
             return createIconMenu(ctx, R.drawable.ic_account_circle_white_24dp, "@$second") {
                 UserInfoActivity.start(ctx, client.id, first)
+                dialog.dismiss()
             }
         }
 
@@ -175,25 +179,29 @@ class TweetMenuItems(private val ctx: Context,
 
     private fun createDisplayConversationMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_chat_bubble_outline_white_24dp, R.string.follow_conversation) {
-            ConversationActivity.start(ctx, (tweet.retweetedTweet ?: tweet).id, client.id)
+            ConversationActivity.start(ctx, displayTweet.id, client.id)
+            dialog.dismiss()
         }
     }
 
     private fun createOpenMediaMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_image_white_24dp, R.string.open_media) {
-            MediaActivity.start(ctx, tweet.mediaEntities)
+            MediaActivity.start(ctx, displayTweet.mediaEntities)
+            dialog.dismiss()
         }
     }
 
     private fun createOpenTweetLinkMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_open_in_browser_white_24dp, R.string.open_tweet_link) {
             presenter.openUri("https://twitter.com/${tweet.user.screenName}/status/${tweet.id}")
+            dialog.dismiss()
         }
     }
 
     private fun createReplyMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_reply_white_24dp, R.string.reply) {
-            TweetActivity.start(ctx, client.id, (tweet.retweetedTweet ?: tweet))
+            TweetActivity.start(ctx, client.id, displayTweet)
+            dialog.dismiss()
         }
     }
 }

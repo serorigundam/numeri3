@@ -52,7 +52,7 @@ class ConversationPresenter(override val activity: ConversationActivityInterface
     }
 
     fun onClickTweet(tweet: Tweet) {
-        val dialog = TweetOperatorDialogFactory(ctx, tweet.retweetedTweet ?: tweet, this) {
+        val dialog = TweetOperatorDialogFactory(ctx, tweet, this) {
             it.printStackTrace()
             ctx.toast("error")
         }.create(client)
