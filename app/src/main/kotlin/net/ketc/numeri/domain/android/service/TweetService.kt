@@ -17,9 +17,9 @@ import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.twitter.sendTweet
 import java.io.File
 
-class TweetService : Service(), AutoDisposable by AutoDisposableImpl() {
+class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableImpl() {
 
-    private val binder = Binder(this)
+    private val binder = ITweetService.Binder(this)
 
     override fun onBind(intent: Intent?) = binder
 
@@ -28,10 +28,10 @@ class TweetService : Service(), AutoDisposable by AutoDisposableImpl() {
     private var sending = false
     private val notificationId = 200
 
-    fun sendTweet(client: TwitterClient, clientUser: TwitterUser, text: String = "",
-                  inReplyToStatusId: Long? = null,
-                  mediaList: List<File>? = null,
-                  isPossiblySensitive: Boolean = false) {
+    override fun sendTweet(client: TwitterClient, clientUser: TwitterUser, text: String,
+                           inReplyToStatusId: Long?,
+                           mediaList: List<File>?,
+                           isPossiblySensitive: Boolean) {
 
         fun createNotification(subText: String): Notification {
             return NotificationCompat.Builder(applicationContext)
@@ -39,6 +39,7 @@ class TweetService : Service(), AutoDisposable by AutoDisposableImpl() {
                     .setCategory(NotificationCompat.CATEGORY_SOCIAL)
                     .setContentText("${clientUser.screenName} : $text")
                     .setSubText(subText)
+                    .setColor(getColor(R.color.colorPrimary))
                     .build()
         }
 
@@ -51,6 +52,7 @@ class TweetService : Service(), AutoDisposable by AutoDisposableImpl() {
                     .setCategory(NotificationCompat.CATEGORY_SOCIAL)
                     .setContentText(getString(R.string.tweet_sending))
                     .setSubText("tweet sender")
+                    .setColor(getColor(R.color.colorPrimary))
                     .build()
             notification.contentIntent = contentIntent
             startForeground(notificationId, notification)
@@ -97,9 +99,16 @@ class TweetService : Service(), AutoDisposable by AutoDisposableImpl() {
     companion object {
         val TAG = "TweetService"
     }
+}
 
-    class Binder(private val tweetService: TweetService) : android.os.Binder() {
-        fun getService(): TweetService {
+interface ITweetService {
+    fun sendTweet(client: TwitterClient, clientUser: TwitterUser, text: String = "",
+                  inReplyToStatusId: Long? = null,
+                  mediaList: List<File>? = null,
+                  isPossiblySensitive: Boolean = false)
+
+    class Binder(private val tweetService: ITweetService) : android.os.Binder() {
+        fun getService(): ITweetService {
             return tweetService
         }
     }

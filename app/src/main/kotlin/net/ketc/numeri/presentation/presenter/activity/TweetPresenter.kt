@@ -7,6 +7,7 @@ import android.content.ComponentName
 import android.content.ServiceConnection
 import android.os.Bundle
 import android.os.IBinder
+import net.ketc.numeri.domain.android.service.ITweetService
 import net.ketc.numeri.domain.android.service.TweetService
 import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.TwitterUser
@@ -25,7 +26,7 @@ class TweetPresenter(override val activity: TweetActivityInterface)
     lateinit var oAuthService: OAuthService
 
     private var clients: List<Pair<TwitterClient, TwitterUser>> = emptyList()
-    private lateinit var tweetService: TweetService
+    private lateinit var tweetService: ITweetService
     private var clientId: Long = -1
     private val mentionRegexList = ArrayList<Regex>()
     private val connection = object : ServiceConnection {
@@ -34,7 +35,7 @@ class TweetPresenter(override val activity: TweetActivityInterface)
 
         override fun onServiceConnected(name: ComponentName?, service: IBinder?) {
             service ?: return
-            tweetService = (service as TweetService.Binder).getService()
+            tweetService = (service as ITweetService.Binder).getService()
             activity.isSendTweetButtonEnabled = true
         }
     }
