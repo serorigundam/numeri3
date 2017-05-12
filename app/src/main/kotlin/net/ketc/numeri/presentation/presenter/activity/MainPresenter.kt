@@ -43,6 +43,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         }.success { pair ->
             if (pair.isEmpty()) {
                 activity.showAddAccountDialog()
+                initialized = true
                 return@success
             }
             pair.map { it.second }

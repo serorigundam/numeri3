@@ -74,6 +74,7 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
             client.sendTweet(text, inReplyToStatusId, mediaList, isPossiblySensitive)
         } error {
             finish(getString(R.string.send_failure))
+            it.printStackTrace()
         } success {
             finish(getString(R.string.send_success))
         }

@@ -87,7 +87,7 @@ class TweetPresenter(override val activity: TweetActivityInterface)
         val clientPair = clients.firstOrNull { it.first.id == clientId } ?: throw IllegalArgumentException()
         val client = clientPair.first
         val clientUser = clientPair.second
-        val replyToStatusId = activity.replyToStatus?.inReplyToStatusId
+        val replyToStatusId = activity.replyToStatus?.id
         tweetService.sendTweet(client, clientUser, activity.text, replyToStatusId, activity.mediaList)
         activity.clear()
         activity.finish()

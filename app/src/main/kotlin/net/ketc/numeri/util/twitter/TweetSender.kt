@@ -3,7 +3,6 @@ package net.ketc.numeri.util.twitter
 import net.ketc.numeri.domain.service.TwitterClient
 import twitter4j.StatusUpdate
 import java.io.File
-import kotlin.coroutines.experimental.buildIterator
 import kotlin.coroutines.experimental.buildSequence
 
 class TweetSender(private val client: TwitterClient) {
