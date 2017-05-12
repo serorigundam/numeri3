@@ -11,6 +11,7 @@ import net.ketc.numeri.util.android.SimpleItemTouchHelper
 import net.ketc.numeri.util.android.defaultInit
 import net.ketc.numeri.util.copy
 import org.jetbrains.anko.setContentView
+import org.jetbrains.anko.startActivity
 
 class TweetsDisplayGroupManageActivity :
         ApplicationActivity<TweetsDisplayGroupManagePresenter>(),
@@ -49,6 +50,12 @@ class TweetsDisplayGroupManageActivity :
     override fun remove(group: TweetsDisplayGroup) {
         adapter.remove(group)
         mGroups.remove(group)
+    }
+
+    companion object {
+        fun start(ctx: Context) {
+            ctx.startActivity<TweetsDisplayGroupManageActivity>()
+        }
     }
 }
 

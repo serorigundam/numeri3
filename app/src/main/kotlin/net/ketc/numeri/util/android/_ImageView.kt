@@ -1,6 +1,7 @@
 package net.ketc.numeri.util.android
 
 import android.content.ContentValues
+import android.content.Context
 import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -101,18 +102,22 @@ fun ImageView.download(url: String, autoDisposable: AutoDisposable, cache: Boole
  * @throws IOException directory creation failure
  */
 fun ImageView.save() {
+    val bitmapDrawable = this.drawable as? BitmapDrawable ?: throw IllegalStateException("bitmap is not set")
+    bitmapDrawable.bitmap.save(context)
+}
+
+fun Bitmap.save(ctx: Context): File {
     var outputStream: FileOutputStream? = null
     val dirName = "numetter"
     val file = File("${Environment.getExternalStorageDirectory().path}/$dirName")
+    val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date()) + ".jpg"
+    val path = "${file.absolutePath}/$fileName"
     try {
-        val imageBitmap = this.drawable as? BitmapDrawable ?: throw IllegalStateException("bitmap is not set")
         file.takeIf { file.exists() || file.mkdir() }?.let {
-            val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date())
-            val path = "${file.absolutePath}/$fileName.jpg"
             outputStream = FileOutputStream(path)
             val values = ContentValues()
-            val resolver = context.contentResolver
-            imageBitmap.bitmap.compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            val resolver = ctx.contentResolver
+            compress(Bitmap.CompressFormat.PNG, 100, outputStream)
             values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
             resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         } ?: throw IOException("directory creation failure")
@@ -122,4 +127,5 @@ fun ImageView.save() {
         outputStream?.flush()
         outputStream?.close()
     }
+    return File(path)
 }

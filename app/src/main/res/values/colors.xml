@@ -8,4 +8,5 @@
     <color name="app_bar_transparent">#66000000</color>
     <color name="image_background_transparency">#ABABABAB</color>
     <color name="image_background">#ABABAB</color>
+    <color name="color_input_excess">#AA2222</color>
 </resources>
