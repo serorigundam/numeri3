@@ -1,6 +1,10 @@
 package net.ketc.numeri.presentation.view.activity
 
+import android.Manifest
 import android.content.Context
+import android.content.Intent
+import android.content.pm.PackageManager
+import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -18,8 +22,10 @@ import net.ketc.numeri.presentation.view.component.adapter.SimplePagerAdapter
 import net.ketc.numeri.presentation.view.fragment.ImageMediaFragment
 import net.ketc.numeri.presentation.view.fragment.ImageMediaFragmentInterface
 import net.ketc.numeri.presentation.view.fragment.MovieMediaFragment
+import net.ketc.numeri.util.android.checkPermissions
 import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.toast
 
 class MediaActivity
     : ApplicationActivity<MediaPresenter>(),
@@ -54,6 +60,16 @@ class MediaActivity
 
     private var visiblePosition: Int = 0
 
+    private val mediaEntities: List<MediaEntity> by lazy {
+        fun Any?.asMediaEntity(): MediaEntity {
+            return takeIf { it is MediaEntity }
+                    ?.let { it as MediaEntity }
+                    ?: throw IllegalStateException("Invalid key value of EXTRA_MEDIA_ENTITIES")
+        }
+        (intent.getSerializableExtra(EXTRA_MEDIA_ENTITIES) as Array<*>)
+                .map(Any?::asMediaEntity)
+    }
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
@@ -67,19 +83,12 @@ class MediaActivity
     }
 
     fun createAdapter(): SimplePagerAdapter {
-        fun Any?.asMediaEntity(): MediaEntity {
-            return takeIf { it is MediaEntity }
-                    ?.let { it as MediaEntity }
-                    ?: throw IllegalStateException("Invalid key value of EXTRA_MEDIA_ENTITIES")
-        }
-
         fun MediaEntity.toFragment(): Fragment = when (type) {
             MediaType.PHOTO -> ImageMediaFragment.create(this)
             MediaType.ANIMATED_GIF, MediaType.VIDEO -> MovieMediaFragment.create(this)
         }
 
-        return (intent.getSerializableExtra(EXTRA_MEDIA_ENTITIES) as Array<*>)
-                .map(Any?::asMediaEntity)
+        return mediaEntities
                 .map(MediaEntity::toFragment)
                 .let { SimplePagerAdapter(supportFragmentManager, it) }
     }
@@ -112,10 +121,25 @@ class MediaActivity
         return super.onPrepareOptionsMenu(menu)
     }
 
+    private fun saveImage() {
+        (adapter.getItem(visiblePosition) as? ImageMediaFragmentInterface)?.saveImage()
+    }
+
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
+            R.id.action_open_link -> {
+                val mediaEntity = mediaEntities[visiblePosition]
+                val intent = when (mediaEntity.type) {
+                    MediaType.PHOTO -> Intent(Intent.ACTION_VIEW, Uri.parse(mediaEntity.url))
+                    MediaType.VIDEO, MediaType.ANIMATED_GIF -> Intent(Intent.ACTION_VIEW,
+                            Uri.parse(mediaEntity.variants.last().url))
+                }
+                startActivity(intent)
+            }
             R.id.action_save -> {
-                (adapter.getItem(visiblePosition) as? ImageMediaFragmentInterface)?.saveImage()
+                checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_CODE_SAVE_IMAGE) {
+                    saveImage()
+                }
             }
             else -> return super.onOptionsItemSelected(item)
         }
@@ -160,11 +184,24 @@ class MediaActivity
         super.onSaveInstanceState(outState)
     }
 
+    override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+        if (grantResults.size != 1) return
+        if (grantResults[0] == PackageManager.PERMISSION_GRANTED) {
+            when (requestCode) {
+                REQUEST_CODE_SAVE_IMAGE -> saveImage()
+            }
+        } else {
+            toast(R.string.message_not_granted_permission)
+        }
+    }
+
     companion object {
         private val AUTO_HIDE_DELAY_MILLIS = 2000L
         private val UI_ANIMATION_DELAY = 200L
         private val EXTRA_MEDIA_ENTITIES = "EXTRA_MEDIA_ENTITIES"
         private val EXTRA_POSITION = "EXTRA_POSITION"
+        private val REQUEST_CODE_SAVE_IMAGE = 100
 
         fun start(ctx: Context, mediaEntities: List<MediaEntity>, position: Int = 0) {
             ctx.startActivity<MediaActivity>(EXTRA_MEDIA_ENTITIES to mediaEntities.toTypedArray(),

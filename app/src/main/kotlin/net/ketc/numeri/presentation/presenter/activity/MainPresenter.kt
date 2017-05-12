@@ -12,10 +12,8 @@ import net.ketc.numeri.domain.model.cache.withUser
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.activity.MainActivityInterface
-import net.ketc.numeri.presentation.view.activity.TweetsDisplayGroupManageActivity
 import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.rx.twitterThread
-import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import java.util.*
 import javax.inject.Inject
@@ -39,6 +37,7 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().map { it.withUser() }
         }.error {
+            it.printStackTrace()
             ctx.toast(ctx.getString(R.string.authentication_failure))
             initialized = true
         }.success { pair ->
@@ -157,7 +156,4 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         }
     }
 
-    fun startTweetsDisplayGroupManageActivity() {
-        ctx.startActivity<TweetsDisplayGroupManageActivity>()
-    }
 }

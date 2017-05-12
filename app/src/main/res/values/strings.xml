@@ -37,4 +37,15 @@
     <string name="friends">フォロー</string>
     <string name="follower">フォロワー</string>
     <string name="via">via</string>
+    <string name="tweet_input">ツイートを入力</string>
+    <string name="label_tweet">ツイート</string>
+    <string name="select_tweet_user">ツイートを行うユーザーの選択</string>
+    <string name="reply">リプライ</string>
+    <string name="tweet_sending">ツイートの送信を実行中です</string>
+    <string name="send_failure">送信失敗</string>
+    <string name="send_success">送信成功</string>
+    <string name="sending">送信中</string>
+    <string name="exclude_selected_images">選択した画像を投稿予定から除外しますか？</string>
+    <string name="cancel">キャンセル</string>
+    <string name="message_not_granted_permission">許可が得られなかったため処理を中断します。</string>
 </resources>

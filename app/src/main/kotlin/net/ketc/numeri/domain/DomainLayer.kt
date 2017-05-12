@@ -39,6 +39,7 @@ interface DomainComponent {
     fun inject(conversationPresenter: ConversationPresenter)
     fun inject(userInfoPresenter: UserInfoPresenter)
     fun inject(usersPresenter: UsersPresenter)
+    fun inject(tweetPresenter: TweetPresenter)
 }
 
 //extension
@@ -75,5 +76,9 @@ fun UserInfoPresenter.inject() {
 }
 
 fun UsersPresenter.inject() {
+    Injectors.domainComponent.inject(this)
+}
+
+fun TweetPresenter.inject() {
     Injectors.domainComponent.inject(this)
 }

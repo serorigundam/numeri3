@@ -24,6 +24,7 @@ class TwitterClientImpl(twitterApp: TwitterApp, token: ClientToken) : TwitterCli
                 .setOAuthConsumerSecret(twitterApp.apiSecret)
                 .setOAuthAccessToken(token.authToken)
                 .setOAuthAccessTokenSecret(token.authTokenSecret)
+                .setTweetModeExtended(true)
                 .build()
         twitter = TwitterFactory(configuration).instance
     }

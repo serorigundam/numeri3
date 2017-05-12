@@ -148,6 +148,7 @@ class TweetViewUI(override val ctx: Context) : ITweetViewUI {
                 endOf(R.id.icon_image)
                 below(R.id.thumbnails_relative)
                 topMargin = dimen(R.dimen.margin_text_small)
+                marginEnd = dimen(R.dimen.margin_text_small)
             }
 
             textView {
