@@ -10,6 +10,7 @@ import android.provider.MediaStore
 import android.util.LruCache
 import android.widget.ImageView
 import io.reactivex.disposables.Disposable
+import net.ketc.numeri.util.log.i
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.MySchedulers
 import java.io.File
@@ -109,8 +110,9 @@ fun ImageView.save() {
 fun Bitmap.save(ctx: Context): File {
     var outputStream: FileOutputStream? = null
     val dirName = "numetter"
-    val file = File("${Environment.getExternalStorageDirectory().path}/$dirName")
-    val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date()) + ".jpg"
+    val file = File("${Environment.getExternalStorageDirectory().absolutePath}/$dirName")
+    i("Bitmap", file.absolutePath)
+    val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date()) + ".png"
     val path = "${file.absolutePath}/$fileName"
     try {
         file.takeIf { file.exists() || file.mkdir() }?.let {
@@ -118,7 +120,11 @@ fun Bitmap.save(ctx: Context): File {
             val values = ContentValues()
             val resolver = ctx.contentResolver
             compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            values.put(MediaStore.Images.Media.TITLE, fileName)
+            values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
+            values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
             values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            values.put(MediaStore.Images.Media.DATA, path)
             resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         } ?: throw IOException("directory creation failure")
     } catch(e: IOException) {
