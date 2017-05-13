@@ -51,7 +51,6 @@ class ImageMediaFragment : ApplicationFragment<ImageMediaPresenter>(), ImageMedi
 
     private fun createView(ctx: Context) = ctx.relativeLayout {
         lparams(matchParent, matchParent)
-        fitsSystemWindows = true
         photoView {
             photo = this
             setZoomable(true)

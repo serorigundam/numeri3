@@ -21,4 +21,5 @@
 
     <dimen name="app_bar_height">240dp</dimen>
     <dimen name="app_bar_standard_height">56dp</dimen>
+    <dimen name="status_bar_height">24dp</dimen>
 </resources>

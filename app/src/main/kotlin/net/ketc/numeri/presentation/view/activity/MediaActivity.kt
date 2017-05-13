@@ -38,7 +38,7 @@ class MediaActivity
     private var systemUiIsVisible = true
 
     private val hideSystemUIFunc: () -> Unit = {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
+        pager.systemUiVisibility = (View.SYSTEM_UI_FLAG_LOW_PROFILE
                 or View.SYSTEM_UI_FLAG_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_STABLE
                 or View.SYSTEM_UI_FLAG_IMMERSIVE_STICKY
@@ -159,7 +159,7 @@ class MediaActivity
     }
 
     private fun show() {
-        window.decorView.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
+        pager.systemUiVisibility = (View.SYSTEM_UI_FLAG_LAYOUT_FULLSCREEN
                 or View.SYSTEM_UI_FLAG_LAYOUT_HIDE_NAVIGATION)
         systemUiIsVisible = true
         hideHandler.removeCallbacks(hideSystemUIFunc)

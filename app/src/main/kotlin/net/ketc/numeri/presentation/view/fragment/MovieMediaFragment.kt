@@ -1,6 +1,7 @@
 package net.ketc.numeri.presentation.view.fragment
 
 import android.content.Context
+import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -51,8 +52,6 @@ class MovieMediaFragment : ApplicationFragment<MovieMediaPresenter>(), MovieMedi
                 video.setOnPreparedListener {
                     progressBar.visibility = View.GONE
                     it.isLooping = true
-                    val mediaController = MediaController(context)
-                    video.setMediaController(mediaController)
                     video.start()
                 }
                 video.setVideoURI(uri)
