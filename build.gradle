@@ -1,29 +1,30 @@
 buildscript {
-    ext.kotlin_version = '1.1.2-2'
-    ext.android_build_tool_ver = '26rc1'
+    ext.kotlin_version = '1.1.2-4'
+    ext.android_build_tool_ver = '26.0.0-rc2'
+    ext.kt_coroutines = '0.15'
     repositories {
         jcenter()
         maven {
             url System.getenv("ADROID_STUDIO_HOME") + "gradle\\m2repository"
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:2.4.0-alpha7'
+            classpath 'com.android.tools.build:gradle:3.0.0-alpha1'
             classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         }
     }
 }
+
+
+
 allprojects {
     repositories {
         maven { url "https://jitpack.io" }
+        maven { url 'https://maven.google.com' }
         maven { url 'https://maven.fabric.io/public' }
         jcenter()
     }
 }
 
 task wrapper(type: Wrapper) {
-    gradleVersion = '4.0-20170417000025+0000'
-}
-
-task clean(type: Delete) {
-    delete rootProject.buildDir
+    gradleVersion = '4.1-20170518235906+0000'
 }

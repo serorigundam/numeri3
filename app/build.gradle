@@ -1,11 +1,10 @@
 buildscript {
-    ext.anko_version = '0.9.1'
+    ext.anko_version = '0.10.0'
     ext.junit_platform_ver = '1.0.0-M2'
     ext.spek_version = '1.0.89'
     ext.t4j_version = '4.0.6'
-    ext.dagger_version = '2.8'
+    ext.dagger_version = '2.10'
     ext.support_lib_ver = '25.3.1'
-    ext.kt_coroutines = '0.14'
     repositories {
         maven { url 'https://maven.fabric.io/public' }
         jcenter()
@@ -17,6 +16,7 @@ buildscript {
 
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
+apply plugin: 'kotlin-kapt'
 apply plugin: 'io.fabric'
 
 android {
@@ -75,53 +75,53 @@ kapt {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     //android-support
-    compile "com.android.support:appcompat-v7:$support_lib_ver"
-    compile "com.android.support:design:$support_lib_ver"
-    compile "com.android.support:recyclerview-v7:$support_lib_ver"
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    implementation "com.android.support:appcompat-v7:$support_lib_ver"
+    implementation "com.android.support:design:$support_lib_ver"
+    implementation "com.android.support:recyclerview-v7:$support_lib_ver"
+    implementation 'com.android.support.constraint:constraint-layout:1.0.2'
 
     //kotlin
-    compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    compile "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kt_coroutines"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kt_coroutines"
 
     //anko
-    compile "org.jetbrains.anko:anko-sdk23:$anko_version"
-    compile "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
-    compile "org.jetbrains.anko:anko-design:$anko_version"
-    compile "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+    implementation "org.jetbrains.anko:anko-sdk23:$anko_version"
+    implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
+    implementation "org.jetbrains.anko:anko-design:$anko_version"
+    implementation "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
 
     //PhotoView
-    compile 'com.github.chrisbanes:PhotoView:2.0.0'
+    implementation 'com.github.chrisbanes:PhotoView:2.0.0'
 
     //rx
-    compile 'io.reactivex.rxjava2:rxjava:2.1.0'
-    compile 'io.reactivex.rxjava2:rxandroid:2.0.1'
-    compile 'io.reactivex.rxjava2:rxkotlin:2.0.2'
+    implementation 'io.reactivex.rxjava2:rxjava:2.1.0'
+    implementation 'io.reactivex.rxjava2:rxandroid:2.0.1'
+    implementation 'io.reactivex.rxjava2:rxkotlin:2.0.2'
 
     //twitter4j
-    compile "org.twitter4j:twitter4j-core:$t4j_version"
-    compile "org.twitter4j:twitter4j-stream:$t4j_version"
+    implementation "org.twitter4j:twitter4j-core:$t4j_version"
+    implementation "org.twitter4j:twitter4j-stream:$t4j_version"
 
     //dagger
-    compile "com.google.dagger:dagger:$dagger_version"
-    compile "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger:$dagger_version"
+    implementation "com.google.dagger:dagger-android:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
 
     //ormLite
-    compile 'com.j256.ormlite:ormlite-core:5.0'
-    compile 'com.j256.ormlite:ormlite-android:5.0'
+    implementation 'com.j256.ormlite:ormlite-core:5.0'
+    implementation 'com.j256.ormlite:ormlite-android:5.0'
 
     //test
-    testCompile "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
-    testCompile 'junit:junit:4.12'
-    testCompile 'org.robolectric:robolectric:3.1.4'
-    testCompile 'org.mockito:mockito-core:2.3.5'
+    testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
+    testImplementation 'junit:junit:4.12'
+    testImplementation 'org.robolectric:robolectric:3.1.4'
+    testImplementation 'org.mockito:mockito-core:2.3.5'
     kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 
-    compile('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
         transitive = true
     }
 }
