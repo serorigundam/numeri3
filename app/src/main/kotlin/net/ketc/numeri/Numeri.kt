@@ -103,7 +103,7 @@ class ActivityManagerImpl : Application.ActivityLifecycleCallbacks, ActivityMana
                 v(tag, "onDestroy isFinishing")
             } else {
                 activity2IsStartedForFirst.put(id, false)
-                id2SafePostDelegateMap[id]!!.onDestroy()
+                id2SafePostDelegateMap[id]?.onDestroy()
                 id2ActivityMap.put(id, null)
                 v(tag, "onDestroy isNotFinishing")
             }
