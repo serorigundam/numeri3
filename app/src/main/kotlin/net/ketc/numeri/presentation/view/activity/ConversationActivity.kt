@@ -2,65 +2,49 @@ package net.ketc.numeri.presentation.view.activity
 
 import android.content.Context
 import android.os.Bundle
-import android.support.v7.app.AppCompatDialog
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.ConversationPresenter
+import net.ketc.numeri.presentation.presenter.activity.ConversationPresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.ConversationActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.IConversationActivityUI
 import net.ketc.numeri.presentation.view.component.TweetViewHolder
 import net.ketc.numeri.presentation.view.component.adapter.ReadableMoreRecyclerAdapter
 import net.ketc.numeri.presentation.view.component.ui.TweetViewUI
-import net.ketc.numeri.util.android.DialogOwner
+import net.ketc.numeri.presentation.view.fragment.dialog.TweetOperateDialogFragment
 import net.ketc.numeri.util.android.defaultInit
 import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
 
 class ConversationActivity : ApplicationActivity<ConversationPresenter>(), ConversationActivityInterface,
         IConversationActivityUI by ConversationActivityUI() {
+    override val presenterFactory = ConversationPresenterFactory
 
     override val ctx: Context = this
-    override val presenter = ConversationPresenter(this)
-    private val dialogOwner = DialogOwner()
     override val statusId: Long by lazy { intent.getLongExtra(EXTRA_STATUS_ID, -1) }
-    override val clientId: Long by lazy { intent.getLongExtra(EXTRA_CLIENT_ID, -1) }
-    private var mClient: TwitterClient? = null
+    override val client: TwitterClient by lazy { (intent.getSerializableExtra(EXTRA_CLIENT) as? TwitterClient) ?: throw IllegalStateException() }
     private val adapter by lazy {
         ReadableMoreRecyclerAdapter(presenter, {
             TweetViewHolder(TweetViewUI(this), presenter, client) {
-                presenter.onClickTweet(it)
+                TweetOperateDialogFragment.create(it, client).show(supportFragmentManager, tag)
             }
         })
     }
-    override var client: TwitterClient
+    override var visibleTopPosition: Int
+        get() = tweetsRecycler.findViewHolderForLayoutPosition(0)?.adapterPosition ?: -1
         set(value) {
-            mClient = value
-            tweetsRecycler.adapter = adapter
+            tweetsRecycler.scrollToPosition(value)
         }
-        get() = mClient ?: throw IllegalStateException()
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         tweetsRecycler.defaultInit()
-        presenter.initialize()
-    }
-
-    override fun onPause() {
-        super.onPause()
-        dialogOwner.onPause()
-    }
-
-    override fun onResume() {
-        super.onResume()
-        dialogOwner.onResume()
-    }
-
-    override fun onDestroy() {
-        super.onDestroy()
-        dialogOwner.onDestroy()
+        tweetsRecycler.adapter = adapter
+        presenter.initialize(savedInstanceState, isStartedForFirst)
     }
 
     override fun insert(tweet: Tweet) {
@@ -68,25 +52,26 @@ class ConversationActivity : ApplicationActivity<ConversationPresenter>(), Conve
         tweetsRecycler.scrollToPosition(0)
     }
 
-    override fun showDialog(dialog: AppCompatDialog) {
-        dialogOwner.showDialog(dialog)
+    override fun insertAll(tweets: List<Tweet>) {
+        adapter.insertAllToTop(tweets)
+        tweetsRecycler.scrollToPosition(0)
     }
 
     companion object {
-        fun start(ctx: Context, statusId: Long, clientId: Long) {
+        fun start(ctx: Context, statusId: Long, client: TwitterClient) {
             ctx.startActivity<ConversationActivity>(EXTRA_STATUS_ID to statusId,
-                    EXTRA_CLIENT_ID to clientId)
+                    EXTRA_CLIENT to client)
         }
 
         private val EXTRA_STATUS_ID = "EXTRA_STATUS_ID"
-        private val EXTRA_CLIENT_ID = "EXTRA_CLIENT_ID"
+        private val EXTRA_CLIENT = "EXTRA_CLIENT"
     }
 }
 
 interface ConversationActivityInterface : ActivityInterface {
     val statusId: Long
-    val clientId: Long
-    var client: TwitterClient
+    val client: TwitterClient
+    var visibleTopPosition: Int
     fun insert(tweet: Tweet)
-    fun showDialog(dialog: AppCompatDialog)
+    fun insertAll(tweets: List<Tweet>)
 }

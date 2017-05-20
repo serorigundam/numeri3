@@ -25,6 +25,7 @@ import net.ketc.numeri.domain.model.RelationType
 import net.ketc.numeri.domain.model.UserRelation
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.UserInfoPresenter
+import net.ketc.numeri.presentation.presenter.activity.UserInfoPresenterFactory
 import net.ketc.numeri.presentation.view.Refreshable
 import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.activity.ui.IUserInfoActivityUI
@@ -38,7 +39,6 @@ import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.fadeOut
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.nestedScrollView
 
 class UserInfoActivity
     : ApplicationActivity<UserInfoPresenter>(),
@@ -47,7 +47,7 @@ class UserInfoActivity
     override val twitterClientId: Long by lazy { intent.getLongExtra(EXTRA_CLIENT_ID, -1L).takeIf { it != -1L } ?: throw IllegalStateException() }
     override val targetUserId: Long by lazy { intent.getLongExtra(EXTRA_TARGET_USER_ID, -1L).takeIf { it != -1L } ?: throw IllegalStateException() }
     override val ctx: Context = this
-    override val presenter = UserInfoPresenter(this)
+    override val presenterFactory = UserInfoPresenterFactory
     override var isRefreshing: Boolean
         get() = swipeRefresh.isRefreshing
         set(value) {
@@ -79,6 +79,7 @@ class UserInfoActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         supportActionBar!!.setDisplayShowTitleEnabled(true)

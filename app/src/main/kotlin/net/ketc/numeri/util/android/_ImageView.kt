@@ -24,7 +24,7 @@ import java.util.*
 
 
 object ImageCache {
-    private val MAX = 5 * 1024 * 1024
+    private val MAX = 30 * 1024 * 1024
     private val URL_REGEX = "https?://[\\w/:%#$&?()~.=+\\-]+".toRegex()
     private val bitmapCache = object : LruCache<String, Bitmap>(MAX) {
         override fun sizeOf(key: String, value: Bitmap): Int {

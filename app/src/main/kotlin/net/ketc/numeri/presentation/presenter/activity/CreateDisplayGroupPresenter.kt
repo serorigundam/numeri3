@@ -5,7 +5,11 @@ import net.ketc.numeri.domain.service.TweetsDisplayService
 import net.ketc.numeri.presentation.view.activity.CreateDisplayGroupActivityInterface
 import javax.inject.Inject
 
-class CreateDisplayGroupPresenter(override val activity: CreateDisplayGroupActivityInterface) : Presenter<CreateDisplayGroupActivityInterface> {
+object CreateDisplayGroupPresenterFactory : PresenterFactory<CreateDisplayGroupPresenter>() {
+    override fun create() = CreateDisplayGroupPresenter()
+}
+
+class CreateDisplayGroupPresenter : AbstractPresenter<CreateDisplayGroupActivityInterface>() {
     @Inject
     lateinit var displayService: TweetsDisplayService
 

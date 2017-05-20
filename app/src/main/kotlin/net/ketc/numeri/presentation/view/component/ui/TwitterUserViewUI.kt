@@ -31,6 +31,10 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
 
 
     override fun createView() = ctx.relativeLayout {
+        setPadding(dimen(R.dimen.margin_text_medium),
+                dimen(R.dimen.margin_text_medium),
+                dimen(R.dimen.margin_text_medium),
+                dimen(R.dimen.margin_text_medium))
         frameLayout {
             id = R.id.icon_image
             backgroundColor = ctx.getColor(R.color.image_background_transparency)
@@ -39,8 +43,6 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
                 backgroundColor = ctx.getColor(R.color.transparent)
             }
         }.lparams(dimen(R.dimen.image_icon), dimen(R.dimen.image_icon)) {
-            marginTop = dimen(R.dimen.margin_medium)
-            marginStart = dimen(R.dimen.margin_medium)
             marginEnd = dimen(R.dimen.margin_small)
             alignParentStart()
             alignParentTop()
@@ -54,8 +56,6 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
         }.lparams(dip(56), dip(32)) {
             alignParentTop()
             alignParentEnd()
-            marginTop = dimen(R.dimen.margin_medium)
-            marginEnd = dimen(R.dimen.margin_medium)
             marginStart = dimen(R.dimen.margin_small)
         }
 
@@ -67,8 +67,6 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
         }.lparams(wrapContent, wrapContent) {
             endOf(R.id.icon_image)
             startOf(R.id.follow_button)
-            marginTop = dimen(R.dimen.margin_medium)
-            marginEnd = dimen(R.dimen.margin_medium)
             marginBottom = dimen(R.dimen.margin_text_small)
         }
 
@@ -81,7 +79,6 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
             endOf(R.id.icon_image)
             startOf(R.id.follow_button)
             below(R.id.user_name_text)
-            marginEnd = dimen(R.dimen.margin_medium)
         }
 
         textView {
@@ -90,7 +87,7 @@ class TwitterUserViewUI(override val ctx: Context) : ITwitterUserViewUI {
         }.lparams(wrapContent, wrapContent) {
             endOf(R.id.icon_image)
             below(R.id.icon_image)
-            marginTop = dimen(R.dimen.margin_text_small)
+            marginTop = dimen(R.dimen.margin_text_medium)
         }
     }
 

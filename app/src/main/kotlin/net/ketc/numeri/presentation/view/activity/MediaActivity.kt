@@ -4,6 +4,9 @@ import android.Manifest
 import android.content.Context
 import android.content.Intent
 import android.content.pm.PackageManager
+import android.content.res.Configuration
+import android.graphics.Point
+import android.graphics.Rect
 import android.net.Uri
 import android.os.Bundle
 import android.os.Handler
@@ -16,6 +19,7 @@ import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.MediaEntity
 import net.ketc.numeri.domain.model.MediaType
 import net.ketc.numeri.presentation.presenter.activity.MediaPresenter
+import net.ketc.numeri.presentation.presenter.activity.MediaPresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.IMediaActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.MediaActivityUI
 import net.ketc.numeri.presentation.view.component.adapter.SimplePagerAdapter
@@ -23,6 +27,7 @@ import net.ketc.numeri.presentation.view.fragment.ImageMediaFragment
 import net.ketc.numeri.presentation.view.fragment.ImageMediaFragmentInterface
 import net.ketc.numeri.presentation.view.fragment.MovieMediaFragment
 import net.ketc.numeri.util.android.checkPermissions
+import org.jetbrains.anko.configuration
 import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
@@ -33,8 +38,7 @@ class MediaActivity
         IMediaActivityUI by MediaActivityUI() {
 
     override val ctx = this
-    override val presenter = MediaPresenter(this)
-
+    override val presenterFactory = MediaPresenterFactory
     private var systemUiIsVisible = true
 
     private val hideSystemUIFunc: () -> Unit = {
@@ -73,7 +77,9 @@ class MediaActivity
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         setSupportActionBar(toolbar)
+        setAppBarPadding(configuration)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
 
         if (savedInstanceState?.let { visiblePosition = it.getInt(EXTRA_POSITION) } == null) {
@@ -193,6 +199,25 @@ class MediaActivity
             }
         } else {
             toast(R.string.message_not_granted_permission)
+        }
+    }
+
+    private fun setAppBarPadding(configuration: Configuration) {
+        val display = windowManager.defaultDisplay
+        val screenSize = Point(0, 0)
+        val windowSize = Point(0, 0)
+        display.getRealSize(screenSize)
+        display.getSize(windowSize)
+        val rect = Rect()
+        window.decorView.getWindowVisibleDisplayFrame(rect)
+        when (configuration.orientation) {
+            Configuration.ORIENTATION_LANDSCAPE -> {
+                val paddingRight = screenSize.x - windowSize.x
+                appBar.setPadding(0, rect.top, paddingRight, 0)
+            }
+            Configuration.ORIENTATION_PORTRAIT -> {
+                appBar.setPadding(0, rect.top, 0, 0)
+            }
         }
     }
 

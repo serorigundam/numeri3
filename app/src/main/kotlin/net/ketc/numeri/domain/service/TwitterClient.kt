@@ -5,16 +5,17 @@ import net.ketc.numeri.util.twitter.TwitterApp
 import twitter4j.Twitter
 import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
+import java.io.Serializable
 
 
-interface TwitterClient {
+interface TwitterClient : Serializable {
     val twitter: Twitter
     val id: Long
-    val stream: StreamFlowableHolder
+    val twitterApp: TwitterApp
 }
 
 
-class TwitterClientImpl(twitterApp: TwitterApp, token: ClientToken) : TwitterClient {
+class TwitterClientImpl(override val twitterApp: TwitterApp, token: ClientToken) : TwitterClient {
     override val twitter: Twitter
     override val id = token.id
 
@@ -28,6 +29,4 @@ class TwitterClientImpl(twitterApp: TwitterApp, token: ClientToken) : TwitterCli
                 .build()
         twitter = TwitterFactory(configuration).instance
     }
-
-    override val stream: StreamFlowableHolder by lazy { StreamFlowableHolderImpl(twitterApp, this) }
 }

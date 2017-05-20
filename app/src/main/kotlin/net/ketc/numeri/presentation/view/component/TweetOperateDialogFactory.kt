@@ -6,8 +6,7 @@ import android.view.View
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.UrlEntity
-import net.ketc.numeri.domain.model.cache.isFavorite
-import net.ketc.numeri.domain.model.cache.isRetweeted
+import net.ketc.numeri.domain.model.cache.*
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.component.TweetOperateDialogPresenter
 import net.ketc.numeri.presentation.view.activity.ConversationActivity
@@ -19,7 +18,9 @@ import net.ketc.numeri.presentation.view.component.ui.dialog.BottomSheetDialogUI
 import net.ketc.numeri.presentation.view.component.ui.dialog.addMenu
 import net.ketc.numeri.presentation.view.component.ui.dialog.messageText
 import net.ketc.numeri.util.rx.AutoDisposable
+import net.ketc.numeri.util.rx.MySchedulers
 import net.ketc.numeri.util.toImmutableList
+import org.jetbrains.anko.image
 import java.util.ArrayList
 
 class TweetOperatorDialogFactory(private val ctx: Context,
@@ -75,7 +76,7 @@ class TweetMenuItems(private val ctx: Context,
     private val presenter = TweetOperateDialogPresenter(ctx, autoDisposable, this, error)
     private val displayTweet = tweet.retweetedTweet ?: tweet
     override var isFavorite: Boolean
-        get() = client.isFavorite(displayTweet)
+        get() = client.checkFavorite(displayTweet)
         set(value) {
             val ctx = favoriteMenuItem.context
             if (value) {
@@ -93,7 +94,7 @@ class TweetMenuItems(private val ctx: Context,
             favoriteMenuItem.isClickable = value
         }
     override var isRetweeted: Boolean
-        get() = client.isRetweeted(displayTweet)
+        get() = client.checkRetweeted(displayTweet)
         set(value) {
             val ctx = retweetMenuItem.context
             if (value) {
@@ -116,37 +117,68 @@ class TweetMenuItems(private val ctx: Context,
     val retweetMenuItem = createRetweetMenu()
     val openUserMenuItems = createOpenUserMenus()
     val openUrlMenuItems = createOpenUrlMenus()
-    val openDisplayConversationItem = (tweet.retweetedTweet ?: tweet)
-            .inReplyToStatusId.takeUnless { it == -1L }?.let { createDisplayConversationMenu() }
-    val openMediaItem = tweet.mediaEntities.takeUnless { it.isEmpty() }?.let { createOpenMediaMenu() }
+    val openDisplayConversationItem = displayTweet.inReplyToStatusId
+            .takeUnless { it == -1L }?.let { createDisplayConversationMenu() }
+    val openMediaItem = displayTweet.mediaEntities
+            .takeUnless { it.isEmpty() }?.let { createOpenMediaMenu() }
     val openTweetLink = createOpenTweetLinkMenu()
     val replyMenu = createReplyMenu()
 
 
     private fun createFavoriteMenu(): View {
-        val textId: Int
-        val iconId: Int
-        if (client.isFavorite(displayTweet)) {
-            textId = R.string.destroy_favorite
-            iconId = R.drawable.ic_star_white_24dp
-        } else {
-            textId = R.string.create_favorite
-            iconId = R.drawable.ic_star_border_white_24dp
+        val menu = createIconMenu(ctx, R.drawable.ic_sync_white_24dp, R.string.sync_favorite) { _ -> presenter.changeFavorite() }
+        menu.isClickable = false
+        presenter.singleTask(MySchedulers.twitter) {
+            client.checkFavoriteOrElse(displayTweet) {
+                val result = client.getTweet(displayTweet.id)
+                client.checkFavorite(result)
+            }
+        } error {
+            menu.iconImage.image = ctx.getDrawable(R.drawable.ic_sync_problem_white_24dp)
+            menu.menuText.text = ctx.getString(R.string.sync_failure)
+        } success {
+            val textId: Int
+            val iconId: Int
+            if (it) {
+                textId = R.string.destroy_favorite
+                iconId = R.drawable.ic_star_white_24dp
+            } else {
+                textId = R.string.create_favorite
+                iconId = R.drawable.ic_star_border_white_24dp
+            }
+            menu.iconImage.image = ctx.getDrawable(iconId)
+            menu.menuText.text = ctx.getString(textId)
+            menu.isClickable = true
         }
-        return createIconMenu(ctx, iconId, textId) { _ -> presenter.changeFavorite() }
+        return menu
     }
 
     private fun createRetweetMenu(): View {
-        val textId: Int
-        val iconId: Int
-        if (client.isRetweeted(displayTweet)) {
-            textId = R.string.destroy_retweet
-            iconId = R.drawable.ic_check_white_24dp
-        } else {
-            textId = R.string.create_retweet
-            iconId = R.drawable.ic_autorenew_white_24dp
+        val menu = createIconMenu(ctx, R.drawable.ic_sync_white_24dp, R.string.sync_favorite) { _ -> presenter.changeRetweeted() }
+        menu.isClickable = false
+        presenter.singleTask(MySchedulers.twitter) {
+            client.checkRetwwtedOrElse(displayTweet) {
+                val result = client.getTweet(displayTweet.id)
+                client.checkRetweeted(result)
+            }
+        } error {
+            menu.iconImage.image = ctx.getDrawable(R.drawable.ic_sync_problem_white_24dp)
+            menu.menuText.text = ctx.getString(R.string.sync_failure)
+        } success {
+            val textId: Int
+            val iconId: Int
+            if (it) {
+                textId = R.string.destroy_retweet
+                iconId = R.drawable.ic_check_white_24dp
+            } else {
+                textId = R.string.create_retweet
+                iconId = R.drawable.ic_autorenew_white_24dp
+            }
+            menu.iconImage.image = ctx.getDrawable(iconId)
+            menu.menuText.text = ctx.getString(textId)
+            menu.isClickable = true
         }
-        return createIconMenu(ctx, iconId, textId) { _ -> presenter.changeRetweeted() }
+        return menu
     }
 
     private fun createOpenUrlMenus(): List<View> {
@@ -173,13 +205,13 @@ class TweetMenuItems(private val ctx: Context,
             }
             add(tweet.user.id to tweet.user.screenName)
         }
-        val list2 = tweet.userMentionEntities.map { it.id to it.screenName }
+        val list2 = displayTweet.userMentionEntities.map { it.id to it.screenName }
         return (list1 + list2).distinctBy { it.first }.map(Pair<Long, String>::createMenu)
     }
 
     private fun createDisplayConversationMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_chat_bubble_outline_white_24dp, R.string.follow_conversation) {
-            ConversationActivity.start(ctx, displayTweet.id, client.id)
+            ConversationActivity.start(ctx, displayTweet.id, client)
             dialog.dismiss()
         }
     }

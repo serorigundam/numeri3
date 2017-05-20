@@ -70,7 +70,6 @@
 
         <activity
             android:name=".presentation.view.activity.ConversationActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:label="@string/label_conversation">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -79,8 +78,7 @@
 
         <activity
             android:name=".presentation.view.activity.MediaActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
-            android:label="@string/label_image"
+            android:label="@string/label_media"
             android:theme="@style/AppTheme.FullScreen">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
@@ -97,7 +95,6 @@
         </activity>
         <activity
             android:name=".presentation.view.activity.TweetActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:label="@string/label_tweet"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize">

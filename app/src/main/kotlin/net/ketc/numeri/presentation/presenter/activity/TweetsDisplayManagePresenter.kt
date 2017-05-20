@@ -16,7 +16,11 @@ import org.jetbrains.anko.toast
 import java.util.*
 import javax.inject.Inject
 
-class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageActivityInterface)
+object TweetsDisplayManagePresenterFactory : PresenterFactory<TweetsDisplayManagePresenter>() {
+    override fun create() = TweetsDisplayManagePresenter()
+}
+
+class TweetsDisplayManagePresenter
     : AutoDisposablePresenter<TweetsDisplayManageActivityInterface>() {
     @Inject
     lateinit var oAuthService: OAuthService
@@ -31,8 +35,8 @@ class TweetsDisplayManagePresenter(override val activity: TweetsDisplayManageAct
         inject()
     }
 
-    override fun initialize(savedInstanceState: Bundle?) {
-        super.initialize(savedInstanceState)
+    override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
+        super.initialize(savedInstanceState, isStartedForFirst)
         singleTask(MySchedulers.twitter) {
             val clients = oAuthService.clients()
             clients.forEach {

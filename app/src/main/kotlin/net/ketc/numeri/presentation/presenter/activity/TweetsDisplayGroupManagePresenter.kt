@@ -9,8 +9,12 @@ import net.ketc.numeri.presentation.view.activity.TweetsDisplayGroupManageActivi
 import net.ketc.numeri.presentation.view.activity.TweetsDisplayManageActivity
 import javax.inject.Inject
 
-class TweetsDisplayGroupManagePresenter(override val activity: TweetsDisplayGroupManageActivityInterface)
-    : Presenter<TweetsDisplayGroupManageActivityInterface> {
+object TweetsDisplayGroupManagePresenterFactory : PresenterFactory<TweetsDisplayGroupManagePresenter>() {
+    override fun create() = TweetsDisplayGroupManagePresenter()
+}
+
+class TweetsDisplayGroupManagePresenter
+    : AbstractPresenter<TweetsDisplayGroupManageActivityInterface>() {
 
     @Inject
     lateinit var displayService: TweetsDisplayService
@@ -19,7 +23,7 @@ class TweetsDisplayGroupManagePresenter(override val activity: TweetsDisplayGrou
         inject()
     }
 
-    override fun initialize(savedInstanceState: Bundle?) {
+    override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
         displayService.getAllGroup().forEach {
             activity.add(it)
         }

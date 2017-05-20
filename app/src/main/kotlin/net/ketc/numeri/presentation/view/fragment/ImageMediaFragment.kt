@@ -39,7 +39,7 @@ class ImageMediaFragment : ApplicationFragment<ImageMediaPresenter>(), ImageMedi
     override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.initialize()
-        photo.download(mediaEntity.url + ":orig", presenter, false,
+        photo.download(mediaEntity.url + ":orig", presenter,
                 success = { progressBar.visibility = View.GONE })
 
         fun toggle() {

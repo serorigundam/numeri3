@@ -4,6 +4,7 @@ import android.content.Context
 import android.os.Bundle
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayGroupManagePresenter
+import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayGroupManagePresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayGroupManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayGroupManageActivityUI
 import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayGroupsRecyclerAdapter
@@ -17,7 +18,6 @@ class TweetsDisplayGroupManageActivity :
         ApplicationActivity<TweetsDisplayGroupManagePresenter>(),
         TweetsDisplayGroupManageActivityInterface,
         ITweetsDisplayGroupManageActivityUI by TweetsDisplayGroupManageActivityUI() {
-
     override val groups: List<TweetsDisplayGroup>
         get() = mGroups.copy()
 
@@ -25,13 +25,16 @@ class TweetsDisplayGroupManageActivity :
 
     override val ctx: Context
         get() = this
-    override val presenter: TweetsDisplayGroupManagePresenter = TweetsDisplayGroupManagePresenter(this)
+
+    override val presenterFactory = TweetsDisplayGroupManagePresenterFactory
+
     private val adapter = TweetsDisplayGroupsRecyclerAdapter { presenter.startTweetsDisplayManageActivity(it) }
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
         setSupportActionBar(toolbar)
+        presenter.activity = this
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         groupsRecycler.defaultInit()
         groupsRecycler.adapter = adapter

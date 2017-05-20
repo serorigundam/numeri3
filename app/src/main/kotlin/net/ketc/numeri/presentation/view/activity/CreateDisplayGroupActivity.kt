@@ -4,6 +4,8 @@ import android.content.Context
 import android.os.Bundle
 import android.view.inputmethod.EditorInfo
 import net.ketc.numeri.presentation.presenter.activity.CreateDisplayGroupPresenter
+import net.ketc.numeri.presentation.presenter.activity.CreateDisplayGroupPresenterFactory
+import net.ketc.numeri.presentation.presenter.activity.PresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.CreateDisplayGroupActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.ICreateDisplayGroupActivityUI
 import org.jetbrains.anko.setContentView
@@ -13,14 +15,16 @@ class CreateDisplayGroupActivity : ApplicationActivity<CreateDisplayGroupPresent
         CreateDisplayGroupActivityInterface,
         ICreateDisplayGroupActivityUI by CreateDisplayGroupActivityUI() {
     override val ctx: Context = this
-    override val presenter: CreateDisplayGroupPresenter = CreateDisplayGroupPresenter(this)
     private var done = false
+    override val presenterFactory = CreateDisplayGroupPresenterFactory
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        presenter.activity = this
         presenter.initialize(savedInstanceState)
         groupNameEdit.setOnEditorActionListener { _, actionId, _ -> done(actionId) }
     }

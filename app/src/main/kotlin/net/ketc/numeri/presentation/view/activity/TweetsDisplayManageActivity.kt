@@ -13,6 +13,7 @@ import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenter
+import net.ketc.numeri.presentation.presenter.activity.TweetsDisplayManagePresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.ITweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.TweetsDisplayManageActivityUI
 import net.ketc.numeri.presentation.view.component.adapter.TweetsDisplayRecyclerAdapter
@@ -24,8 +25,8 @@ import org.jetbrains.anko.startActivity
 
 class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePresenter>(),
         TweetsDisplayManageActivityInterface, ITweetsDisplayManageActivityUI by TweetsDisplayManageActivityUI() {
+    override val presenterFactory = TweetsDisplayManagePresenterFactory
 
-    override val presenter: TweetsDisplayManagePresenter = TweetsDisplayManagePresenter(this)
     override val group: TweetsDisplayGroup
         get() = intent.getSerializableExtra(EXTRA_GROUP) as TweetsDisplayGroup
     override val ctx: Context
@@ -36,6 +37,7 @@ class TweetsDisplayManageActivity : ApplicationActivity<TweetsDisplayManagePrese
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         setSupportActionBar(toolbar)
         drawer.addDrawerListener(drawerToggle)
         drawerToggle.isDrawerIndicatorEnabled = true

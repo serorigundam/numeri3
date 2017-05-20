@@ -18,7 +18,12 @@ import org.jetbrains.anko.toast
 import java.util.*
 import javax.inject.Inject
 
-class MainPresenter(override val activity: MainActivityInterface) : AutoDisposablePresenter<MainActivityInterface>() {
+object MainPresenterFactory : PresenterFactory<MainPresenter>() {
+    override fun create() = MainPresenter()
+}
+
+
+class MainPresenter : AutoDisposablePresenter<MainActivityInterface>() {
 
     @Inject
     lateinit var oAuthService: OAuthService
@@ -32,8 +37,8 @@ class MainPresenter(override val activity: MainActivityInterface) : AutoDisposab
         inject()
     }
 
-    override fun initialize(savedInstanceState: Bundle?) {
-        super.initialize(savedInstanceState)
+    override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
+        super.initialize(savedInstanceState, isStartedForFirst)
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().map { it.withUser() }
         }.error {

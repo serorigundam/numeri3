@@ -48,4 +48,7 @@
     <string name="exclude_selected_images">選択した画像を投稿予定から除外しますか？</string>
     <string name="cancel">キャンセル</string>
     <string name="message_not_granted_permission">許可が得られなかったため処理を中断します。</string>
+    <string name="label_media">メディア</string>
+    <string name="sync_favorite">お気に入りの状態を確認中</string>
+    <string name="sync_failure">同期失敗</string>
 </resources>

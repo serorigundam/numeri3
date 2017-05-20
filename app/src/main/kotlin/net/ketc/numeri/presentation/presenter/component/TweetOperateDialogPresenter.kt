@@ -22,18 +22,18 @@ class TweetOperateDialogPresenter(private val ctx: Context, autoDisposable: Auto
         singleTask(MySchedulers.twitter) {
             if (!tweetMenuDialog.isFavorite) {
                 client.twitter.createFavorite(tweet.id).apply {
-                    client.setFavorite(tweet)
+                    client.favorite(tweet)
                 }
             } else {
                 client.twitter.destroyFavorite(tweet.id).apply {
-                    client.setUnFavorite(tweet)
+                    client.unFavorite(tweet)
                 }
             }.convert(client)
         } error {
             error(it)
             tweetMenuDialog.isFavoriteMenuClickable = true
         } success {
-            tweetMenuDialog.isFavorite = client.isFavorite(it)
+            tweetMenuDialog.isFavorite = client.checkFavorite(it)
             tweetMenuDialog.isFavoriteMenuClickable = true
         }
     }

@@ -18,8 +18,11 @@ import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
 import javax.inject.Inject
 
+object TweetPresenterFactory : PresenterFactory<TweetPresenter>() {
+    override fun create() = TweetPresenter()
+}
 
-class TweetPresenter(override val activity: TweetActivityInterface)
+class TweetPresenter
     : AutoDisposablePresenter<TweetActivityInterface>() {
 
     @Inject
@@ -44,8 +47,8 @@ class TweetPresenter(override val activity: TweetActivityInterface)
         inject()
     }
 
-    override fun initialize(savedInstanceState: Bundle?) {
-        super.initialize(savedInstanceState)
+    override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
+        super.initialize(savedInstanceState, isStartedForFirst)
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().map { it.withUser() }
         } error {
@@ -75,12 +78,12 @@ class TweetPresenter(override val activity: TweetActivityInterface)
         if (savedInstanceState == null) {
             var text: String = ""
             text += "$replyToScreenName "
-            activity.setReplyInfo("reply to $replyToScreenName")
             text += mentions
             activity.text = text
         }
         mentionRegexList.addAll(mentionEntities.map { "@$it ?".toRegex() })
         mentionRegexList.add("$replyToScreenName ?".toRegex())
+        activity.setReplyInfo("reply to $replyToScreenName")
     }
 
     fun sendTweet() {
@@ -118,8 +121,8 @@ class TweetPresenter(override val activity: TweetActivityInterface)
         return SENDABLE_TEXT_COUNT - s.count()
     }
 
-    override fun onDestroy() {
-        super.onDestroy()
+    override fun onDestroy(isFinishing: Boolean) {
+        super.onDestroy(isFinishing)
         ctx.unbindService(connection)
     }
 

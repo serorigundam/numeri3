@@ -15,6 +15,7 @@ import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
 import net.ketc.numeri.domain.model.TwitterUser
 import net.ketc.numeri.presentation.presenter.activity.MainPresenter
+import net.ketc.numeri.presentation.presenter.activity.MainPresenterFactory
 import net.ketc.numeri.presentation.view.activity.ui.IMainActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.MainActivityUI
 import net.ketc.numeri.presentation.view.component.ui.AccountViewUI
@@ -35,7 +36,8 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
         MainActivityInterface, IMainActivityUI by MainActivityUI() {
     override val ctx: Context
         get() = this
-    override val presenter: MainPresenter = MainPresenter(this)
+
+    override val presenterFactory = MainPresenterFactory
 
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
     override var showingGroupId = -1
@@ -59,6 +61,7 @@ class MainActivity : ApplicationActivity<MainPresenter>(),
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        presenter.activity = this
         initialize()
         restoreGroupViews(savedInstanceState)
         presenter.initialize(savedInstanceState)

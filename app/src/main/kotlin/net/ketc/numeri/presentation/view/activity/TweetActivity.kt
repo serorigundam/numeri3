@@ -31,6 +31,8 @@ import net.ketc.numeri.util.android.*
 import net.ketc.numeri.util.rx.MySchedulers
 import android.Manifest.permission.*
 import android.content.pm.PackageManager
+import net.ketc.numeri.presentation.presenter.activity.TweetPresenterFactory
+import net.ketc.numeri.util.log.v
 
 
 class TweetActivity
@@ -38,8 +40,7 @@ class TweetActivity
         ITweetActivityUI by TweetActivityUI() {
 
     override val ctx: Context = this
-    override val presenter: TweetPresenter = TweetPresenter(this)
-
+    override val presenterFactory = TweetPresenterFactory
     override var isSendTweetButtonEnabled: Boolean
         get() = sendTweetButton.isEnabled
         set(value) {
@@ -71,10 +72,13 @@ class TweetActivity
         super.onCreate(savedInstanceState)
         setContentView(this)
         setSupportActionBar(toolBar)
+        presenter.activity = this
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
         initialize()
-        savedInstanceState?.getStringArray(EXTRA_MEDIA_PATH_ARRAY)?.forEach {
-            addMedia(File(it))
+        savedInstanceState?.run {
+            getStringArray(EXTRA_MEDIA_PATH_ARRAY)?.forEach {
+                addMedia(File(it))
+            }
         }
         presenter.initialize(savedInstanceState)
     }
@@ -193,9 +197,13 @@ class TweetActivity
             thumbnailsFrame.visibility = View.VISIBLE
         if (mMediaList.size == 4) return
         mMediaList.add(file)
-        val bitmap = BitmapFactory.decodeFile(file.path)
         val position = mMediaList.lastIndex
-        thumbnails[position].setImageBitmap(bitmap)
+        if (thumbnails[position].image == null) {
+            v(javaClass.simpleName, "image create")
+            val options = BitmapFactory.Options()
+            options.inSampleSize = 8
+            thumbnails[position].setImageBitmap(BitmapFactory.decodeFile(file.path, options))
+        }
         thumbnails[position].setOnClickListener {
             removeMedia(position)
         }

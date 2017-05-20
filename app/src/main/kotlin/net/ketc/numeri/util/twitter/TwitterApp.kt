@@ -2,9 +2,10 @@ package net.ketc.numeri.util.twitter
 
 import android.content.Context
 import net.ketc.numeri.R
+import java.io.Serializable
 
 
-interface TwitterApp {
+interface TwitterApp : Serializable {
     val apiSecret: String
     val apiKey: String
     val callbackUrl: String

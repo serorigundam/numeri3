@@ -4,6 +4,7 @@ import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.domain.service.stream
 import net.ketc.numeri.presentation.presenter.fragment.AutoDisposableFragmentPresenter
 import net.ketc.numeri.presentation.view.component.ReadableMore
 import net.ketc.numeri.presentation.view.component.TweetOperatorDialogFactory

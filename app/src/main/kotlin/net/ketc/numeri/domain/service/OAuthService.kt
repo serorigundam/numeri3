@@ -86,6 +86,9 @@ class OAuthServiceImpl : OAuthService {
     override fun deleteClient(twitterClient: TwitterClient) {
         reentrantLock.withLock {
             transaction {
+                clients.forEach {
+                    StreamFlowableHolderFactory.remove(it)
+                }
                 clients.remove(twitterClient)
                 val dao = dao(ClientToken::class)
                 dao.deleteById(twitterClient.id)
