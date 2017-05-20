@@ -154,7 +154,7 @@ class TweetMenuItems(private val ctx: Context,
     }
 
     private fun createRetweetMenu(): View {
-        val menu = createIconMenu(ctx, R.drawable.ic_sync_white_24dp, R.string.sync_favorite) { _ -> presenter.changeRetweeted() }
+        val menu = createIconMenu(ctx, R.drawable.ic_sync_white_24dp, R.string.sync_retweeted) { _ -> presenter.changeRetweeted() }
         menu.isClickable = false
         presenter.singleTask(MySchedulers.twitter) {
             client.checkRetwwtedOrElse(displayTweet) {

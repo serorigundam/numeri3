@@ -51,4 +51,5 @@
     <string name="label_media">メディア</string>
     <string name="sync_favorite">お気に入りの状態を確認中</string>
     <string name="sync_failure">同期失敗</string>
+    <string name="sync_retweeted">リツイートの状態を確認中</string>
 </resources>
