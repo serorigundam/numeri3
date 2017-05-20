@@ -61,7 +61,6 @@
         </activity>
         <activity
             android:name=".presentation.view.activity.CreateDisplayGroupActivity"
-            android:configChanges="orientation|screenSize|screenLayout|smallestScreenSize"
             android:label="@string/label_create_column_group">
             <intent-filter>
                 <category android:name="android.intent.category.DEFAULT" />
