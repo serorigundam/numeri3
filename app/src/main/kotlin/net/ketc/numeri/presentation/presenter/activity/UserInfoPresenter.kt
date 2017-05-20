@@ -13,7 +13,11 @@ import net.ketc.numeri.util.rx.MySchedulers
 import org.jetbrains.anko.toast
 import javax.inject.Inject
 
-class UserInfoPresenter(override val activity: UserInfoActivityInterface) : AutoDisposablePresenter<UserInfoActivityInterface>() {
+object UserInfoPresenterFactory : PresenterFactory<UserInfoPresenter>() {
+    override fun create() = UserInfoPresenter()
+}
+
+class UserInfoPresenter : AutoDisposablePresenter<UserInfoActivityInterface>() {
 
     @Inject
     lateinit var oAuthService: OAuthService
@@ -25,41 +29,39 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
         inject()
     }
 
-    override fun initialize(savedInstanceState: Bundle?) {
-        super.initialize(savedInstanceState)
+    override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
+        super.initialize(savedInstanceState, isStartedForFirst)
         singleTask(MySchedulers.twitter) {
             oAuthService.clients().single { it.id == activity.twitterClientId }
-        } error Throwable::printStackTrace success {
-            safePost {
-                client = it
-                loadUser(it)
-                activity.setClient(it)
-                if (client.id != activity.targetUserId)
-                    loadRelation(it, activity.targetUserId)
-            }
+        } error Throwable::printStackTrace safeSuccess { result ->
+            client = result
+            loadUser(result)
+            this.setClient(result)
+            if (client.id != activity.targetUserId)
+                loadRelation(result, activity.targetUserId)
         }
     }
 
     private fun loadUser(client: TwitterClient) {
         singleTask(MySchedulers.twitter) {
             client.showUser(activity.targetUserId)
-        } error {
+        } safeError {
             it.printStackTrace()
-            activity.ctx.toast("error")
-        } success {
-            activity.setTwitterUser(it)
+            this.ctx.toast("error")
+        } safeSuccess { result ->
+            this.setTwitterUser(result)
         }
     }
 
     private fun loadRelation(client: TwitterClient, targetUserId: Long) {
         singleTask(MySchedulers.twitter) {
             client.twitter.showFriendship(client.id, targetUserId).convert()
-        } error {
+        } safeError {
             it.printStackTrace()
-            activity.ctx.toast("error")
-        } success {
-            activity.setUserRelation(it)
-            userRelation = it
+            this.ctx.toast("error")
+        } safeSuccess { result ->
+            this.setUserRelation(result)
+            userRelation = result
         }
     }
 
@@ -75,13 +77,13 @@ class UserInfoPresenter(override val activity: UserInfoActivityInterface) : Auto
                     else -> throw IllegalStateException()
                 }
                 twitter.showFriendship(client.id, targetUserId).convert()
-            } error {
+            } safeError {
                 it.printStackTrace()
-                activity.ctx.toast("失敗しました")
-                activity.followButtonIsEnabled = true
-            } success {
-                activity.setUserRelation(it)
-                activity.followButtonIsEnabled = true
+                this.ctx.toast("失敗しました")
+                this.followButtonIsEnabled = true
+            } safeSuccess { result ->
+                this.setUserRelation(result)
+                followButtonIsEnabled = true
             }
         }
     }
