@@ -149,7 +149,7 @@ class TweetActivity
             val contents = contentsLinear ?: throw InternalError()
             contents.addView(ui.createView().apply {
                 makeSimpleClickable()
-                onClick {
+                setOnClickListener {
                     presenter.setTweetUser(user.id)
                     if (dialog.isShowing) {
                         dialog.dismiss()

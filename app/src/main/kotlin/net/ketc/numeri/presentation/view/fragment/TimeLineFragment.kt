@@ -173,15 +173,13 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         }
 
         private fun createView(ctx: Context) = ctx.relativeLayout {
-            lparams(matchParent, matchParent)
             swipeRefreshLayout {
-                lparams(matchParent, matchParent)
                 id = R.id.swipe_refresh
                 recyclerView {
                     id = R.id.tweet_recycler
                     isVerticalScrollBarEnabled = true
-                }.lparams(matchParent, matchParent)
-            }
+                }
+            }.lparams(matchParent, matchParent)
         }
 
     }
