@@ -26,8 +26,6 @@ class ConversationPresenter : AutoDisposablePresenter<ConversationActivityInterf
     private val tweets = ArrayList<Tweet>()
 
     private var visibleTopPosition = -1
-    private val client: TwitterClient
-        get() = activity.client
 
     init {
         inject()
@@ -35,13 +33,13 @@ class ConversationPresenter : AutoDisposablePresenter<ConversationActivityInterf
 
     override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
         super.initialize(savedInstanceState, isStartedForFirst)
-        if (isStartedForFirst) initialize()
+        if (isStartedForFirst) initialize(activity.client, activity.statusId)
         else restore()
     }
 
-    private fun initialize() {
+    private fun initialize(client: TwitterClient, statusId: Long) {
         singleTask(MySchedulers.twitter) {
-            client.getTweet(activity.statusId)
+            client.getTweet(statusId)
         } safeError {
             it.printStackTrace()
         } safeSuccess {
@@ -65,7 +63,7 @@ class ConversationPresenter : AutoDisposablePresenter<ConversationActivityInterf
         super.onPause()
     }
 
-    private fun createConversationObservable(inReplyToStatusId: Long) = Flowable.create<Tweet>({ emitter ->
+    private fun createConversationObservable(client: TwitterClient, inReplyToStatusId: Long) = Flowable.create<Tweet>({ emitter ->
         var id = inReplyToStatusId
         while (id != -1L) {
             emitter.safeNext {
@@ -80,9 +78,11 @@ class ConversationPresenter : AutoDisposablePresenter<ConversationActivityInterf
 
 
     fun traceConversation(inReplyToStatusId: Long) {
-        createConversationObservable(inReplyToStatusId).subscribeNamed(
+        createConversationObservable(activity.client, inReplyToStatusId).subscribeNamed(
                 onError = {
-                    ctx.toast("error${"Code" + (it as? TwitterException)?.errorCode}")
+                    it.printStackTrace()
+                    val code = (it as? TwitterException)?.errorCode?.let { "Code = $it" } ?: ""
+                    ctx.toast("error$code")
                 },
                 onNext = { result ->
                     safePost {
