@@ -122,8 +122,8 @@ class TweetPresenter
     }
 
     override fun onDestroy(isFinishing: Boolean) {
-        super.onDestroy(isFinishing)
         ctx.unbindService(connection)
+        super.onDestroy(isFinishing)
     }
 
     companion object {
