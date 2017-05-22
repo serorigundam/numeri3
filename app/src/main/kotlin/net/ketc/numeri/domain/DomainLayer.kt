@@ -36,7 +36,6 @@ interface DomainComponent {
     fun inject(tweetsDisplayGroupManagePresenter: TweetsDisplayGroupManagePresenter)
     fun inject(tweetsDisplayManagePresenter: TweetsDisplayManagePresenter)
     fun inject(createDisplayGroupPresenter: CreateDisplayGroupPresenter)
-    fun inject(conversationPresenter: ConversationPresenter)
     fun inject(userInfoPresenter: UserInfoPresenter)
     fun inject(usersPresenter: UsersPresenter)
     fun inject(tweetPresenter: TweetPresenter)
@@ -64,10 +63,6 @@ fun TweetsDisplayManagePresenter.inject() {
 }
 
 fun CreateDisplayGroupPresenter.inject() {
-    Injectors.domainComponent.inject(this)
-}
-
-fun ConversationPresenter.inject() {
     Injectors.domainComponent.inject(this)
 }
 

@@ -3,33 +3,23 @@ package net.ketc.numeri.presentation.presenter.activity
 import android.os.Bundle
 import io.reactivex.BackpressureStrategy
 import io.reactivex.Flowable
-import net.ketc.numeri.domain.inject
 import net.ketc.numeri.domain.model.Tweet
 import net.ketc.numeri.domain.model.cache.getTweet
-import net.ketc.numeri.domain.service.OAuthService
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.view.activity.ConversationActivityInterface
 import net.ketc.numeri.util.copy
 import net.ketc.numeri.util.rx.*
 import org.jetbrains.anko.toast
 import twitter4j.TwitterException
-import javax.inject.Inject
 
 object ConversationPresenterFactory : PresenterFactory<ConversationPresenter>() {
     override fun create() = ConversationPresenter()
 }
 
 class ConversationPresenter : AutoDisposablePresenter<ConversationActivityInterface>() {
-    @Inject
-    lateinit var clientService: OAuthService
-
     private val tweets = ArrayList<Tweet>()
 
     private var visibleTopPosition = -1
-
-    init {
-        inject()
-    }
 
     override fun initialize(savedInstanceState: Bundle?, isStartedForFirst: Boolean) {
         super.initialize(savedInstanceState, isStartedForFirst)
