@@ -48,4 +48,5 @@
     <string name="exclude_selected_images">選択した画像を投稿予定から除外しますか？</string>
     <string name="cancel">キャンセル</string>
     <string name="message_not_granted_permission">許可が得られなかったため処理を中断します。</string>
+    <string name="channel_send_tweet">ツイート送信</string>
 </resources>
