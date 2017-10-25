@@ -70,10 +70,10 @@ class TweetPresenter(override val activity: TweetActivityInterface)
 
         val replyToScreenName = "@" + replyToStatus.user.screenName
         val mentionEntities = replyToStatus.userMentionEntities
-        val mentions = mentionEntities.filter { it.screenName != user.screenName }.joinToString { "@$it " }
+        val mentions = mentionEntities.filter { it.screenName != user.screenName }.joinToString { "@${it.screenName} " }
 
         if (savedInstanceState == null) {
-            var text: String = ""
+            var text = ""
             text += "$replyToScreenName "
             activity.setReplyInfo("reply to $replyToScreenName")
             text += mentions
