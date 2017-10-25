@@ -1,11 +1,11 @@
 buildscript {
-    ext.anko_version = '0.9.1'
+    ext.anko_version = '0.10.2'
     ext.junit_platform_ver = '1.0.0-M2'
     ext.spek_version = '1.0.89'
     ext.t4j_version = '4.0.6'
-    ext.dagger_version = '2.8'
-    ext.support_lib_ver = '25.3.1'
-    ext.kt_coroutines = '0.14'
+    ext.dagger_version = '2.10'
+    ext.support_lib_ver = '26.1.0'
+    ext.kt_coroutines = '0.19.2'
     repositories {
         maven { url 'https://maven.fabric.io/public' }
         jcenter()
@@ -20,7 +20,7 @@ apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
 
 android {
-    compileSdkVersion 25
+    compileSdkVersion 26
     buildToolsVersion "$android_build_tool_ver"
 
     signingConfigs {
@@ -42,9 +42,9 @@ android {
     defaultConfig {
         applicationId "net.ketc.numeri3"
         minSdkVersion 23
-        targetSdkVersion 25
+        targetSdkVersion 26
         versionCode 0
-        versionName "beta-0.1.2"
+        versionName "beta-0.1.3"
         signingConfig signingConfigs.debug
     }
     buildTypes {
@@ -80,7 +80,7 @@ dependencies {
     compile "com.android.support:appcompat-v7:$support_lib_ver"
     compile "com.android.support:design:$support_lib_ver"
     compile "com.android.support:recyclerview-v7:$support_lib_ver"
-    compile 'com.android.support.constraint:constraint-layout:1.0.0-beta4'
+    compile 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
 
     //kotlin
     compile "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
