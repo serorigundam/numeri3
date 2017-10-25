@@ -114,7 +114,6 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             TweetsDisplayType.PUBLIC -> PublicTimeLinePresenter(this)
             TweetsDisplayType.FAVORITE -> FavoritePresenter(this)
             TweetsDisplayType.MEDIA -> MediaTimeLinePresenter(this)
-            else -> throw InternalError()
         }
     }
 
@@ -175,13 +174,13 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         private fun createView(ctx: Context) = ctx.relativeLayout {
             lparams(matchParent, matchParent)
             swipeRefreshLayout {
-                lparams(matchParent, matchParent)
                 id = R.id.swipe_refresh
                 recyclerView {
+                    lparams(matchParent, matchParent)
                     id = R.id.tweet_recycler
                     isVerticalScrollBarEnabled = true
-                }.lparams(matchParent, matchParent)
-            }
+                }
+            }.lparams(matchParent, matchParent)
         }
 
     }
