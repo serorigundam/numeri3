@@ -41,8 +41,9 @@ class BottomSheetDialogUI(override val ctx: Context) : UI {
 }
 
 fun BottomSheetDialog.addMenu(view: View) {
-    (this.findViewById(net.ketc.numeri.R.id.menu_linear) as ViewGroup).addView(view)
+    val viewGroup: ViewGroup = findViewById(net.ketc.numeri.R.id.menu_linear)!!
+    viewGroup.addView(view)
 }
 
 val BottomSheetDialog.messageText: TextView
-    get() = findViewById(R.id.message_text)!! as TextView
+    get() = findViewById(R.id.message_text)!!

@@ -83,12 +83,11 @@ class MainActivityUI : IMainActivityUI {
             navigationView {
                 id = R.id.navigation
                 navigation = this
-                lparams(wrapContent, matchParent) {
-                    gravity = Gravity.START
-                }
                 inflateMenu(R.menu.main_navigation)
                 addHeaderView(navigationHeader(ctx))
                 navigationContent()
+            }.lparams(wrapContent, matchParent) {
+                gravity = Gravity.START
             }
         }
     }

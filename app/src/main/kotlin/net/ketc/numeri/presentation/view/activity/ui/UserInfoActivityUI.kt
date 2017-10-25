@@ -102,10 +102,10 @@ class UserInfoActivityUI : IUserInfoActivityUI {
                         userProfileIcon(this)
                         toolbar {
                             toolbar = this
-                            expandedTitleGravity = Gravity.BOTTOM or Gravity.START
                             background = drawable(R.drawable.app_bar_gradation)
                             navigationIcon = drawable(resourceId(android.R.attr.homeAsUpIndicator))
                         }.collapsingToolbarlparams(matchParent, dimen(R.dimen.app_bar_standard_height)) {
+                            expandedTitleGravity = Gravity.BOTTOM or Gravity.START
                             collapseMode = COLLAPSE_MODE_PIN
                         }
                     }.lparams(matchParent, matchParent) {
