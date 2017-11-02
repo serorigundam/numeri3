@@ -8,7 +8,7 @@ buildscript {
             url System.getenv("ADROID_STUDIO_HOME") + "gradle\\m2repository"
         }
         dependencies {
-            classpath 'com.android.tools.build:gradle:3.0.0-rc2'
+            classpath 'com.android.tools.build:gradle:3.0.0'
             classpath "org.jetbrains.kotlin:kotlin-gradle-plugin:$kotlin_version"
         }
         google()
