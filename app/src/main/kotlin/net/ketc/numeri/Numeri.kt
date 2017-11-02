@@ -21,17 +21,12 @@ class Numeri : Application() {
         Injectors.test = false
         cApplication = this
         createTable(*entities)
-        val crashlytics = Crashlytics.Builder()
-                .core(CrashlyticsCore.Builder().disabled(BuildConfig.DEBUG).build())
-                .build()
-        Fabric.with(this, crashlytics)
-
+        Fabric.with(this, Crashlytics())
         createNotificationChannel()
     }
 
     private fun createNotificationChannel() {
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O) {
-            Log.v(this.javaClass.name, "createNotificationChannel")
             val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
             val name = applicationContext.getString(R.string.channel_send_tweet)
             val sendTweetNotificationChannel = NotificationChannel(TweetService.CHANNEL_ID, name, NotificationManager.IMPORTANCE_DEFAULT)
