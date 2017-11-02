@@ -63,6 +63,7 @@ class TweetActivity
 
     override val defaultClientId: Long by lazy { intent.getLongExtra(EXTRA_CLIENT_ID, -1) }
     override val replyToStatus: Tweet? by lazy { intent.getSerializableExtra(EXTRA_REPLY_TO_STATUS) as? Tweet }
+    override val defaultTweetText: String? by lazy { intent.getSerializableExtra(EXTRA_DEFAULT_TWEET_TEXT) as? String }
     private val mMediaList: MutableList<File> = ArrayList()
     override val mediaList: List<File>
         get() = mMediaList.toImmutableList()
@@ -96,6 +97,7 @@ class TweetActivity
             }
         }
         editText.addTextChangedListener(this)
+        defaultTweetText?.let { text = it }
     }
 
     override fun setUserIcon(user: TwitterUser) {
@@ -104,10 +106,6 @@ class TweetActivity
 
     override fun clear() {
         editText.setText("")
-    }
-
-    override fun finish() {
-        super.finish()
     }
 
     override fun onPause() {
@@ -316,16 +314,20 @@ class TweetActivity
         val EXTRA_REPLY_TO_STATUS = "EXTRA_REPLY_TO_STATUS"
         val EXTRA_CLIENT_ID = "EXTRA_CLIENT_ID"
         val EXTRA_MEDIA_PATH_ARRAY = "EXTRA_MEDIA_PATH_ARRAY"
+        val EXTRA_DEFAULT_TWEET_TEXT = "EXTRA_DEFAULT_TWEET_TEXT"
         val REQUEST_CODE_SELECT_IMAGE = 100
         val REQUEST_CODE_CAMERA = 200
         val REQUEST_CODE_STORAGE_ACCESS_SELECT_IMAGE = 300
         val REQUEST_CODE_STORAGE_ACCESS_CAMERA = 400
 
-        fun start(ctx: Context, clientId: Long? = null, replyTo: Tweet? = null) {
+        fun start(ctx: Context, clientId: Long? = null, replyTo: Tweet? = null, defaultTweetText: String? = null) {
             val list = ArrayList<Pair<String, Any>>()
             list.add(EXTRA_CLIENT_ID to (clientId ?: -1))
             replyTo?.let {
                 list.add(EXTRA_REPLY_TO_STATUS to it)
+            }
+            defaultTweetText?.let {
+                list.add(EXTRA_DEFAULT_TWEET_TEXT to defaultTweetText)
             }
             ctx.startActivity<TweetActivity>(*list.toTypedArray())
         }
@@ -335,6 +337,7 @@ class TweetActivity
 interface TweetActivityInterface : ActivityInterface {
     var isSendTweetButtonEnabled: Boolean
     val replyToStatus: Tweet?
+    val defaultTweetText: String?
     val defaultClientId: Long
     var text: String
     val mediaList: List<File>
