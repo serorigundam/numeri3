@@ -27,16 +27,16 @@ class ImageMediaFragment : ApplicationFragment<ImageMediaPresenter>(), ImageMedi
     override val activity: AppCompatActivity
         get() = parent
     override val presenter: ImageMediaPresenter = ImageMediaPresenter(this)
-    override val mediaEntity: MediaEntity by lazy { arguments.getSerializable(EXTRA_MEDIA_ENTITY) as MediaEntity }
+    override val mediaEntity: MediaEntity by lazy { arguments!!.getSerializable(EXTRA_MEDIA_ENTITY) as MediaEntity }
 
     private lateinit var photo: PhotoView
     private lateinit var progressBar: ProgressBar
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return createView(context)
+        return createView(context!!)
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
         presenter.initialize()
         photo.download(mediaEntity.url + ":orig", presenter, false,
@@ -60,7 +60,7 @@ class ImageMediaFragment : ApplicationFragment<ImageMediaPresenter>(), ImageMedi
             visibility = View.VISIBLE
         }.lparams(dip(64), dip(64)) {
             centerInParent()
-            scrollBarStyle = R.style.ProgressBar
+            scrollBarStyle = View.SCROLLBARS_INSIDE_INSET
         }
     }
 

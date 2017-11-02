@@ -28,7 +28,7 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
     override val activity: AppCompatActivity
         get() = this.parent
 
-    override val group: TweetsDisplayGroup by lazy { arguments.getSerializable(EXTRA_GROUP) as TweetsDisplayGroup }
+    override val group: TweetsDisplayGroup by lazy { arguments!!.getSerializable(EXTRA_GROUP) as TweetsDisplayGroup }
 
     override val fm: FragmentManager
         get() = childFragmentManager
@@ -51,8 +51,8 @@ class TimeLinesFragment : ApplicationFragment<TimeLinesPresenter>(), TimeLinesFr
         }
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return createView(context)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        return createView(context!!)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {

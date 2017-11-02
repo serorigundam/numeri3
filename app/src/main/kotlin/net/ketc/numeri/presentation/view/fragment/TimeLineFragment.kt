@@ -37,7 +37,7 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         get() = this.parent
 
     override val display: TweetsDisplay by lazy {
-        arguments.getSerializable(EXTRA_DISPLAY) as TweetsDisplay
+        arguments!!.getSerializable(EXTRA_DISPLAY) as TweetsDisplay
     }
 
     override val lastTweet: Tweet?
@@ -70,9 +70,9 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
             readableMoreAdapter.isEmptyFooterEnabled = value
         }
 
-    override val refreshableConfig: Boolean by lazy { arguments.getBoolean(EXTRA_REFRESHABLE) }
+    override val refreshableConfig: Boolean by lazy { arguments!!.getBoolean(EXTRA_REFRESHABLE) }
 
-    override val emptyFooterConfig: Boolean by lazy { arguments.getBoolean(EXTRA_FOOTER_EMPTY_ENABLE) }
+    override val emptyFooterConfig: Boolean by lazy { arguments!!.getBoolean(EXTRA_FOOTER_EMPTY_ENABLE) }
 
     override val displayName: String by lazy { display.name }
 
@@ -95,13 +95,13 @@ class TimeLineFragment : ApplicationFragment<TimeLinePresenter>(), TimeLineFragm
         retainInstance = true
     }
 
-    override fun onCreateView(inflater: LayoutInflater?, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        val view = createView(context)
+    override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
+        val view = createView(context!!)
         view.find<RecyclerView>(R.id.tweet_recycler).defaultInit()
         return view
     }
 
-    override fun onViewCreated(view: View?, savedInstanceState: Bundle?) {
+    override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         swipeRefresh.setOnRefreshListener { presenter.update() }
         presenter.initialize()
     }

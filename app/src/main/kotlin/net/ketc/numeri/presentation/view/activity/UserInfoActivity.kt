@@ -11,9 +11,7 @@ import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v4.view.ViewPager
 import android.support.v7.widget.Toolbar
-import android.view.LayoutInflater
 import android.view.View
-import android.view.ViewGroup
 import android.widget.TextView
 import net.ketc.numeri.R
 import net.ketc.numeri.domain.entity.TweetsDisplayGroup
@@ -256,14 +254,6 @@ class UserInfoActivity
     private val ViewPager.components: List<Fragment>
         get() = (adapter as SimplePagerAdapter).itemList
 
-
-    class EmptyFragment : Fragment(), SimplePagerContent {
-        override val contentName: String = "empty"
-        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-            return TwitterUserViewUI(context).createView()
-
-        }
-    }
 
     companion object {
         fun start(ctx: Context, clientId: Long, targetUserId: Long) {

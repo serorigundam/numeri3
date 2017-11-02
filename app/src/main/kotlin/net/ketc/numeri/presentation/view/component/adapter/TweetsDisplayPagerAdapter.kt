@@ -42,7 +42,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
         }
     }
 
-    override fun restoreState(state: Parcelable?, loader: ClassLoader) {
+    override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
         super.restoreState(state, loader)
         if (state != null) {
             val bundle = state as Bundle
@@ -61,7 +61,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
         }
     }
 
-    override fun getItemPosition(`object`: Any?): Int {
+    override fun getItemPosition(`object`: Any): Int {
         val unchanged = previousFragmentIds
                 .any {
                     it == (`object` as TimeLineFragment).display.id &&
@@ -90,7 +90,7 @@ class TweetsDisplayPagerAdapter(private val fm: FragmentManager,
             }
             if (isChange) {
                 val fragments = displays.mapIndexed { i, display ->
-                    (fragments.mapIndexed { i, fragment -> i to fragment as TimeLineFragment }
+                    (fragments.mapIndexed { _, fragment -> i to fragment as TimeLineFragment }
                             .firstOrNull { pair ->
                                 pair.first == i && display.id == pair.second.display.id
                             }?.second ?:  TimeLineFragment.Companion.create(display))

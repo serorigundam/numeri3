@@ -1,7 +1,6 @@
 package net.ketc.numeri.presentation.view.fragment
 
 import android.content.Context
-import android.graphics.Color
 import android.net.Uri
 import android.os.Bundle
 import android.support.v7.app.AppCompatActivity
@@ -23,10 +22,10 @@ class MovieMediaFragment : ApplicationFragment<MovieMediaPresenter>(), MovieMedi
     override val activity: AppCompatActivity by lazy { parent }
     override val presenter: MovieMediaPresenter = MovieMediaPresenter(this)
     private lateinit var video: VideoView
-    val mediaEntity: MediaEntity by lazy { arguments.getSerializable(ImageMediaFragment.EXTRA_MEDIA_ENTITY) as MediaEntity }
+    private val mediaEntity: MediaEntity by lazy { arguments!!.getSerializable(ImageMediaFragment.EXTRA_MEDIA_ENTITY) as MediaEntity }
     private lateinit var progressBar: ProgressBar
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return createView(context)
+        return createView(context!!)
     }
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
@@ -96,7 +95,7 @@ class MovieMediaFragment : ApplicationFragment<MovieMediaPresenter>(), MovieMedi
             visibility = View.VISIBLE
         }.lparams(dip(64), dip(64)) {
             centerInParent()
-            scrollBarStyle = R.style.ProgressBar
+            scrollBarStyle =View.SCROLLBARS_INSIDE_INSET
         }
     }
 

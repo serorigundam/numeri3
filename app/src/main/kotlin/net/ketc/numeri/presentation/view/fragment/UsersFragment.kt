@@ -30,11 +30,11 @@ class UsersFragment : ApplicationFragment<UsersPresenter>(), UsersFragmentInterf
     override val contentName: String by lazy { typeToName() }
     override val activity: AppCompatActivity
         get() = parent
-    override val clientId: Long by lazy { arguments.getLong(EXTRA_CLIENT_ID) }
-    override val targetUserId: Long by lazy { arguments.getLong(EXTRA_TARGET_USER_ID) }
+    override val clientId: Long by lazy { arguments!!.getLong(EXTRA_CLIENT_ID) }
+    override val targetUserId: Long by lazy { arguments!!.getLong(EXTRA_TARGET_USER_ID) }
     override val type: UsersFragmentInterface.Type by lazy {
         UsersFragmentInterface.Type.values()
-                .first { it.typeStr == arguments.getString(EXTRA_TYPE) }
+                .first { it.typeStr == arguments!!.getString(EXTRA_TYPE) }
     }
     override val presenter: UsersPresenter by lazy { createPresenter() }
 
@@ -43,7 +43,7 @@ class UsersFragment : ApplicationFragment<UsersPresenter>(), UsersFragmentInterf
         get() = mReadableMoreAdapter ?: throw IllegalStateException("TwitterClient is not set")
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?): View {
-        return createView(context)
+        return createView(context!!)
     }
 
     private fun typeToName(): String {
@@ -71,7 +71,7 @@ class UsersFragment : ApplicationFragment<UsersPresenter>(), UsersFragmentInterf
     override fun setClient(client: TwitterClient) {
         val recycler = find<RecyclerView>(R.id.users_recycler)
         mReadableMoreAdapter = ReadableMoreRecyclerAdapter(presenter, {
-            UserViewHolder(TwitterUserViewUI(context), presenter, client, { UserInfoActivity.start(context, clientId, targetUserId) })
+            UserViewHolder(TwitterUserViewUI(context!!), presenter, client, { UserInfoActivity.start(context!!, clientId, targetUserId) })
         }, presenter)
         recycler.adapter = readableMoreAdapter
     }
