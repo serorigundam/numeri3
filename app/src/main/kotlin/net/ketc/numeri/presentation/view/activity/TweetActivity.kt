@@ -31,6 +31,7 @@ import net.ketc.numeri.util.android.*
 import net.ketc.numeri.util.rx.MySchedulers
 import android.Manifest.permission.*
 import android.content.pm.PackageManager
+import net.ketc.numeri.util.image.ImageResizer
 
 
 class TweetActivity
@@ -276,23 +277,28 @@ class TweetActivity
 
     private fun getImageFile(intent: Intent): File {
         val uri = intent.data
-        val path: String = if (uri.scheme == "file") {
-            uri.path
-        } else if (uri.scheme == "content") {
-            val frags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
-            contentResolver.takePersistableUriPermission(uri, frags)
-            val splitIds = DocumentsContract.getDocumentId(uri).split(":")
-            val imageId = splitIds[splitIds.lastIndex]
-            val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
-                    arrayOf(MediaStore.Images.Media.DATA), "_id=?", arrayOf(imageId), null)
-            cursor?.let {
-                if (cursor.moveToFirst()) {
-                    cursor.getString(0)?.also {
+        val path: String = when {
+            uri.scheme == "file" -> uri.path
+            uri.scheme == "content" -> {
+                val frags = intent.flags and (Intent.FLAG_GRANT_READ_URI_PERMISSION or Intent.FLAG_GRANT_WRITE_URI_PERMISSION)
+                contentResolver.takePersistableUriPermission(uri, frags)
+                val splitIds = DocumentsContract.getDocumentId(uri).split(":")
+                val imageId = splitIds[splitIds.lastIndex]
+                val cursor = contentResolver.query(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,
+                        arrayOf(MediaStore.Images.Media.DATA), "_id=?", arrayOf(imageId), null)
+                cursor?.let {
+                    if (cursor.moveToFirst()) {
+                        cursor.getString(0)?.also {
+                            cursor.close()
+                        }
+                    } else {
                         cursor.close()
+                        throw ImageAcquisitionFailureException()
                     }
-                } else throw ImageAcquisitionFailureException()
-            } ?: throw ImageAcquisitionFailureException()
-        } else throw ImageAcquisitionFailureException()
+                } ?: throw ImageAcquisitionFailureException()
+            }
+            else -> throw ImageAcquisitionFailureException()
+        }
         return File(path)
     }
 

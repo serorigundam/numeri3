@@ -1,10 +1,11 @@
 package net.ketc.numeri.util.twitter
 
+import android.content.Context
 import io.reactivex.Observable
 import net.ketc.numeri.domain.service.TwitterClient
+import net.ketc.numeri.util.image.ImageResizer
 import twitter4j.StatusUpdate
 import java.io.File
-import java.sql.ParameterMetaData
 import kotlin.coroutines.experimental.buildSequence
 
 class TweetSender(private val client: TwitterClient) {
@@ -26,7 +27,7 @@ class TweetSender(private val client: TwitterClient) {
         }
     }
 
-    fun send() {
+    fun send(ctx: Context) {
         (inReplyToStatusId ?: 0).takeIf { it >= 0 } ?: throw IllegalStateException("InReplyStatusId must be a positive number")
         (mediaList?.size ?: 0).takeIf { it <= 4 } ?: throw IllegalStateException("The size of mediaList must be 4 or less")
         onProgressListener(0)
@@ -35,18 +36,22 @@ class TweetSender(private val client: TwitterClient) {
                 inReplyToStatusId = it
             }
             mediaList?.takeIf { it.isNotEmpty() }?.let {
-                setMediaIds(*uploadMedia(it).toList().toLongArray())
+                setMediaIds(*uploadMedia(ctx, it).toList().toLongArray())
             }
         }
         client.twitter.updateStatus(statusUpdate)
         onProgressListener(PROGRESS_MAX)
     }
 
-    private fun uploadMedia(mediaList: List<File>) = buildSequence {
+    private fun uploadMedia(ctx: Context, mediaList: List<File>) = buildSequence {
         val diff = 80 / mediaList.size
         var progress = 0
         mediaList.forEach {
-            yield(client.twitter.uploadMedia(it).mediaId)
+            val imageResizer = ImageResizer(ctx, it, MEDIA_SIZE_MAX)
+            val mediaFile = if (imageResizer.resize()) {
+                imageResizer.result
+            } else it
+            yield(client.twitter.uploadMedia(mediaFile).mediaId)
             progress += diff
             onProgressListener(progress)
         }
@@ -54,6 +59,7 @@ class TweetSender(private val client: TwitterClient) {
 
     companion object {
         private val PROGRESS_MAX = 100
+        private val MEDIA_SIZE_MAX = 5242880
     }
 }
 

@@ -83,7 +83,7 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
                 })
         disposable.autoDispose()
         singleTask(MySchedulers.twitter) {
-            sender.send()
+            sender.send(applicationContext)
         } error {
             finish(getString(R.string.send_failure))
             it.printStackTrace()
