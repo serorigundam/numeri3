@@ -24,11 +24,9 @@ import net.ketc.numeri.domain.model.UserRelation
 import net.ketc.numeri.domain.service.TwitterClient
 import net.ketc.numeri.presentation.presenter.activity.UserInfoPresenter
 import net.ketc.numeri.presentation.view.Refreshable
-import net.ketc.numeri.presentation.view.SimplePagerContent
 import net.ketc.numeri.presentation.view.activity.ui.IUserInfoActivityUI
 import net.ketc.numeri.presentation.view.activity.ui.UserInfoActivityUI
 import net.ketc.numeri.presentation.view.component.adapter.SimplePagerAdapter
-import net.ketc.numeri.presentation.view.component.ui.TwitterUserViewUI
 import net.ketc.numeri.presentation.view.fragment.TimeLineFragment
 import net.ketc.numeri.presentation.view.fragment.UsersFragment
 import net.ketc.numeri.presentation.view.fragment.UsersFragmentInterface
@@ -36,7 +34,6 @@ import net.ketc.numeri.util.android.download
 import net.ketc.numeri.util.android.fadeIn
 import net.ketc.numeri.util.android.fadeOut
 import org.jetbrains.anko.*
-import org.jetbrains.anko.support.v4.nestedScrollView
 
 class UserInfoActivity
     : ApplicationActivity<UserInfoPresenter>(),

@@ -51,6 +51,12 @@ class TweetOperatorDialogFactory(private val ctx: Context,
         menuItems.openMediaItem?.let {
             dialog.addMenu(it)
         }
+        menuItems.hashtagTweetMenuItems.forEach {
+            dialog.addMenu(it)
+        }
+        menuItems.allHashtagTweetMenuItems?.let {
+            dialog.addMenu(it)
+        }
         dialog.addMenu(menuItems.openTweetLink)
         return dialog
     }
@@ -120,6 +126,8 @@ class TweetMenuItems(private val ctx: Context,
             .inReplyToStatusId.takeUnless { it == -1L }?.let { createDisplayConversationMenu() }
     val openMediaItem = tweet.mediaEntities.takeUnless { it.isEmpty() }?.let { createOpenMediaMenu() }
     val openTweetLink = createOpenTweetLinkMenu()
+    val hashtagTweetMenuItems = createHashtagTweetMenus()
+    val allHashtagTweetMenuItems = createAllAshtagTweetMenu()
     val replyMenu = createReplyMenu()
 
 
@@ -197,6 +205,22 @@ class TweetMenuItems(private val ctx: Context,
             dialog.dismiss()
         }
     }
+
+    private fun createHashtagTweetMenus(): List<View> {
+        fun String.createMenu() = createIconMenu(ctx, R.drawable.ic_mode_edit_white_24dp, "#$this") {
+            TweetActivity.start(ctx, client.id, defaultTweetText = "#$this ")
+        }
+        return tweet.hashtags.map(String::createMenu).toImmutableList()
+    }
+
+    private fun createAllAshtagTweetMenu(): View? {
+        fun List<String>.createMenu() = createIconMenu(ctx, R.drawable.ic_mode_edit_white_24dp, ctx.getString(R.string.all_hashtag_tweet)) {
+            val text = joinToString(separator = " ") { "#$it" }
+            TweetActivity.start(ctx, client.id, defaultTweetText = "$text ")
+        }
+        return tweet.hashtags.takeIf { it.isNotEmpty() }?.run(List<String>::createMenu)
+    }
+
 
     private fun createReplyMenu(): View {
         return createIconMenu(ctx, R.drawable.ic_reply_white_24dp, R.string.reply) {

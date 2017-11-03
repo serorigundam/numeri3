@@ -7,7 +7,9 @@ import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
 import android.os.Environment
 import android.provider.MediaStore
+import android.support.v4.content.MimeTypeFilter
 import android.util.LruCache
+import android.webkit.MimeTypeMap
 import android.widget.ImageView
 import io.reactivex.disposables.Disposable
 import net.ketc.numeri.util.log.i
@@ -107,27 +109,33 @@ fun ImageView.save() {
     bitmapDrawable.bitmap.save(context)
 }
 
-fun Bitmap.save(ctx: Context): File {
+fun Bitmap.save(ctx: Context, mimeType: String = "image/png", quality: Int = 100): File {
     var outputStream: FileOutputStream? = null
     val dirName = "numetter"
     val file = File("${Environment.getExternalStorageDirectory().absolutePath}/$dirName")
     i("Bitmap", file.absolutePath)
-    val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date()) + ".png"
+    val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType)
+    val fileName = SimpleDateFormat("yyyy-MM-dd-HH-mm-ss", Locale.getDefault()).format(Date()) + ".$extension"
     val path = "${file.absolutePath}/$fileName"
     try {
         file.takeIf { file.exists() || file.mkdir() }?.let {
             outputStream = FileOutputStream(path)
             val values = ContentValues()
             val resolver = ctx.contentResolver
-            compress(Bitmap.CompressFormat.PNG, 100, outputStream)
+            val format = when (mimeType) {
+                "image/png" -> Bitmap.CompressFormat.PNG
+                "image/jpeg" -> Bitmap.CompressFormat.JPEG
+                else -> throw IllegalArgumentException()
+            }
+            compress(format, quality, outputStream)
             values.put(MediaStore.Images.Media.TITLE, fileName)
             values.put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
             values.put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
-            values.put(MediaStore.Images.Media.MIME_TYPE, "image/png")
+            values.put(MediaStore.Images.Media.MIME_TYPE, mimeType)
             values.put(MediaStore.Images.Media.DATA, path)
             resolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         } ?: throw IOException("directory creation failure")
-    } catch(e: IOException) {
+    } catch (e: IOException) {
         throw e
     } finally {
         outputStream?.flush()

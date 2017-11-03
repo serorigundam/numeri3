@@ -11,7 +11,8 @@ buildscript {
         jcenter()
     }
     dependencies {
-        classpath 'io.fabric.tools:gradle:1.22.1'
+        //noinspection GradleDynamicVersion
+        classpath 'io.fabric.tools:gradle:1.+'
     }
 }
 
@@ -44,7 +45,7 @@ android {
         minSdkVersion 23
         targetSdkVersion 27
         versionCode 0
-        versionName "beta-0.1.4"
+        versionName "beta-0.1.6"
         signingConfig signingConfigs.debug
     }
     buildTypes {
@@ -75,7 +76,7 @@ kapt {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     //android-support
     implementation "com.android.support:appcompat-v7:$support_lib_ver"
     implementation "com.android.support:design:$support_lib_ver"
@@ -108,7 +109,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
 
     //ormLite
     implementation 'com.j256.ormlite:ormlite-core:5.0'
@@ -121,7 +122,7 @@ dependencies {
     testImplementation 'org.mockito:mockito-core:2.3.5'
     kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
 
-    implementation('com.crashlytics.sdk.android:crashlytics:2.6.8@aar') {
+    implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
     }
 }

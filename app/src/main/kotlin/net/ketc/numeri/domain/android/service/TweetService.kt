@@ -12,7 +12,8 @@ import net.ketc.numeri.util.log.i
 import net.ketc.numeri.util.rx.AutoDisposable
 import net.ketc.numeri.util.rx.AutoDisposableImpl
 import net.ketc.numeri.util.rx.MySchedulers
-import net.ketc.numeri.util.twitter.sendTweet
+import net.ketc.numeri.util.rx.generalThread
+import net.ketc.numeri.util.twitter.createTweetSender
 import java.io.File
 
 class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableImpl() {
@@ -25,18 +26,20 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
     private var taskCount = 0
     private var sending = false
     private val notificationId = 200
+    private val notificationManager: NotificationManager by lazy { getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager }
 
     override fun sendTweet(client: TwitterClient, clientUser: TwitterUser, text: String,
                            inReplyToStatusId: Long?,
                            mediaList: List<File>?,
                            isPossiblySensitive: Boolean) {
 
-        fun createNotification(subText: String): Notification {
+        fun createNotification(subText: String, progress: Int = 0): Notification {
             return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
                     .setSmallIcon(R.mipmap.ic_launcher)
                     .setContentText("${clientUser.screenName} : $text")
                     .setSubText(subText)
                     .setColor(getColor(R.color.colorPrimary))
+                    .setProgress(PROGRESS_MAX, progress, false)
                     .build()
         }
 
@@ -59,9 +62,8 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
         val currentCount = count
         taskCount++
 
-        val notificationManager = getSystemService(Context.NOTIFICATION_SERVICE) as NotificationManager
-
-        notificationManager.notify(TAG, currentCount, createNotification(getString(R.string.sending)))
+        val subText = getString(R.string.sending)
+        notificationManager.notify(TAG, currentCount, createNotification(subText))
 
         fun finish(text: String) {
             taskCount--
@@ -69,16 +71,25 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
                 stopForeground(true)
                 sending = false
             }
-            notificationManager.notify(TAG, currentCount, createNotification(text))
+            notificationManager.notify(TAG, currentCount, createNotification(text, PROGRESS_MAX))
         }
 
+        val sender = client.createTweetSender(text, inReplyToStatusId, mediaList, isPossiblySensitive)
+        val disposable = sender.progressObservable.generalThread()
+                .subscribe({ progress ->
+                    notificationManager.notify(TAG, currentCount, createNotification(subText, progress))
+                }, {}, {
+                    finish(getString(R.string.send_success))
+                })
+        disposable.autoDispose()
         singleTask(MySchedulers.twitter) {
-            client.sendTweet(text, inReplyToStatusId, mediaList, isPossiblySensitive)
+            sender.send(applicationContext)
         } error {
             finish(getString(R.string.send_failure))
             it.printStackTrace()
+            disposable.dispose()
         } success {
-            finish(getString(R.string.send_success))
+            disposable.dispose()
         }
 
         if (count == 100) {
@@ -88,10 +99,6 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
         }
     }
 
-    override fun onCreate() {
-        super.onCreate()
-        i(TAG, "onCreate")
-    }
 
     override fun onDestroy() {
         dispose()
@@ -102,6 +109,7 @@ class TweetService : Service(), ITweetService, AutoDisposable by AutoDisposableI
     companion object {
         val TAG = "tech.ketc.numeri3:TweetService"
         val CHANNEL_ID = "tech.ketc.numeri3:TweetService"
+        val PROGRESS_MAX = 100
     }
 }
 

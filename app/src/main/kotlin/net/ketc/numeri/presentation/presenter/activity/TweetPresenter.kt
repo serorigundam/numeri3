@@ -65,20 +65,20 @@ class TweetPresenter(override val activity: TweetActivityInterface)
         val user = clients.firstOrNull { it.second.id == id }?.second
                 ?: clients.firstOrNull()?.second ?: throw IllegalArgumentException()
         setTweetUser(user.id)
+        if (savedInstanceState == null) {
+            setReplyToScreenName(user)
+        }
+    }
 
+    private fun setReplyToScreenName(user: TwitterUser) {
         val replyToStatus = activity.replyToStatus ?: return
 
         val replyToScreenName = "@" + replyToStatus.user.screenName
         val mentionEntities = replyToStatus.userMentionEntities
         val mentions = mentionEntities.filter { it.screenName != user.screenName }.joinToString { "@${it.screenName} " }
-
-        if (savedInstanceState == null) {
-            var text = ""
-            text += "$replyToScreenName "
-            activity.setReplyInfo("reply to $replyToScreenName")
-            text += mentions
-            activity.text = text
-        }
+        activity.setReplyInfo("reply to $replyToScreenName")
+        val text = activity.text
+        activity.text = "$replyToScreenName $mentions $text "
         mentionRegexList.addAll(mentionEntities.map { "@$it ?".toRegex() })
         mentionRegexList.add("$replyToScreenName ?".toRegex())
     }

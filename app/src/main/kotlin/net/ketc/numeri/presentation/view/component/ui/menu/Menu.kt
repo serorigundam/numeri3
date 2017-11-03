@@ -34,6 +34,7 @@ fun createTextMenu(ctx: Context, menuText: String, text: String, onClick: (View)
         this.text = menuText
         ellipsize = TextUtils.TruncateAt.END
         maxEms = 2
+        gravity = Gravity.CENTER
     }.lparams(dip(16), dip(16))
     menuText(R.id.text) {
         this.text = text
