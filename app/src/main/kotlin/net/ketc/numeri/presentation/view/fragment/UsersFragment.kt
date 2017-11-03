@@ -71,7 +71,7 @@ class UsersFragment : ApplicationFragment<UsersPresenter>(), UsersFragmentInterf
     override fun setClient(client: TwitterClient) {
         val recycler = find<RecyclerView>(R.id.users_recycler)
         mReadableMoreAdapter = ReadableMoreRecyclerAdapter(presenter, {
-            UserViewHolder(TwitterUserViewUI(context!!), presenter, client, { UserInfoActivity.start(context!!, clientId, targetUserId) })
+            UserViewHolder(TwitterUserViewUI(context!!), presenter, client, { UserInfoActivity.start(context!!, clientId, it.first.id) })
         }, presenter)
         recycler.adapter = readableMoreAdapter
     }
