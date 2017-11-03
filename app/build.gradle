@@ -76,7 +76,7 @@ kapt {
 }
 
 dependencies {
-    compile fileTree(dir: 'libs', include: ['*.jar'])
+    implementation fileTree(dir: 'libs', include: ['*.jar'])
     //android-support
     implementation "com.android.support:appcompat-v7:$support_lib_ver"
     implementation "com.android.support:design:$support_lib_ver"
@@ -109,7 +109,7 @@ dependencies {
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    provided 'org.glassfish:javax.annotation:10.0-b28'
+    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
 
     //ormLite
     implementation 'com.j256.ormlite:ormlite-core:5.0'
