@@ -1,11 +1,4 @@
 buildscript {
-    ext.anko_version = '0.10.2'
-    ext.junit_platform_ver = '1.0.0-M2'
-    ext.spek_version = '1.0.89'
-    ext.t4j_version = '4.0.6'
-    ext.dagger_version = '2.10'
-    ext.support_lib_ver = '27.0.0'
-    ext.kt_coroutines = '0.19.2'
     repositories {
         maven { url 'https://maven.fabric.io/public' }
         jcenter()
@@ -19,6 +12,7 @@ buildscript {
 apply plugin: 'com.android.application'
 apply plugin: 'kotlin-android'
 apply plugin: 'io.fabric'
+apply plugin: 'kotlin-kapt'
 
 android {
     compileSdkVersion 27
@@ -41,7 +35,7 @@ android {
     }
 
     defaultConfig {
-        applicationId "net.ketc.numeri3"
+        applicationId "tech.ketc.numeri3"
         minSdkVersion 23
         targetSdkVersion 27
         versionCode 0
@@ -71,27 +65,37 @@ android {
     }
 }
 
-kapt {
-    generateStubs = true
-}
+ext.anko_version = '0.10.2'//0.10.2
+ext.junit_platform_ver = '1.0.0-M2'
+ext.spek_version = '1.0.89'
+ext.t4j_version = '4.0.6'
+ext.dagger_version = '2.12'
+ext.android_support_ver = '27.0.0'
+ext.kt_coroutines_ver = '0.19.3'
+ext.android_arch_ver = '1.0.0-rc1'
+ext.android_arch_paging_ver = '1.0.0-alpha3'
+ext.android_arch_lifecycle_ver = '1.0.3'
 
 dependencies {
     implementation fileTree(dir: 'libs', include: ['*.jar'])
     //android-support
-    implementation "com.android.support:appcompat-v7:$support_lib_ver"
-    implementation "com.android.support:design:$support_lib_ver"
-    implementation "com.android.support:recyclerview-v7:$support_lib_ver"
+    implementation "com.android.support:appcompat-v7:$android_support_ver"
+    implementation "com.android.support:design:$android_support_ver"
+    implementation "com.android.support:recyclerview-v7:$android_support_ver"
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
 
     //kotlin
-    implementation "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
-    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kt_coroutines"
+    implementation "org.jetbrains.kotlin:kotlin-stdlib-jre7:$kotlin_version"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-core:$kt_coroutines_ver"
+    implementation "org.jetbrains.kotlinx:kotlinx-coroutines-android:$kt_coroutines_ver"
 
     //anko
+    implementation "org.jetbrains.anko:anko-appcompat-v7-commons:$anko_version"
     implementation "org.jetbrains.anko:anko-sdk23:$anko_version"
     implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
     implementation "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
+
 
     //PhotoView
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
@@ -108,19 +112,29 @@ dependencies {
     //dagger
     implementation "com.google.dagger:dagger:$dagger_version"
     implementation "com.google.dagger:dagger-android:$dagger_version"
+    implementation "com.google.dagger:dagger-android-support:$dagger_version"
     kapt "com.google.dagger:dagger-compiler:$dagger_version"
-    compileOnly 'org.glassfish:javax.annotation:10.0-b28'
-
-    //ormLite
-    implementation 'com.j256.ormlite:ormlite-core:5.0'
-    implementation 'com.j256.ormlite:ormlite-android:5.0'
+    kapt "com.google.dagger:dagger-android-processor:$dagger_version"
+    compileOnly 'javax.annotation:jsr250-api:1.0'
 
     //test
     testImplementation "org.jetbrains.kotlin:kotlin-test:$kotlin_version"
     testImplementation 'junit:junit:4.12'
     testImplementation 'org.robolectric:robolectric:3.1.4'
-    testImplementation 'org.mockito:mockito-core:2.3.5'
+    testImplementation 'org.mockito:mockito-core:2.7.6'
     kaptTest "com.google.dagger:dagger-compiler:$dagger_version"
+
+    //android arch
+    implementation "android.arch.lifecycle:runtime:$android_arch_lifecycle_ver"
+    kapt "android.arch.lifecycle:compiler:$android_arch_ver"
+    implementation "android.arch.lifecycle:common-java8:$android_arch_ver"
+    implementation "android.arch.lifecycle:extensions:$android_arch_ver"
+    testImplementation "android.arch.core:core-testing:$android_arch_ver"
+    implementation "android.arch.lifecycle:reactivestreams:$android_arch_ver"
+    implementation "android.arch.paging:runtime:$android_arch_paging_ver"
+    implementation "android.arch.persistence.room:runtime:$android_arch_ver"
+    kapt "android.arch.persistence.room:compiler:$android_arch_ver"
+    testImplementation "android.arch.persistence.room:testing:$android_arch_ver"
 
     implementation('com.crashlytics.sdk.android:crashlytics:2.7.1@aar') {
         transitive = true
@@ -130,6 +144,10 @@ dependencies {
 configurations.all {
     resolutionStrategy {
         force "org.jetbrains.kotlin:kotlin-stdlib:$kotlin_version"
+        force "com.android.support:recyclerview-v7:$android_support_ver"
+        force "com.android.support:support-media-compat:$android_support_ver"
+        force "com.android.support:support-v4:$android_support_ver"
+        force "com.android.support:support-vector-drawable:$android_support_ver"
     }
 }
 
