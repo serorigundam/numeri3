@@ -1,6 +1,6 @@
-package tech.ketc.numeri.util.arch.livedata.response.extension.nonnull
+package tech.ketc.numeri.util.arch.response.extension.nonnull
 
-import tech.ketc.numeri.util.arch.livedata.response.Response
+import tech.ketc.numeri.util.arch.response.Response
 
 fun <T : Any> Response<T>.nullable(): T? = if (isSuccessful) result else null
 

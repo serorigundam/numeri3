@@ -9,7 +9,7 @@ import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
-import tech.ketc.numeri.util.arch.livedata.response.Response
+import tech.ketc.numeri.util.arch.response.Response
 
 class MutableAsyncLiveData<S, T>(trigger: LiveData<S?>, private val transform: suspend (S?) -> T)
     : NonnullMediatorLiveData<Response<T>>(), Cancellable {

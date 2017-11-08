@@ -1,4 +1,4 @@
-package tech.ketc.numeri.util.arch.livedata.response
+package tech.ketc.numeri.util.arch.response
 
 interface Response<out T> {
     val result: T
