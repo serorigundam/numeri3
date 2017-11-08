@@ -7,8 +7,8 @@ import android.view.ViewManager
 import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.AnkoException
 
-interface UIComponent<out T : View> {
-    fun createView(ctx: Context): T
+interface UIComponent<out Root : View> {
+    fun createView(ctx: Context): Root
 }
 
 
