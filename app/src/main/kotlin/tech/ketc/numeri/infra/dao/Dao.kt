@@ -4,7 +4,7 @@ import android.arch.persistence.room.Delete
 import android.arch.persistence.room.Insert
 
 
-interface IDao<T> {
+interface IDao<in T> {
     @Insert
     fun insertAll(vararg t: T)
 
