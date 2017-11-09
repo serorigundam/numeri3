@@ -6,7 +6,7 @@ import android.arch.lifecycle.MediatorLiveData
 import android.arch.lifecycle.Observer
 import android.arch.lifecycle.Transformations
 
-fun <S, T : Any> LiveData<S?>.asyncSwitchMap(func: suspend (S?) -> T) = MutableAsyncLiveData(this, func)
+fun <S, T : Any> LiveData<S?>.asyncMap(func: suspend (S?) -> T) = MutableAsyncLiveData(this, func)
 
 fun <T, R> LiveData<T>.switchMap(func: (T) -> LiveData<R>): LiveData<R>
         = Transformations.switchMap(this, func)
