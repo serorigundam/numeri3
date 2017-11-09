@@ -7,7 +7,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
 
-class BindingLifecycleAsyncTask<out T>(private val task: suspend () -> T) {
+class BindingLifecycleAsyncTask<out T : Any>(private val task: suspend () -> T) {
 
     fun run(owner: LifecycleOwner, handle: (Response<T>) -> Unit) {
         val observer = TaskExecutor<T>()
@@ -18,7 +18,7 @@ class BindingLifecycleAsyncTask<out T>(private val task: suspend () -> T) {
         }
     }
 
-    class TaskExecutor<T> : LifecycleObserver {
+    class TaskExecutor<T : Any> : LifecycleObserver {
         private var isPropagatable = true
         private var isDestroy = false
 

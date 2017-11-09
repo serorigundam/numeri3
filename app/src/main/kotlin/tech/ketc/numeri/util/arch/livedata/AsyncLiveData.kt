@@ -11,7 +11,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
 
-open class AsyncLiveData<T>(private val func: suspend () -> T)
+open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
     : NonnullLiveData<Response<T>>(), Cancellable {
 
 

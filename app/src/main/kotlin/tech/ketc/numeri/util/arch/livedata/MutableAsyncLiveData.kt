@@ -11,7 +11,7 @@ import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
 
-class MutableAsyncLiveData<S, T>(trigger: LiveData<S?>, private val transform: suspend (S?) -> T)
+class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transform: suspend (S?) -> T)
     : NonnullMediatorLiveData<Response<T>>(), Cancellable {
 
     private var job: Job? = null
@@ -61,6 +61,6 @@ class MutableAsyncLiveData<S, T>(trigger: LiveData<S?>, private val transform: s
 
     override fun cancel() {
         job?.cancel()
-        Log.v(javaClass.name,"cancel")
+        Log.v(javaClass.name, "cancel")
     }
 }

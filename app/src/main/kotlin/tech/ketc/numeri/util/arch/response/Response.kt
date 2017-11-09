@@ -1,6 +1,6 @@
 package tech.ketc.numeri.util.arch.response
 
-interface Response<out T> {
+interface Response<out T : Any> {
     val result: T
     val error: Throwable
     val isSuccessful: Boolean
