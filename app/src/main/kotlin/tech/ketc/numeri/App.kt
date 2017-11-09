@@ -11,6 +11,7 @@ class App : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         applyAutoInject()
+        //todo Fabric.with(this, Crashlytics())
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
