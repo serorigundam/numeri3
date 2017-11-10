@@ -13,7 +13,9 @@ import kotlin.concurrent.write
 class TwitterUserFactory : ITwitterUserFactory {
 
     private val map = LinkedHashMap<Long, TwitterUserInternal>()
-    private val listeners = ArrayList<UserUpdateListener>()
+    private val updateListeners = ArrayList<UserUpdateListener>()
+    private val deleteListeners = ArrayList<UserDeleteListener>()
+
     private val lock = ReentrantReadWriteLock()
 
     override fun createOrGet(client: ITwitterClient, user: User): TwitterUser {
@@ -23,15 +25,27 @@ class TwitterUserFactory : ITwitterUserFactory {
     }
 
     private fun TwitterUserInternal.updateAndCallback(user: User) {
-        if (update(user)) listeners.forEach { it(this) }
+        if (update(user)) updateListeners.forEach { it(this) }
     }
 
     override fun addUpdateListener(listener: UserUpdateListener) {
-        listeners.add(listener)
+        updateListeners.add(listener)
     }
 
     override fun removeUpdateListener(listener: UserUpdateListener) {
-        listeners.remove(listener)
+        updateListeners.remove(listener)
+    }
+
+    override fun delete(user: User) {
+        map.remove(user.id)
+    }
+
+    override fun addDeleteListener(listener: UserDeleteListener) {
+        deleteListeners.add(listener)
+    }
+
+    override fun removeListener(listener: UserDeleteListener) {
+        deleteListeners.remove(listener)
     }
 
     private class TwitterUserInternal(user: User) : TwitterUser {

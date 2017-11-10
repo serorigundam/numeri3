@@ -26,7 +26,7 @@ class MainViewModel @Inject constructor(private val app: App,
     : ViewModel(), IImageLoadable by ImageLoadable(imageRepository),
         IClientHandler by ClientHandler(accountRepository, userRepository) {
 
-    val latestUpdatedUser = userRepository.latestUpdatedLiveData
+    val latestUpdatedUser = userRepository.latestUpdatedUser
 
     fun createAuthorizationURL() = AsyncLiveData { accountRepository.createAuthorizationURL() }
 
