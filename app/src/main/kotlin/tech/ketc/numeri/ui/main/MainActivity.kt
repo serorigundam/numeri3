@@ -88,26 +88,35 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
                 initializeAccountListComponent(it)
             }
             res.ifError {
-                toast("aaaaaaaaaaaaaaaaa")
+                toast(R.string.message_failed_user_info)
                 it.printStackTrace()
             }
         }
     }
 
 
+    private fun initializeAccountUIComponent(user: TwitterUser, component: AccountUIComponent) {
+        component.userNameText.text = user.name
+        component.screenNameText.text = user.screenName
+        model.getImageTask(this, user.iconUrl) {
+            it.ifPresent { (bitmap, _) ->
+                component.iconImage.setImageBitmap(bitmap)
+            }
+            it.ifError { it.printStackTrace() }
+        }
+    }
+
     private fun initializeAccountListComponent(clients: Set<ITwitterClient>) {
         fun observeAccountUpdate(user: TwitterUser, component: AccountUIComponent) {
             model.latestUpdatedUser.observeIfNonnullOnly(this, { it.id == user.id }) { updatedUser ->
-                component.screenNameText.text = updatedUser.screenName
-                component.userNameText.text = updatedUser.name
+                initializeAccountUIComponent(updatedUser, component)
             }
         }
 
         fun addAccountComponent(user: TwitterUser) {
             val component = AccountUIComponent()
             val view = component.createView(this)
-            component.userNameText.text = user.name
-            component.screenNameText.text = user.screenName
+            initializeAccountUIComponent(user, component)
             accountListUI.accountList.addView(view)
             observeAccountUpdate(user, component)
         }
@@ -127,11 +136,13 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
         val oauthIntent = intent.getParcelableExtra<Intent>(INTENT_OAUTH) ?: return
         model.onNewIntent(oauthIntent, this) {
             it.ifPresent {
-                val idStr = it.id.toString()
-                toast(idStr)
-                val component = AccountUIComponent()
-                accountListUI.accountList.addView(component.createView(this))
-                component.screenNameText.text = idStr
+                model.getClientUser(this, it) {
+                    it.ifPresent {
+                        val component = AccountUIComponent()
+                        initializeAccountUIComponent(it, component)
+                        accountListUI.accountList.addView(component.createView(this))
+                    }
+                }
             }
             it.ifError { it.printStackTrace() }
         }

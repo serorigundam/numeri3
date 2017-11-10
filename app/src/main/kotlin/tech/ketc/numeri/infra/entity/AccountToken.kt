@@ -8,7 +8,8 @@ import java.io.Serializable
 
 @Entity(tableName = "account_token")
 class AccountToken(
-        @PrimaryKey()
+        @PrimaryKey
+        @ColumnInfo(name = "id")
         val id: Long = 0,
         @ColumnInfo(name = "auth_token")
         var authToken: String,

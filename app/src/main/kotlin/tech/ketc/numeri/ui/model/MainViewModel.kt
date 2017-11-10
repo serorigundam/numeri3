@@ -6,6 +6,8 @@ import android.content.Intent
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.IAccountRepository
 import tech.ketc.numeri.domain.ITwitterUserRepository
+import tech.ketc.numeri.domain.ImageRepository
+import tech.ketc.numeri.domain.model.BitmapContent
 import tech.ketc.numeri.domain.twitter.client.ITwitterClient
 import tech.ketc.numeri.domain.twitter.client.getUser
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
@@ -18,7 +20,8 @@ import javax.inject.Inject
 @SuppressLint("StaticFieldLeak")
 class MainViewModel @Inject constructor(private val app: App,
                                         private val accountRepository: IAccountRepository,
-                                        private val userRepository: ITwitterUserRepository) : ViewModel() {
+                                        private val userRepository: ITwitterUserRepository,
+                                        private val imageRepository: ImageRepository) : ViewModel() {
 
     val clients = AsyncLiveData { accountRepository.clients() }
 
@@ -39,4 +42,7 @@ class MainViewModel @Inject constructor(private val app: App,
 
     fun getClientUser(owner: LifecycleOwner, client: ITwitterClient, handle: (Response<TwitterUser>) -> Unit)
             = BindingLifecycleAsyncTask { client.getUser(userRepository) }.run(owner, handle)
+
+    fun getImageTask(owner: LifecycleOwner, urlStr: String, handle: (Response<BitmapContent>) -> Unit)
+            = BindingLifecycleAsyncTask { imageRepository.downloadOrGet(urlStr) }.run(owner, handle)
 }
