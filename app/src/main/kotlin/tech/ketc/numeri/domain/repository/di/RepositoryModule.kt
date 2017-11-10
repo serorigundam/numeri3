@@ -3,7 +3,7 @@ package tech.ketc.numeri.domain.di
 import dagger.Module
 import dagger.Provides
 import tech.ketc.numeri.App
-import tech.ketc.numeri.domain.*
+import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.IOAuthSupportFactory
 import tech.ketc.numeri.domain.twitter.ITwitterClientFactory
 import tech.ketc.numeri.domain.twitter.ITwitterUserFactory

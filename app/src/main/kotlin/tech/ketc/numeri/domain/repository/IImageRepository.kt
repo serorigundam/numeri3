@@ -1,4 +1,4 @@
-package tech.ketc.numeri.domain
+package tech.ketc.numeri.domain.repository
 
 import android.graphics.Bitmap
 import tech.ketc.numeri.domain.model.BitmapContent

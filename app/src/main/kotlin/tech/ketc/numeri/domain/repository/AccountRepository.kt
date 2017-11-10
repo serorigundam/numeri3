@@ -1,4 +1,4 @@
-package tech.ketc.numeri.domain
+package tech.ketc.numeri.domain.repository
 
 import android.util.ArraySet
 import tech.ketc.numeri.App

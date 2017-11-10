@@ -4,9 +4,9 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.*
 import android.content.Intent
 import tech.ketc.numeri.App
-import tech.ketc.numeri.domain.IAccountRepository
-import tech.ketc.numeri.domain.IImageRepository
-import tech.ketc.numeri.domain.ITwitterUserRepository
+import tech.ketc.numeri.domain.repository.IAccountRepository
+import tech.ketc.numeri.domain.repository.IImageRepository
+import tech.ketc.numeri.domain.repository.ITwitterUserRepository
 import tech.ketc.numeri.domain.twitter.client.ITwitterClient
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.ui.model.delegate.ClientHandler

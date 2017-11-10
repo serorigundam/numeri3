@@ -1,8 +1,8 @@
 package tech.ketc.numeri.ui.model.delegate
 
 import android.arch.lifecycle.LifecycleOwner
-import tech.ketc.numeri.domain.IAccountRepository
-import tech.ketc.numeri.domain.ITwitterUserRepository
+import tech.ketc.numeri.domain.repository.IAccountRepository
+import tech.ketc.numeri.domain.repository.ITwitterUserRepository
 import tech.ketc.numeri.domain.twitter.client.ITwitterClient
 import tech.ketc.numeri.domain.twitter.client.getUser
 import tech.ketc.numeri.domain.twitter.model.TwitterUser

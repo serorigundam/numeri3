@@ -1,4 +1,4 @@
-package tech.ketc.numeri.domain
+package tech.ketc.numeri.domain.repository
 
 import android.arch.lifecycle.LiveData
 import tech.ketc.numeri.domain.twitter.client.ITwitterClient
