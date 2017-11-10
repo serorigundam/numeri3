@@ -80,7 +80,7 @@ ext.t4j_version = '4.0.6'
 ext.dagger_version = '2.12'
 ext.android_support_ver = '27.0.0'
 ext.kt_coroutines_ver = '0.19.3'
-ext.android_arch_ver = '1.0.0-rc1'
+ext.android_arch_ver = '1.0.0'
 ext.android_arch_paging_ver = '1.0.0-alpha3'
 ext.android_arch_lifecycle_ver = '1.0.3'
 
