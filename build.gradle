@@ -1,6 +1,8 @@
 buildscript {
     ext.kotlin_version = '1.1.51'
     ext.android_build_tool_ver = '27.0.0'
+    ext.target_sdk_int = 27
+    ext.min_sdk_int = 23
 
     repositories {
         jcenter()
