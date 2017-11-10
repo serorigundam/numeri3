@@ -36,7 +36,8 @@ class TwitterUserFactory : ITwitterUserFactory {
         updateListeners.remove(listener)
     }
 
-    override fun delete(user: User) {
+    override fun delete(user: TwitterUser) {
+        deleteListeners.forEach { it(user) }
         map.remove(user.id)
     }
 
