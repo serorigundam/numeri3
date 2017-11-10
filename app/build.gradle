@@ -41,7 +41,15 @@ android {
         versionCode 0
         versionName "beta-0.1.6"
         signingConfig signingConfigs.debug
+
+        javaCompileOptions {
+            annotationProcessorOptions {
+                arguments = ["room.schemaLocation": "$projectDir/schemas".toString()]
+            }
+        }
+
     }
+
     buildTypes {
         release {
             minifyEnabled false
@@ -95,7 +103,6 @@ dependencies {
     implementation "org.jetbrains.anko:anko-appcompat-v7:$anko_version"
     implementation "org.jetbrains.anko:anko-design:$anko_version"
     implementation "org.jetbrains.anko:anko-recyclerview-v7:$anko_version"
-
 
     //PhotoView
     implementation 'com.github.chrisbanes:PhotoView:2.0.0'
@@ -156,6 +163,7 @@ kotlin {
         coroutines "enable"
     }
 }
+
 
 gradle.taskGraph.whenReady { taskGraph ->
     def packageRelease = ":app:packageRelease"
