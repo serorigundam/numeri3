@@ -1,4 +1,4 @@
-package tech.ketc.numeri.domain.di
+package tech.ketc.numeri.domain.repository.di
 
 import dagger.Subcomponent
 

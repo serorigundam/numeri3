@@ -4,7 +4,7 @@ import android.arch.persistence.room.Room
 import dagger.Module
 import dagger.Provides
 import tech.ketc.numeri.App
-import tech.ketc.numeri.domain.di.RepositoryComponent
+import tech.ketc.numeri.domain.repository.di.RepositoryComponent
 import tech.ketc.numeri.infra.AccountDatabase
 import tech.ketc.numeri.infra.ImageDatabase
 import javax.inject.Singleton

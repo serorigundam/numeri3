@@ -4,7 +4,7 @@ import dagger.Component
 import tech.ketc.numeri.App
 import dagger.android.AndroidInjector
 import dagger.android.support.AndroidSupportInjectionModule
-import tech.ketc.numeri.domain.di.RepositoryModule
+import tech.ketc.numeri.domain.repository.di.RepositoryModule
 import tech.ketc.numeri.domain.twitter.di.TwitterModule
 import tech.ketc.numeri.infra.di.InfraModule
 import tech.ketc.numeri.ui.activity.di.ActivityModule
