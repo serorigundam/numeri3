@@ -1,6 +1,7 @@
 package tech.ketc.numeri.domain.twitter.model
 
 interface Tweet {
+    val id: Long
     val user: TwitterUser
     val createdAt: String
     val text: String

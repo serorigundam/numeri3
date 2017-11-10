@@ -12,7 +12,7 @@ interface ITwitterUserFactory {
 
     fun removeUpdateListener(listener: UserUpdateListener)
 
-    fun delete(user: User)
+    fun delete(user: TwitterUser)
 
     fun addDeleteListener(listener: UserDeleteListener)
 
