@@ -19,7 +19,7 @@
 
         <!--activity-->
         <activity
-            android:name=".ui.main.MainActivity"
+            android:name="tech.ketc.numeri.ui.activity.main.MainActivity"
             android:label="@string/app_name"
             android:launchMode="singleTask">
             <intent-filter>
@@ -29,7 +29,7 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".ui.main.MainActivity$OauthActivity">
+        <activity android:name="tech.ketc.numeri.ui.activity.main.MainActivity$OauthActivity">
             <intent-filter>
                 <action android:name="android.intent.action.VIEW" />
 

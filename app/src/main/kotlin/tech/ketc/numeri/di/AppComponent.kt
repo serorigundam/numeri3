@@ -7,7 +7,7 @@ import dagger.android.support.AndroidSupportInjectionModule
 import tech.ketc.numeri.domain.di.RepositoryModule
 import tech.ketc.numeri.domain.twitter.di.TwitterModule
 import tech.ketc.numeri.infra.di.InfraModule
-import tech.ketc.numeri.ui.di.ActivityModule
+import tech.ketc.numeri.ui.activity.di.ActivityModule
 import tech.ketc.numeri.ui.model.di.ModelFactoryModule
 import javax.inject.Singleton
 

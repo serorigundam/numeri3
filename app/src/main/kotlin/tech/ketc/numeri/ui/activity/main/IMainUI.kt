@@ -1,4 +1,4 @@
-package tech.ketc.numeri.ui.main
+package tech.ketc.numeri.ui.activity.main
 
 import android.support.design.widget.CoordinatorLayout
 import android.support.design.widget.FloatingActionButton

@@ -1,4 +1,4 @@
-package tech.ketc.numeri.ui.main
+package tech.ketc.numeri.ui.activity.main
 
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent

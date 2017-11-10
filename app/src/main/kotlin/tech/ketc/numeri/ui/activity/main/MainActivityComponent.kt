@@ -1,4 +1,4 @@
-package tech.ketc.numeri.ui.main
+package tech.ketc.numeri.ui.activity.main
 
 import dagger.android.AndroidInjector
 import dagger.Subcomponent
