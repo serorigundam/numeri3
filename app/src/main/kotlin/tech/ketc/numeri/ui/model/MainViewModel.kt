@@ -5,13 +5,14 @@ import android.arch.lifecycle.*
 import android.content.Intent
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.IAccountRepository
+import tech.ketc.numeri.domain.IImageRepository
 import tech.ketc.numeri.domain.ITwitterUserRepository
-import tech.ketc.numeri.domain.ImageRepository
-import tech.ketc.numeri.domain.model.BitmapContent
 import tech.ketc.numeri.domain.twitter.client.ITwitterClient
-import tech.ketc.numeri.domain.twitter.client.getUser
-import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
+import tech.ketc.numeri.ui.model.delegate.ClientHandler
+import tech.ketc.numeri.ui.model.delegate.IClientHandler
+import tech.ketc.numeri.ui.model.delegate.IImageLoadable
+import tech.ketc.numeri.ui.model.delegate.ImageLoadable
 import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 import tech.ketc.numeri.util.arch.livedata.AsyncLiveData
 import tech.ketc.numeri.util.arch.response.Response
@@ -21,9 +22,9 @@ import javax.inject.Inject
 class MainViewModel @Inject constructor(private val app: App,
                                         private val accountRepository: IAccountRepository,
                                         private val userRepository: ITwitterUserRepository,
-                                        private val imageRepository: ImageRepository) : ViewModel() {
-
-    val clients = AsyncLiveData { accountRepository.clients() }
+                                        private val imageRepository: IImageRepository)
+    : ViewModel(), IImageLoadable by ImageLoadable(imageRepository),
+        IClientHandler by ClientHandler(accountRepository, userRepository) {
 
     val latestUpdatedUser = userRepository.latestUpdatedLiveData
 
@@ -40,9 +41,4 @@ class MainViewModel @Inject constructor(private val app: App,
         createNewClientTask(oauthVerifier).run(owner, handle)
     }
 
-    fun getClientUser(owner: LifecycleOwner, client: ITwitterClient, handle: (Response<TwitterUser>) -> Unit)
-            = BindingLifecycleAsyncTask { client.getUser(userRepository) }.run(owner, handle)
-
-    fun getImageTask(owner: LifecycleOwner, urlStr: String, handle: (Response<BitmapContent>) -> Unit)
-            = BindingLifecycleAsyncTask { imageRepository.downloadOrGet(urlStr) }.run(owner, handle)
 }

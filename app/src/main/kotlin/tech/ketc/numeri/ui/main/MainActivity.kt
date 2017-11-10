@@ -98,7 +98,7 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
     private fun initializeAccountUIComponent(user: TwitterUser, component: AccountUIComponent) {
         component.userNameText.text = user.name
         component.screenNameText.text = user.screenName
-        model.getImageTask(this, user.iconUrl) {
+        model.imageLoad(this, user.iconUrl) {
             it.ifPresent { (bitmap, _) ->
                 component.iconImage.setImageBitmap(bitmap)
             }
