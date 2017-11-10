@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigationItemSelectedListener, IMainUI by MainUI() {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val model: MainViewModel by viewModel { viewModelFactory }
+    private val model: MainViewModel by viewModel(viewModelFactory)
 
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
 
