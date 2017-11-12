@@ -2,6 +2,7 @@ package tech.ketc.numeri.domain.twitter
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
+import android.os.Handler
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.ITweetRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
@@ -12,16 +13,26 @@ import tech.ketc.numeri.util.arch.livedata.mediate
 import twitter4j.*
 import twitter4j.TwitterStreamFactory
 import java.lang.Exception
+import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.inject.Inject
+import kotlin.concurrent.read
+import kotlin.concurrent.write
 
 class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterStreamFactory {
+
+    private val map = LinkedHashMap<Long, TwitterStream>()
+    private val lock = ReentrantReadWriteLock()
+
     override fun createOrGet(client: TwitterClient,
                              tweetRepository: ITweetRepository,
                              userRepository: ITwitterUserRepository): TwitterStream
-            = TwitterStreamInternal(app, client, tweetRepository, userRepository)
+            = lock.read { map[client.id] }
+            ?: TwitterStreamInternal(app, client, tweetRepository, userRepository)
+            .also { lock.write { map.put(client.id, it) } }
+
 
     private class TwitterStreamInternal(app: App,
-                                        private val client: TwitterClient,
+                                        client: TwitterClient,
                                         private val tweetRepository: ITweetRepository,
                                         private val userRepository: ITwitterUserRepository)
         : TwitterStream, UserStreamListener {
@@ -31,6 +42,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
             stream.setOAuthConsumer(app.twitterApiKey, app.twitterSecretKey)
             stream.oAuthAccessToken = client.twitter.oAuthAccessToken
             AvoidingAccessErrors.addStreamListener(stream, this)
+            stream.user()
         }
 
         val mLatestTweet = MutableLiveData<Tweet>()
@@ -59,21 +71,21 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         override val latestUnBlockNotice: LiveData<UserNotice>
             get() = mLatestUnBlockNotice.mediate()
 
-        private fun User.toTwitterUser() = toTwitterUser(client, userRepository)
+        private fun User.toTwitterUser() = toTwitterUser(userRepository)
 
-        private fun Status.toTweet() = toTweet(client, tweetRepository)
+        private fun Status.toTweet() = toTweet(tweetRepository)
 
         override fun onUserListMemberAddition(addedMember: User, listOwner: User, list: UserList) {
         }
 
         override fun onFavorite(source: User, target: User, favoritedStatus: Status) {
-            mLatestFavoriteNotice.value = StatusNotice(source.toTwitterUser(),
+            mLatestFavoriteNotice.postValue(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
-                    favoritedStatus.toTweet())
+                    favoritedStatus.toTweet()))
         }
 
         override fun onBlock(source: User, blockedUser: User) {
-            mLatestBlockNotice.value = UserNotice(source.toTwitterUser(), blockedUser.toTwitterUser())
+            mLatestBlockNotice.postValue(UserNotice(source.toTwitterUser(), blockedUser.toTwitterUser()))
         }
 
         override fun onUserListUpdate(listOwner: User, list: UserList) {
@@ -95,11 +107,11 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
-            mLatestTweetDeletionNotice.value = statusDeletionNotice
+            mLatestTweetDeletionNotice.postValue(statusDeletionNotice)
         }
 
         override fun onUserProfileUpdate(updatedUser: User) {
-            userRepository.createOrGet(client, updatedUser)
+            userRepository.createOrGet(updatedUser)
         }
 
         override fun onDirectMessage(directMessage: DirectMessage) {
@@ -109,7 +121,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onFollow(source: User, followedUser: User) {
-            mLatestFollowNotice.value = UserNotice(source.toTwitterUser(), followedUser.toTwitterUser())
+            mLatestFollowNotice.postValue(UserNotice(source.toTwitterUser(), followedUser.toTwitterUser()))
         }
 
         override fun onUserListMemberDeletion(deletedMember: User, listOwner: User, list: UserList) {
@@ -119,7 +131,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnfollow(source: User, unfollowedUser: User) {
-            mLatestUnFollowNotice.value = UserNotice(source.toTwitterUser(), unfollowedUser.toTwitterUser())
+            mLatestUnFollowNotice.postValue(UserNotice(source.toTwitterUser(), unfollowedUser.toTwitterUser()))
         }
 
         override fun onRetweetedRetweet(source: User, target: User, retweetedStatus: Status) {
@@ -138,9 +150,9 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnfavorite(source: User, target: User, unfavoritedStatus: Status) {
-            mLatestUnFavoriteNotice.value = StatusNotice(source.toTwitterUser(),
+            mLatestUnFavoriteNotice.postValue(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
-                    unfavoritedStatus.toTweet())
+                    unfavoritedStatus.toTweet()))
         }
 
         override fun onUserDeletion(deletedUser: Long) {
@@ -150,11 +162,11 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnblock(source: User, unblockedUser: User) {
-            mLatestUnBlockNotice.value = UserNotice(source.toTwitterUser(), unblockedUser.toTwitterUser())
+            mLatestUnBlockNotice.postValue(UserNotice(source.toTwitterUser(), unblockedUser.toTwitterUser()))
         }
 
         override fun onStatus(status: Status) {
-            mLatestTweet.value = status.toTweet()
+            mLatestTweet.postValue(status.toTweet())
         }
 
         override fun onUserSuspension(suspendedUser: Long) {

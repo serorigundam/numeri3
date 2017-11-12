@@ -1,6 +1,5 @@
 package tech.ketc.numeri.domain.twitter
 
-import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.domain.twitter.model.IUrlEntity
 import tech.ketc.numeri.domain.twitter.model.UrlEntity
@@ -18,14 +17,10 @@ class TwitterUserFactory : ITwitterUserFactory {
 
     private val lock = ReentrantReadWriteLock()
 
-    override fun createOrGet(client: TwitterClient, user: User): TwitterUser {
-        val twitterUser = lock.read { map[user.id] }
-        return twitterUser?.also { it.updateAndCallback(user) }
-                ?: lock.write { TwitterUserInternal(user).also { map.put(it.id, it) } }
-    }
-
-    private fun TwitterUserInternal.updateAndCallback(user: User) {
-        if (update(user)) updateListeners.forEach { it(this) }
+    override fun createOrGet(user: User): TwitterUser {
+        return lock.read { map[user.id] }?.also { tu ->
+            if (tu.update(user)) updateListeners.forEach { it(tu) }
+        } ?: lock.write { TwitterUserInternal(user).also { map.put(it.id, it) } }
     }
 
     override fun addUpdateListener(listener: UserUpdateListener) {
@@ -96,15 +91,16 @@ class TwitterUserFactory : ITwitterUserFactory {
         private var mStatusesCount: Int = user.statusesCount
         private var mFavoriteCount: Int = user.favouritesCount
 
+
         fun update(user: User): Boolean {
             if (!isUpdate(user)) return false
             mName = user.name ?: ""
             mScreenName = user.screenName ?: ""
             mLocation = user.location ?: ""
-            mDescription = user.description ?: ""
-            mIconUrl = user.biggerProfileImageURL
-            mOriginalIconUrl = user.originalProfileImageURL
-            mHeaderImageUrl = user.profileBannerRetinaURL ?: ""
+            mDescription = user.description ?: mDescription
+            mIconUrl = user.biggerProfileImageURL ?: mIconUrl
+            mOriginalIconUrl = user.originalProfileImageURL ?: mOriginalIconUrl
+            mHeaderImageUrl = user.profileBannerRetinaURL ?: mHeaderImageUrl
             mProfileBackgroundColor = user.profileBackgroundColor
             mIsProtected = user.isProtected
             mFollowersCount = user.followersCount
@@ -152,6 +148,10 @@ class TwitterUserFactory : ITwitterUserFactory {
 
         override fun hashCode(): Int {
             return id.hashCode()
+        }
+
+        override fun toString(): String {
+            return "$name,$screenName"
         }
     }
 }

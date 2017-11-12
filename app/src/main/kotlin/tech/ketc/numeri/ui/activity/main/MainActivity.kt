@@ -23,6 +23,7 @@ import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.fadeOut
+import tech.ketc.numeri.util.arch.livedata.observe
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
@@ -86,6 +87,11 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
         model.clients.observe(this) { res ->
             res.ifPresent {
                 initializeAccountListComponent(it)
+                it.forEach {
+                    model.getStream(it).latestTweet.observe(this) {
+                        toast(it.toString())
+                    }
+                }
             }
             res.ifError {
                 toast(R.string.message_failed_user_info)

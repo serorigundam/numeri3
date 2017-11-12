@@ -4,17 +4,15 @@ import dagger.Module
 import dagger.Provides
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.*
-import tech.ketc.numeri.domain.twitter.IOAuthSupportFactory
-import tech.ketc.numeri.domain.twitter.ITwitterClientFactory
-import tech.ketc.numeri.domain.twitter.ITwitterStreamFactory
-import tech.ketc.numeri.domain.twitter.ITwitterUserFactory
+import tech.ketc.numeri.domain.twitter.*
 import tech.ketc.numeri.infra.AccountDatabase
 import tech.ketc.numeri.infra.ImageDatabase
 import tech.ketc.numeri.ui.model.di.ViewModelComponent
 import javax.inject.Singleton
 
-@Module(subcomponents = arrayOf(ViewModelComponent::class))
+@Module(subcomponents = arrayOf(ViewModelComponent::class, RepositoryComponent::class))
 class RepositoryModule {
+
     @Singleton
     @Provides
     fun provideAccountRepository(app: App,
@@ -25,8 +23,15 @@ class RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideTwitterUserFactory(twitterUserFactory: ITwitterUserFactory): ITwitterUserRepository
-            = TwitterUserRepository(twitterUserFactory)
+    fun provideTweetRepository(tweetFactory: ITweetFactory,
+                               userFactory: ITwitterUserFactory): ITweetRepository
+            = TweetRepository(tweetFactory, userFactory)
+
+    @Singleton
+    @Provides
+    fun provideTwitterUserRepository(factory: ITwitterUserFactory,
+                                     tweetRepository: ITweetRepository): ITwitterUserRepository
+            = TwitterUserRepository(factory, tweetRepository)
 
     @Singleton
     @Provides

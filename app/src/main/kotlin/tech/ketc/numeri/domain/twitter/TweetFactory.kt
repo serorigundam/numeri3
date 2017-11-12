@@ -2,7 +2,6 @@ package tech.ketc.numeri.domain.twitter
 
 import android.os.Build
 import android.text.Html
-import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.util.unmodifiableList
 import twitter4j.Status
@@ -20,10 +19,10 @@ class TweetFactory : ITweetFactory {
 
     private val lock = ReentrantReadWriteLock()
 
-    override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
+    override fun createOrGet(userFactory: ITwitterUserFactory, status: Status): Tweet {
         val tweet = lock.read { map[status.id] }
         return tweet?.also { it.updateAndCallback(status) }
-                ?: lock.write { TweetInternal(client, this, userFactory, status).also { map.put(it.id, it) } }
+                ?: lock.write { TweetInternal(this, userFactory, status).also { map.put(it.id, it) } }
     }
 
     private fun TweetInternal.updateAndCallback(status: Status) {
@@ -59,14 +58,14 @@ class TweetFactory : ITweetFactory {
         deleteListeners.remove(listener)
     }
 
-    private class TweetInternal(client: TwitterClient, tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {
+    private class TweetInternal(tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {
 
         override val id: Long = status.id
-        override val user: TwitterUser = userFactory.createOrGet(client, status.user)
+        override val user: TwitterUser = userFactory.createOrGet(status.user)
         override val createdAt: String = status.createdAt.format()
         override val text: String = status.text
-        override val quotedTweet: Tweet? = status.quotedStatus?.run { tweetFactory.createOrGet(client, userFactory, this) }
-        override val retweetedTweet: Tweet? = status.retweetedStatus?.run { tweetFactory.createOrGet(client, userFactory, this) }
+        override val quotedTweet: Tweet? = status.quotedStatus?.run { tweetFactory.createOrGet(userFactory, this) }
+        override val retweetedTweet: Tweet? = status.retweetedStatus?.run { tweetFactory.createOrGet(userFactory, this) }
         override val source: String = status.source?.let { fromHtml(it).toString() } ?: ""
         override val favoriteCount: Int
             get() = mFavoriteCount
@@ -101,6 +100,10 @@ class TweetFactory : ITweetFactory {
 
         override fun hashCode(): Int {
             return id.hashCode()
+        }
+
+        override fun toString(): String {
+            return "$user,$text"
         }
 
         companion object {
