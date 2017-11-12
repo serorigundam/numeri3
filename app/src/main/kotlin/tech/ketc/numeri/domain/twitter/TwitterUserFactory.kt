@@ -1,6 +1,6 @@
 package tech.ketc.numeri.domain.twitter
 
-import tech.ketc.numeri.domain.twitter.client.ITwitterClient
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.domain.twitter.model.IUrlEntity
 import tech.ketc.numeri.domain.twitter.model.UrlEntity
@@ -18,7 +18,7 @@ class TwitterUserFactory : ITwitterUserFactory {
 
     private val lock = ReentrantReadWriteLock()
 
-    override fun createOrGet(client: ITwitterClient, user: User): TwitterUser {
+    override fun createOrGet(client: TwitterClient, user: User): TwitterUser {
         val twitterUser = lock.read { map[user.id] }
         return twitterUser?.also { it.updateAndCallback(user) }
                 ?: lock.write { TwitterUserInternal(user).also { map.put(it.id, it) } }

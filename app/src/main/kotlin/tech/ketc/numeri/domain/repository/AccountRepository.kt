@@ -2,7 +2,7 @@ package tech.ketc.numeri.domain.repository
 
 import android.util.ArraySet
 import tech.ketc.numeri.App
-import tech.ketc.numeri.domain.twitter.client.ITwitterClient
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.IOAuthSupportFactory
 import tech.ketc.numeri.domain.twitter.ITwitterClientFactory
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
@@ -21,7 +21,7 @@ class AccountRepository @Inject constructor(private val app: App,
                                             private val twitterClientFactory: ITwitterClientFactory)
     : IAccountRepository {
     private var mOAuthSupport: OAuthSupport? = null
-    private var mClients: MutableSet<ITwitterClient>? = null
+    private var mClients: MutableSet<TwitterClient>? = null
     private val dao = db.accountDao()
     private val lock = ReentrantReadWriteLock()
 
@@ -34,9 +34,9 @@ class AccountRepository @Inject constructor(private val app: App,
         } ?: throw OAuthFailureException()
     }
 
-    override fun createTwitterClient(oauthVerifier: String): ITwitterClient {
-        fun create(): MutableSet<ITwitterClient> {
-            val set = ArraySet<ITwitterClient>()
+    override fun createTwitterClient(oauthVerifier: String): TwitterClient {
+        fun create(): MutableSet<TwitterClient> {
+            val set = ArraySet<TwitterClient>()
             mClients = set
             return set
         }
@@ -62,7 +62,7 @@ class AccountRepository @Inject constructor(private val app: App,
     override fun clients() = (mClients ?: createClients()).unmodifiableSet()
 
 
-    override fun deleteClient(twitterClient: ITwitterClient) {
+    override fun deleteClient(twitterClient: TwitterClient) {
         lock.write {
             val clients = mClients
             clients ?: throw IllegalStateException("need to call the clients() or createTwitterClient()")

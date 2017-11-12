@@ -17,7 +17,7 @@ import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
 import org.jetbrains.anko.toast
 import tech.ketc.numeri.R
-import tech.ketc.numeri.domain.twitter.client.ITwitterClient
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.model.MainViewModel
@@ -31,7 +31,7 @@ import javax.inject.Inject
 
 class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigationItemSelectedListener, IMainUI by MainUI() {
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val model: MainViewModel by viewModel(viewModelFactory)
+    private val model: MainViewModel by viewModel { viewModelFactory }
 
     private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
 
@@ -106,7 +106,7 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
         }
     }
 
-    private fun initializeAccountListComponent(clients: Set<ITwitterClient>) {
+    private fun initializeAccountListComponent(clients: Set<TwitterClient>) {
         fun observeAccountUpdate(user: TwitterUser, component: AccountUIComponent) {
             model.latestUpdatedUser.observeIfNonnullOnly(this, { it.id == user.id }) { updatedUser ->
                 initializeAccountUIComponent(updatedUser, component)

@@ -3,7 +3,7 @@ package tech.ketc.numeri.ui.model.delegate
 import android.arch.lifecycle.LifecycleOwner
 import tech.ketc.numeri.domain.repository.IAccountRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
-import tech.ketc.numeri.domain.twitter.client.ITwitterClient
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.client.getUser
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
@@ -16,6 +16,6 @@ class ClientHandler(accountRepository: IAccountRepository,
 
     override val clients = AsyncLiveData { accountRepository.clients() }
 
-    override fun getClientUser(owner: LifecycleOwner, client: ITwitterClient, handle: (Response<TwitterUser>) -> Unit)
+    override fun getClientUser(owner: LifecycleOwner, client: TwitterClient, handle: (Response<TwitterUser>) -> Unit)
             = BindingLifecycleAsyncTask { client.getUser(userRepository) }.run(owner, handle)
 }

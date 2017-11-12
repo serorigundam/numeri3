@@ -6,6 +6,7 @@ import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.IOAuthSupportFactory
 import tech.ketc.numeri.domain.twitter.ITwitterClientFactory
+import tech.ketc.numeri.domain.twitter.ITwitterStreamFactory
 import tech.ketc.numeri.domain.twitter.ITwitterUserFactory
 import tech.ketc.numeri.infra.AccountDatabase
 import tech.ketc.numeri.infra.ImageDatabase
@@ -32,4 +33,10 @@ class RepositoryModule {
     fun provideImageRepository(app: App, db: ImageDatabase): IImageRepository
             = ImageRepository(app, db)
 
+    @Singleton
+    @Provides
+    fun provideTwitterStreamRepository(factory: ITwitterStreamFactory,
+                                       userRepository: ITwitterUserRepository,
+                                       tweetRepository: ITweetRepository): ITwitterStreamRepository
+            = TwitterStreamRepository(factory, userRepository, tweetRepository)
 }

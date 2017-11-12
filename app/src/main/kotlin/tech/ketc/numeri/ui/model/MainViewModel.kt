@@ -7,7 +7,7 @@ import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.IAccountRepository
 import tech.ketc.numeri.domain.repository.IImageRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
-import tech.ketc.numeri.domain.twitter.client.ITwitterClient
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.ui.model.delegate.ClientHandler
 import tech.ketc.numeri.ui.model.delegate.IClientHandler
@@ -34,7 +34,7 @@ class MainViewModel @Inject constructor(private val app: App,
             = BindingLifecycleAsyncTask { accountRepository.createTwitterClient(oauthVerifier) }
 
 
-    fun onNewIntent(intent: Intent, owner: LifecycleOwner, handle: (Response<ITwitterClient>) -> Unit) {
+    fun onNewIntent(intent: Intent, owner: LifecycleOwner, handle: (Response<TwitterClient>) -> Unit) {
         val data = intent.data ?: return
         val oauthVerifier = data.getQueryParameter("oauth_verifier") ?: return
         if (!data.toString().startsWith(app.twitterCallbackUrl)) return
