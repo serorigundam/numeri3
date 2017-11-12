@@ -8,6 +8,7 @@ import tech.ketc.numeri.domain.twitter.TweetUpdateListener
 import tech.ketc.numeri.domain.twitter.TwitterUserFactory
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.Tweet
+import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.util.arch.livedata.map
 import twitter4j.Status
 import javax.inject.Inject
@@ -44,5 +45,9 @@ class TweetRepository @Inject constructor(private val tweetFactory: ITweetFactor
 
     override fun delete(tweet: Tweet) {
         tweetFactory.delete(tweet)
+    }
+
+    override fun deleteByUser(user: TwitterUser) {
+        tweetFactory.deleteByUser(user)
     }
 }

@@ -44,6 +44,13 @@ class TweetFactory : ITweetFactory {
         lock.write { map.remove(tweet.id) }
     }
 
+    override fun deleteByUser(user: TwitterUser) {
+        lock.read { map.filter { it.value.user.id == user.id } }.forEach { (key, value) ->
+            deleteListeners.forEach { it(value) }
+            lock.write { map.remove(key) }
+        }
+    }
+
     override fun addDeleteListener(listener: TweetDeleteListener) {
         deleteListeners.add(listener)
     }

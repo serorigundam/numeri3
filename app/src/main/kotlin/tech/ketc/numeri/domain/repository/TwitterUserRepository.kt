@@ -11,7 +11,8 @@ import tech.ketc.numeri.util.arch.livedata.map
 import twitter4j.User
 import javax.inject.Inject
 
-class TwitterUserRepository @Inject constructor(private val userFactory: ITwitterUserFactory) : ITwitterUserRepository {
+class TwitterUserRepository @Inject constructor(private val userFactory: ITwitterUserFactory,
+                                                private val tweetRepository: ITweetRepository) : ITwitterUserRepository {
 
     private val updateListener: UserUpdateListener = {
         mLatestUpdatedUser.value = it
@@ -40,6 +41,7 @@ class TwitterUserRepository @Inject constructor(private val userFactory: ITwitte
     }
 
     override fun delete(user: TwitterUser) {
+        tweetRepository.deleteByUser(user)
         userFactory.delete(user)
     }
 }
