@@ -39,8 +39,9 @@ class TweetFactory : ITweetFactory {
     }
 
     override fun delete(tweet: Tweet) {
+        lock.read { map[tweet.id] } ?: return
         deleteListeners.forEach { it(tweet) }
-        map.remove(tweet.id)
+        lock.write { map.remove(tweet.id) }
     }
 
     override fun addDeleteListener(listener: TweetDeleteListener) {

@@ -37,8 +37,9 @@ class TwitterUserFactory : ITwitterUserFactory {
     }
 
     override fun delete(user: TwitterUser) {
+        lock.read { map[user.id] } ?: return
         deleteListeners.forEach { it(user) }
-        map.remove(user.id)
+        lock.write { map.remove(user.id) }
     }
 
     override fun addDeleteListener(listener: UserDeleteListener) {
