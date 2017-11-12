@@ -3,7 +3,6 @@ package tech.ketc.numeri.util.arch.livedata
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
-import android.util.Log
 import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
@@ -49,6 +48,5 @@ open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
 
     override fun cancel() {
         job?.cancel()
-        Log.v(javaClass.name, "cancel")
     }
 }

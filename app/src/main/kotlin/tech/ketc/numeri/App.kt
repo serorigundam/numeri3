@@ -1,8 +1,11 @@
 package tech.ketc.numeri
 
+import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
+import io.fabric.sdk.android.Fabric
 import tech.ketc.numeri.di.DaggerAppComponent
+import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.di.applyAutoInject
 
 
@@ -11,7 +14,12 @@ class App : DaggerApplication() {
     override fun onCreate() {
         super.onCreate()
         applyAutoInject()
-        //todo Fabric.with(this, Crashlytics())
+        val debug = resources.getBoolean(R.bool.debug)
+        if (debug) {
+            Logger.debug = true
+        } else {
+            Fabric.with(this, Crashlytics())
+        }
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {

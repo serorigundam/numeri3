@@ -5,7 +5,6 @@ import android.graphics.Bitmap
 import android.graphics.BitmapFactory
 import android.os.Environment
 import android.provider.MediaStore
-import android.util.Log
 import android.util.LruCache
 import android.webkit.MimeTypeMap
 import tech.ketc.numeri.App
@@ -78,7 +77,6 @@ class ImageRepository @Inject constructor(private val app: App, private val db: 
                 val contentType = connection.contentType.toLowerCase()
                 val bitmap = BitmapFactory.decodeStream(inputStream)
                 val mimeType = mimeType(contentType)
-                Log.v(javaClass.name, "dawnload contentType=$contentType,typeStr=$mimeType")
                 BitmapContent(bitmap, mimeType).also {
                     if (!cache) return@also
                     saveLocalDatabase(urlStr, it)
