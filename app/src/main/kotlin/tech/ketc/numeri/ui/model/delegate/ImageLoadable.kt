@@ -7,6 +7,6 @@ import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 import tech.ketc.numeri.util.arch.response.Response
 
 class ImageLoadable(private val imageRepository: IImageRepository) : IImageLoadable {
-    override fun imageLoad(owner: LifecycleOwner, urlStr: String, handle: (Response<BitmapContent>) -> Unit)
-            = BindingLifecycleAsyncTask { imageRepository.downloadOrGet(urlStr) }.run(owner, handle)
+    override fun imageLoad(owner: LifecycleOwner, urlStr: String, cache: Boolean, handle: (Response<BitmapContent>) -> Unit)
+            = BindingLifecycleAsyncTask { imageRepository.downloadOrGet(urlStr, cache) }.also { it.run(owner, handle) }
 }

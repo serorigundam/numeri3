@@ -8,10 +8,14 @@ import android.net.Uri
 import android.support.v7.app.AppCompatActivity
 import android.os.Bundle
 import android.support.design.widget.NavigationView
+import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBarDrawerToggle
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
+import dagger.android.AndroidInjector
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.support.HasSupportFragmentInjector
 import org.jetbrains.anko.image
 import org.jetbrains.anko.setContentView
 import org.jetbrains.anko.startActivity
@@ -20,17 +24,23 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.ui.components.AccountUIComponent
+import tech.ketc.numeri.ui.fragment.timeline.TimeLineFragment
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.fadeOut
-import tech.ketc.numeri.util.arch.livedata.observe
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
 import java.io.Serializable
 import javax.inject.Inject
 
-class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigationItemSelectedListener, IMainUI by MainUI() {
+class MainActivity : AppCompatActivity(), AutoInject,
+        HasSupportFragmentInjector,
+        NavigationView.OnNavigationItemSelectedListener,
+        IMainUI by MainUI() {
+
+    @Inject lateinit var androidInjector: DispatchingAndroidInjector<Fragment>
+
     @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
     private val model: MainViewModel by viewModel { viewModelFactory }
 
@@ -46,6 +56,8 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
     private enum class NavigationState : Serializable {
         ACCOUNT, MENU
     }
+
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = androidInjector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -87,16 +99,19 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
         model.clients.observe(this) { res ->
             res.ifPresent {
                 initializeAccountListComponent(it)
-                it.forEach {
-                    model.getStream(it).latestTweet.observe(this) {
-                        toast(it.toString())
-                    }
-                }
             }
             res.ifError {
                 toast(R.string.message_failed_user_info)
                 it.printStackTrace()
             }
+        }
+        val manager = supportFragmentManager!!
+        val id = R.id.column_group_wrapper_coordinator
+        val fragment = manager.findFragmentById(id)
+        if (fragment == null) {
+            manager.beginTransaction()
+                    .add(id, TimeLineFragment())
+                    .commit()
         }
     }
 
@@ -145,8 +160,9 @@ class MainActivity : AppCompatActivity(), AutoInject, NavigationView.OnNavigatio
                 model.getClientUser(this, it) {
                     it.ifPresent {
                         val component = AccountUIComponent()
+                        val view = component.createView(this)
                         initializeAccountUIComponent(it, component)
-                        accountListUI.accountList.addView(component.createView(this))
+                        accountListUI.accountList.addView(view)
                     }
                 }
             }

@@ -4,20 +4,18 @@ import android.content.Context
 import android.text.TextUtils
 import android.view.Gravity
 import android.widget.ImageView
-import android.widget.RelativeLayout
 import android.widget.TextView
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.getResourceId
-import tech.ketc.numeri.util.anko.UIComponent
 
-class AccountUIComponent : UIComponent<RelativeLayout> {
+class AccountUIComponent : IAccountUIComponent {
 
-    lateinit var screenNameText: TextView
+    override lateinit var screenNameText: TextView
         private set
-    lateinit var userNameText: TextView
+    override lateinit var userNameText: TextView
         private set
-    lateinit var iconImage: ImageView
+    override lateinit var iconImage: ImageView
         private set
 
     override fun createView(ctx: Context) = ctx.relativeLayout {

@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModel
 import android.arch.lifecycle.ViewModelProvider
 import android.util.ArrayMap
 import tech.ketc.numeri.ui.model.MainViewModel
+import tech.ketc.numeri.ui.model.TimeLineViewModel
 import tech.ketc.numeri.ui.model.di.ViewModelComponent
 import javax.inject.Inject
 import javax.inject.Provider
@@ -14,6 +15,7 @@ class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponen
 
     init {
         providers.put(MainViewModel::class.java, Provider(viewModelComponent::mainViewModel))
+        providers.put(TimeLineViewModel::class.java, Provider(viewModelComponent::timeLineViewModel))
     }
 
     override fun <T : ViewModel?> create(viewModelClass: Class<T>): T {
