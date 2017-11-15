@@ -21,6 +21,9 @@ import tech.ketc.numeri.util.android.arg
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
+import tech.ketc.numeri.util.android.act
+import tech.ketc.numeri.util.android.pref
+import tech.ketc.numeri.util.logTag
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent by SwipeRefreshRecyclerComponent() {
 
@@ -30,6 +33,10 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
     private val tlInfo by lazy { arg.getSerializable(EXTRA_TIMELINE_INFO) as TimelineInfo }
     private var savedTopChildAdapterPosition: Int? = null
     private var mAdapter: TimeLineDataSourceAdapter? = null
+    private val pref by lazy { act.pref }
+    private var mIsStreamEnabled = false
+    private var mIsEnableAutoScroll = false
+    private var mIsStreamStart = false
 
     companion object {
         private val EXTRA_TIMELINE_INFO = "EXTRA_TIMELINE_INFO"
@@ -49,6 +56,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
         super.onViewCreated(view, savedInstanceState)
         savedInstanceState?.let { restoreInstanceState(it) }
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
+        loadPrefSetting()
         model.initialize(tlInfo, this, callback = {
             initialize(it)
         }, error = {
@@ -71,6 +79,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
             savedTopChildAdapterPosition?.let {
                 recycler.scrollToPosition(it)
             }
+            startStream()
         } else {
             Logger.v(javaClass.name, "initialize adapter")
             initializeAdapter()
@@ -84,6 +93,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
         adapter.loadInitial {
             swipeRefresh.isRefreshing = false
             swipeRefresh.isEnabled = true
+            startStream()
         }
         swipeRefresh.setOnRefreshListener {
             swipeRefresh.isRefreshing = true
@@ -93,15 +103,57 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
         }
     }
 
+    private fun startStream() {
+        mIsStreamStart = model.startStream(this) {
+            if (mIsStreamEnabled) {
+                mAdapter!!.insertTop(it)
+                if (mIsEnableAutoScroll) autoScroll()
+            }
+        }
+        setSwipeRefreshEnabled()
+    }
+
+    private fun setSwipeRefreshEnabled() {
+        if (mIsStreamStart) {
+            swipeRefresh.isEnabled = !mIsStreamEnabled
+            Logger.v(logTag, "swipeRefresh isEnabled:${!mIsStreamEnabled}")
+        } else {
+            swipeRefresh.isEnabled = false
+            Logger.v(logTag, "swipeRefresh isEnabled:false")
+        }
+    }
+
+    override fun onResume() {
+        super.onResume()
+        loadPrefSetting()
+        setSwipeRefreshEnabled()
+    }
+
+    private fun loadPrefSetting() {
+        mIsStreamEnabled = pref.getBoolean(getString(R.string.pref_key_is_stream_enabled), true)
+        mIsEnableAutoScroll = pref.getBoolean(getString(R.string.pref_key_auto_scroll), true)
+        Logger.v(logTag, "isStreamEnabled $mIsStreamEnabled")
+    }
+
     override fun onSaveInstanceState(outState: Bundle) {
-        val adapter = mAdapter
-        val topChild = recycler.getChildAt(0)
-        if (adapter != null && topChild != null) {
-            val childAt = recycler.getChildAt(0)
-            val childAdapterPosition = recycler.getChildAdapterPosition(childAt)
-            outState.putInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION, childAdapterPosition)
+        getChildAdapterPosition()?.let {
+            outState.putInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION, it)
         }
         super.onSaveInstanceState(outState)
+    }
+
+    private fun getChildAdapterPosition(): Int? {
+        val adapter = mAdapter
+        val topChild = recycler.getChildAt(0)
+        return if (adapter != null && topChild != null) {
+            val childAt = recycler.getChildAt(0)
+            recycler.getChildAdapterPosition(childAt)
+        } else null
+    }
+
+
+    private fun autoScroll() {
+        getChildAdapterPosition()?.let { if (it == 1) scrollToTop() }
     }
 
     private fun restoreInstanceState(savedInstanceState: Bundle) {

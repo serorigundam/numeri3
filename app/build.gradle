@@ -90,6 +90,7 @@ dependencies {
     implementation "com.android.support:appcompat-v7:$android_support_ver"
     implementation "com.android.support:design:$android_support_ver"
     implementation "com.android.support:recyclerview-v7:$android_support_ver"
+    implementation "com.android.support:support-v4:$android_support_ver"
     implementation 'com.android.support.constraint:constraint-layout:1.1.0-beta3'
 
     //kotlin
@@ -173,3 +174,4 @@ gradle.taskGraph.whenReady { taskGraph ->
         }
     }
 }
+apply plugin: 'kotlin-android-extensions'

@@ -5,24 +5,25 @@ import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
 import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
+import tech.ketc.numeri.domain.twitter.isMention
 import tech.ketc.numeri.domain.twitter.model.Tweet
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
-import tech.ketc.numeri.ui.model.delegate.ClientHandler
-import tech.ketc.numeri.ui.model.delegate.IClientHandler
-import tech.ketc.numeri.ui.model.delegate.IImageLoadable
-import tech.ketc.numeri.ui.model.delegate.ImageLoadable
+import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSource
+import tech.ketc.numeri.util.arch.livedata.observeNonnullOnly
 import twitter4j.Paging
 import javax.inject.Inject
 
 class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository,
                                             userRepository: ITwitterUserRepository,
                                             imageRepository: IImageRepository,
-                                            private val tweetRepository: ITweetRepository)
+                                            private val tweetRepository: ITweetRepository,
+                                            private val streamRepository: ITwitterStreamRepository)
     : ViewModel(),
         IClientHandler by ClientHandler(accountRepository, userRepository),
-        IImageLoadable by ImageLoadable(imageRepository) {
+        IImageLoadable by ImageLoadable(imageRepository),
+        IStreamHandler by StreamHandler(streamRepository) {
 
     private var mClient: TwitterClient? = null
         get() {
@@ -36,6 +37,8 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
 
     val storeTweetsLiveData = MutableLiveData<List<Tweet>>()
 
+    private val stream by lazy { getStream(mClient!!) }
+
     fun initialize(timelineInfo: TimelineInfo, owner: LifecycleOwner, callback: (TwitterClient) -> Unit, error: (Throwable) -> Unit) {
         mTimelineInfo = timelineInfo
         clients.observe(owner) {
@@ -45,6 +48,19 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
             }
             it.ifError { error(it) }
         }
+    }
+
+    fun startStream(owner: LifecycleOwner, handle: (Tweet) -> Unit): Boolean {
+        val type = mTimelineInfo!!.type
+        if (type != TlType.HOME && type != TlType.MENTIONS) return false
+        stream.latestTweet.observeNonnullOnly(owner) { tweet ->
+            if (type == TlType.MENTIONS) {
+                if (tweet.isMention(mClient!!)) handle(tweet)
+            } else {
+                handle(tweet)
+            }
+        }
+        return true
     }
 
     val dataSource by lazy {

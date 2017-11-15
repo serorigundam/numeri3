@@ -2,7 +2,6 @@ package tech.ketc.numeri.domain.twitter
 
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
-import android.os.Handler
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.ITweetRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository

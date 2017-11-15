@@ -114,6 +114,12 @@ abstract class DataSourceAdapter
         }
     }
 
+    fun insertTop(value: Value) {
+        if (mValues.any { it == value }) return
+        mValues.add(0, value)
+        notifyItemInserted(0)
+    }
+
     override fun getItemCount(): Int {
         return itemCountInternal + if (mValues.size > 1) 1 else 0
     }

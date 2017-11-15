@@ -22,6 +22,7 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.entity.TimelineGroup
+import tech.ketc.numeri.ui.activity.setting.SettingsActivity
 import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.fragment.dialog.MessageDialogFragment
 import tech.ketc.numeri.ui.fragment.dialog.OnDialogItemSelectedListener
@@ -377,6 +378,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         when (item.itemId) {
             R.id.column_manage -> toast("not implement")//todo not implement
             R.id.changing_column_group -> toast("not implement")//todo not implement
+            R.id.setting -> startActivity<SettingsActivity>()
             else -> return super.onOptionsItemSelected(item)
         }
         drawer.closeDrawer(navigation)

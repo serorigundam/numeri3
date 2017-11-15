@@ -11,5 +11,9 @@
             android:icon="@drawable/ic_view_carousel_white_24dp"
             android:title="@string/changing_column_group" />
 
+        <item
+            android:id="@+id/setting"
+            android:icon="@drawable/ic_settings_white_24px"
+            android:title="@string/title_activity_settings" />
     </group>
 </menu>

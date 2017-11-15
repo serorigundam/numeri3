@@ -1,0 +1,13 @@
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_is_stream_enabled"
+        android:summary="@string/pref_desc_is_stream_enabled"
+        android:title="@string/pref_title_is_stream_enabled" />
+
+    <SwitchPreference
+        android:defaultValue="true"
+        android:key="@string/pref_key_auto_scroll"
+        android:summary="@string/pref_desc_auto_scroll"
+        android:title="@string/pref_title_auto_scroll" />
+</PreferenceScreen>
