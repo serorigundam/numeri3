@@ -60,7 +60,7 @@
     <string name="pref_header_behavior">動作</string>
 
     <string name="pref_title_is_stream_enabled">ユーザーストリーム</string>
-    <string name="pref_desc_is_stream_enabled">タイムラインの自動更新\n(ホームとメンションのみ)\n※稀に取得漏れします</string>
+    <string name="pref_desc_is_stream_enabled">タイムラインの自動更新(ホームとメンションのみ)</string>
     <string name="pref_key_is_stream_enabled">pref_id_stream</string>
 
     <string name="pref_title_auto_scroll">オートスクロール</string>
