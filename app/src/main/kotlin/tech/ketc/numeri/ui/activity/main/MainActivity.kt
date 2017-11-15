@@ -23,6 +23,8 @@ import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.components.AccountUIComponent
+import tech.ketc.numeri.ui.fragment.dialog.MessageDialogFragment
+import tech.ketc.numeri.ui.fragment.dialog.OnDialogItemSelectedListener
 import tech.ketc.numeri.ui.fragment.main.MainFragment
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.Logger
@@ -38,6 +40,7 @@ import javax.inject.Inject
 class MainActivity : AppCompatActivity(), AutoInject,
         HasSupportFragmentInjector,
         NavigationView.OnNavigationItemSelectedListener,
+        OnDialogItemSelectedListener,
         IMainUI by MainUI() {
 
     @Inject lateinit var androidInjector: DispatchingAndroidInjector<Fragment>
@@ -59,6 +62,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
         private val EXTRA_SHOWING_GROUP_NAME = "EXTRA_SHOWING_GROUP_NAME"
         private val EXTRA_CURRENT_GROUP_LIST = "EXTRA_CURRENT_GROUP_LIST"
         private val EXTRA_GROUP_VIEW_ID = "EXTRA_GROUP_VIEW_ID"
+        private val TAG_ADD_ACCOUNT_DIALOG = "TAG_ADD_ACCOUNT_DIALOG"
+        private val REQUEST_CODE_ADD_ACCOUNT_DIALOG = 1010
     }
 
     private enum class NavigationState : Serializable {
@@ -91,26 +96,32 @@ class MainActivity : AppCompatActivity(), AutoInject,
         navigationHeaderUI
                 .toggleNavigationStateButton
                 .setOnClickListener { toggleNavigationState() }
-        accountListUI.addAccountButton.setOnClickListener { v ->
-            v.isClickable = false
-            model.createAuthorizationURL().observe(this) {
-                it.ifPresent {
-                    val uri = Uri.parse(it)
-                    startActivity(Intent(Intent.ACTION_VIEW, uri))
-                }
-                it.ifError {
-                    toast(getString(R.string.failed_generate_authentication_url))
-                    it.printStackTrace()
-                }
-                v.isClickable = true
+        accountListUI.addAccountButton.setOnClickListener {
+            startAuthorization()
+        }
+    }
+
+    private fun startAuthorization() {
+        val addAccountButton = accountListUI.addAccountButton
+        addAccountButton.isClickable = false
+        model.createAuthorizationURL().observe(this) {
+            it.ifPresent {
+                val uri = Uri.parse(it)
+                startActivity(Intent(Intent.ACTION_VIEW, uri))
             }
+            it.ifError {
+                toast(getString(R.string.failed_generate_authentication_url))
+                it.printStackTrace()
+            }
+            addAccountButton.isClickable = true
         }
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
         model.clients.observe(this) { res ->
             res.ifPresent {
-                initializeAccountListComponent(it)
+                if (it.isEmpty()) showAddAccountDialog()
+                else initializeAccountListComponent(it)
                 if (savedInstanceState == null)
                     initializeTimelineGroup()
             }
@@ -119,6 +130,12 @@ class MainActivity : AppCompatActivity(), AutoInject,
                 it.printStackTrace()
             }
         }
+    }
+
+    private fun showAddAccountDialog() {
+        val dialog = MessageDialogFragment
+                .create(REQUEST_CODE_ADD_ACCOUNT_DIALOG, R.string.message_need_to_add_an_account)
+        dialog.show(supportFragmentManager, TAG_ADD_ACCOUNT_DIALOG)
     }
 
     private fun initializeTimelineGroup() {
@@ -130,7 +147,6 @@ class MainActivity : AppCompatActivity(), AutoInject,
             }
         }
     }
-
 
     private fun addAccountComponent(client: TwitterClient) {
         fun initializeAccountUIComponent(user: TwitterUser, component: AccountUIComponent) {
@@ -157,7 +173,6 @@ class MainActivity : AppCompatActivity(), AutoInject,
             accountListUI.accountList.addView(view)
             observeAccountUpdate(user, component)
         }
-
 
         model.getClientUser(this, client) {
             it.ifPresent { addAccountComponent(it) }
@@ -366,6 +381,18 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
         drawer.closeDrawer(navigation)
         return true
+    }
+
+    override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
+        fun accountDialog() {
+            when (itemId) {
+                R.string.yes -> startAuthorization()
+                R.string.cancel -> showAddAccountDialog()
+            }
+        }
+        when (requestCode) {
+            REQUEST_CODE_ADD_ACCOUNT_DIALOG -> accountDialog()
+        }
     }
 
     class OauthActivity : AppCompatActivity() {
