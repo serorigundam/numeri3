@@ -10,7 +10,8 @@ Dagger2+Android Architecture ComponentsでTwitterクライアント作成
 * 署名用にkeytool使ってrelease.jksとdebug.jksをプロジェクトルートに配置
 * debug.jksの設定はapp/build.gradleのsigningConfigs内のdebugを参照
 * release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesをルートに配置
-例
+
+例[signing.properties]
 ```properties
 storePassword=hogehoge
 keyPassword=hogehoge
@@ -19,8 +20,7 @@ keyPassword=hogehoge
 
 * strings-twitter.xmlを作ってapp/src/main/res/values/strings-twitter.xmlに配置
 
-例
-
+例[strings-twitter.xml]
 ```xml
 <resources>		
     <string name="twitter_api_key">hoge_api_key</string>
