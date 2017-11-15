@@ -7,7 +7,7 @@ Dagger2+Android Architecture ComponentsでTwitterクライアント作成
 * Android Studio3.0
 
 ## ビルド前に
-* 署名用にkeytool使ってrelease.jksとdebug.jksをプロジェクトルートに配置
+* 署名用にkeytool使ってrelease.jksとdebug.jksを作成しプロジェクトルートに配置
 * debug.jksの設定はapp/build.gradleのsigningConfigs内のdebugを参照
 * release.jksのstorePasswerdとkeyPasswordそれぞれを同名のプロパティとして設定したsigning.propertiesをルートに配置
 
