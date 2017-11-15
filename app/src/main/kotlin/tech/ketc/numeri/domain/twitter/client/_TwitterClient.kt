@@ -4,7 +4,7 @@ import tech.ketc.numeri.domain.repository.ITwitterStreamRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
 
 fun TwitterClient.getUser(repository: ITwitterUserRepository)
-        = repository.createOrGet(twitter.showUser(id))
+        = repository.show(this, id)
 
 fun TwitterClient.getStream(repository: ITwitterStreamRepository)
         = repository.createOrGet(this)
