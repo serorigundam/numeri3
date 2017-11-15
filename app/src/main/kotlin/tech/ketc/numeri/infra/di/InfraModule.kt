@@ -7,7 +7,6 @@ import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.di.RepositoryComponent
 import tech.ketc.numeri.infra.AccountDatabase
 import tech.ketc.numeri.infra.ImageDatabase
-import tech.ketc.numeri.infra.TimeLineDatabase
 import javax.inject.Singleton
 
 @Module(subcomponents = arrayOf(RepositoryComponent::class))
@@ -22,9 +21,4 @@ class InfraModule {
     @Singleton
     fun provideImageDatabase(app: App): ImageDatabase
             = Room.databaseBuilder(app, ImageDatabase::class.java, "image").build()
-
-    @Provides
-    @Singleton
-    fun provideTimeLineDatabase(app: App): TimeLineDatabase
-            = Room.databaseBuilder(app, TimeLineDatabase::class.java, "timeline").build()
 }

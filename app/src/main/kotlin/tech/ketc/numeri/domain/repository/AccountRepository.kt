@@ -7,6 +7,7 @@ import tech.ketc.numeri.domain.twitter.IOAuthSupportFactory
 import tech.ketc.numeri.domain.twitter.ITwitterClientFactory
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.infra.AccountDatabase
+import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.AccountToken
 import tech.ketc.numeri.util.unmodifiableSet
 import twitter4j.auth.OAuthSupport
@@ -18,7 +19,8 @@ import kotlin.concurrent.write
 class AccountRepository @Inject constructor(private val app: App,
                                             private val db: AccountDatabase,
                                             private val oAuthSupportFactory: IOAuthSupportFactory,
-                                            private val twitterClientFactory: ITwitterClientFactory)
+                                            private val twitterClientFactory: ITwitterClientFactory,
+                                            private val timelineInfoRepository: ITimelineInfoRepository)
     : IAccountRepository {
     private var mOAuthSupport: OAuthSupport? = null
     private var mClients: MutableSet<TwitterClient>? = null
@@ -45,12 +47,27 @@ class AccountRepository @Inject constructor(private val app: App,
             val oAuthSupport = mOAuthSupport ?: throw IllegalStateException("need to call the clients createAuthorizationURL()")
             val accessToken = oAuthSupport.getOAuthAccessToken(oauthVerifier)
             val accountToken = AccountToken(accessToken)
-
             dao.insert(accountToken)
             val clients = mClients ?: create()
-            twitterClientFactory.create(accountToken).also { clients.add(it) }
+            val generate = clients.isEmpty()
+            twitterClientFactory.create(accountToken).also {
+                clients.add(it)
+                if (generate)
+                    createDefaultTimelineGroup(accountToken)
+            }
         }
     }
+
+    private fun createDefaultTimelineGroup(token: AccountToken) {
+        val group = timelineInfoRepository.createGroup("Main")
+        val accountId = token.id
+        val home = timelineInfoRepository.getInfo(TlType.HOME, accountId)
+        val mentions = timelineInfoRepository.getInfo(TlType.MENTIONS, accountId)
+        timelineInfoRepository.joinToGroup(group, home)
+        timelineInfoRepository.joinToGroup(group, mentions)
+        timelineInfoRepository.notifyDataChanged()
+    }
+
 
     private fun createClients() = lock.read {
         val tokens = dao.selectAll()

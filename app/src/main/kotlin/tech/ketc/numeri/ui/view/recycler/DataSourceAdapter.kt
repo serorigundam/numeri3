@@ -1,6 +1,7 @@
 package tech.ketc.numeri.ui.view.recycler
 
 import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.MutableLiveData
 import android.content.Context
 import android.support.v7.widget.RecyclerView
 import android.view.Gravity
@@ -16,9 +17,9 @@ import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 
 @Suppress("UNCHECKED_CAST")
 abstract class DataSourceAdapter
-<Key, out Value, in VH : RecyclerView.ViewHolder>(protected val owner: LifecycleOwner,
-                                                  private val dataSource: DataSource<Key, Value>,
-                                                  private val creator: () -> VH)
+<Key, Value, in VH : RecyclerView.ViewHolder>(protected val owner: LifecycleOwner,
+                                              private val dataSource: DataSource<Key, Value>,
+                                              private val creator: () -> VH)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -28,52 +29,71 @@ abstract class DataSourceAdapter
 
     var pageSize = 10
 
-    private val values = ArrayList<Value>()
+    private val mValues = ArrayList<Value>()
 
     private val itemCountInternal: Int
-        get() = values.size
+        get() = mValues.size
 
     private val currentLatestPosition: Int
         get() = itemCountInternal - 1
 
     private var isProgress = false
+    private var mStoreLiveData: MutableLiveData<List<Value>>? = null
+
+    fun setStoreLiveData(store: MutableLiveData<List<Value>>) {
+        mStoreLiveData = store
+    }
+
+    fun restore(): Boolean {
+        val values = mStoreLiveData?.value
+        values ?: return false
+        mValues.addAll(values)
+        notifyDataSetChanged()
+        return true
+    }
 
     private fun checkProgress() {
         if (isProgress) throw IllegalStateException()
     }
 
+    var error: (Throwable) -> Unit = {}
+
     fun loadAfter(complete: () -> Unit = {}) {
         checkProgress()
         isProgress = true
-        val item = values.firstOrNull()
+        val item = mValues.firstOrNull()
         if (item == null) loadInitial(complete)
         else BindingLifecycleAsyncTask {
             dataSource.loadAfter(dataSource.getKey(item), pageSize)
         }.run(owner) {
             it.ifPresent {
-                values.addAll(0, it)
+                mValues.addAll(0, it)
+                mStoreLiveData?.value = mValues
                 notifyItemRangeInserted(0, it.size)
             }
             isProgress = false
             complete()
+            it.ifError(error)
         }
     }
 
     fun loadBefore(complete: () -> Unit = {}) {
         checkProgress()
         isProgress = true
-        val item = values.lastOrNull()
+        val item = mValues.lastOrNull()
         if (item == null) loadInitial(complete)
         else BindingLifecycleAsyncTask {
             dataSource.loadBefore(dataSource.getKey(item), pageSize)
         }.run(owner) {
             it.ifPresent {
-                val last = values.lastIndex
-                values.addAll(values.size, it)
+                val last = mValues.size
+                mValues.addAll(it)
+                mStoreLiveData?.value = mValues
                 notifyItemRangeInserted(last, it.size)
             }
             isProgress = false
             complete()
+            it.ifError(error)
         }
     }
 
@@ -84,19 +104,21 @@ abstract class DataSourceAdapter
             dataSource.loadInitial(pageSize)
         }.run(owner) {
             it.ifPresent {
-                values.addAll(it)
+                mValues.addAll(it)
+                mStoreLiveData?.value = mValues
                 notifyDataSetChanged()
             }
             isProgress = false
             complete()
+            it.ifError(error)
         }
     }
 
     override fun getItemCount(): Int {
-        return itemCountInternal + if (values.size > 1) 1 else 0
+        return itemCountInternal + if (mValues.size > 1) 1 else 0
     }
 
-    protected fun getItem(position: Int) = values[position]
+    protected fun getItem(position: Int) = mValues[position]
 
 
     override fun onBindViewHolder(holder: RecyclerView.ViewHolder, position: Int) {

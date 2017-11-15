@@ -1,9 +1,10 @@
 package tech.ketc.numeri.infra.element
 
 import android.arch.persistence.room.TypeConverter
+import java.io.Serializable
 
 
-enum class MimeType(val typeStr: String) {
+enum class MimeType(val typeStr: String) : Serializable {
     JPEG("image/png"), PNG("image/jpeg");
 
     override fun toString(): String {

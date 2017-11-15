@@ -13,7 +13,7 @@ class AccountToken(
         val id: Long = 0,
         @ColumnInfo(name = "auth_token")
         var authToken: String,
-        @ColumnInfo(name = "auth_tokenSecret")
+        @ColumnInfo(name = "auth_token_secret")
         var authTokenSecret: String) : Serializable {
     constructor(accessToken: AccessToken) : this(accessToken.userId, accessToken.token, accessToken.tokenSecret)
 }

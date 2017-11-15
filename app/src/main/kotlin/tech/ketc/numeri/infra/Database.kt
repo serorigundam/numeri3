@@ -8,22 +8,17 @@ import tech.ketc.numeri.infra.element.MimeType
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.*
 
-@Database(entities = arrayOf(AccountToken::class), version = 1)
+@Database(entities = arrayOf(AccountToken::class, TlGroupToTlInfo::class,
+        TimelineInfo::class, TimelineGroup::class), version = 1)
+@TypeConverters(TlType.Converter::class)
 abstract class AccountDatabase : RoomDatabase() {
     abstract fun accountDao(): AccountDao
+    abstract fun timeLineGroupDao(): TimelineGroupDao
+    abstract fun timeLineInfoDao(): TimelineInfoDao
 }
 
 @Database(entities = arrayOf(Image::class), version = 1)
 @TypeConverters(MimeType.Converter::class)
 abstract class ImageDatabase : RoomDatabase() {
     abstract fun imageDao(): ImageDao
-}
-
-@Database(entities = arrayOf(TlGroupToTlInfo::class,
-        TimelineInfo::class, TimelineGroup::class, AccountToken::class), version = 1)
-@TypeConverters(TlType.Converter::class)
-abstract class TimeLineDatabase : RoomDatabase() {
-    abstract fun timeLineGroupDao(): TimelineGroupDao
-    abstract fun timeLineInfoDao(): TimelineInfoDao
-    abstract fun tlGroupToTlInfoDao(): TlGroupToTlInfoDao
 }

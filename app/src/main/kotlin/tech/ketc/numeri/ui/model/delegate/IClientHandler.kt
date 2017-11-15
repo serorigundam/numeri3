@@ -9,4 +9,5 @@ import tech.ketc.numeri.util.arch.response.Response
 interface IClientHandler {
     val clients: AsyncLiveData<Set<TwitterClient>>
     fun getClientUser(owner: LifecycleOwner, client: TwitterClient, handle: (Response<TwitterUser>) -> Unit)
+    fun getClientUsers(owner: LifecycleOwner, clients: Set<TwitterClient>, handle: (Response<List<Pair<TwitterClient, TwitterUser>>>) -> Unit)
 }

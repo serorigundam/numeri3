@@ -18,8 +18,9 @@ class RepositoryModule {
     fun provideAccountRepository(app: App,
                                  db: AccountDatabase,
                                  oauthSupportFactory: IOAuthSupportFactory,
-                                 twitterClientFactory: ITwitterClientFactory): IAccountRepository
-            = AccountRepository(app, db, oauthSupportFactory, twitterClientFactory)
+                                 twitterClientFactory: ITwitterClientFactory,
+                                 timelineInfoRepository: ITimelineInfoRepository): IAccountRepository
+            = AccountRepository(app, db, oauthSupportFactory, twitterClientFactory, timelineInfoRepository)
 
     @Singleton
     @Provides
@@ -44,4 +45,8 @@ class RepositoryModule {
                                        userRepository: ITwitterUserRepository,
                                        tweetRepository: ITweetRepository): ITwitterStreamRepository
             = TwitterStreamRepository(factory, userRepository, tweetRepository)
+
+    @Singleton
+    @Provides
+    fun provideTimelineRepository(db: AccountDatabase): ITimelineInfoRepository = TimelineInfoRepository(db)
 }

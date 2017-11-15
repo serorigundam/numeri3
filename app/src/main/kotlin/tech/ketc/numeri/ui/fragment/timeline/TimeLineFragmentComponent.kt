@@ -4,8 +4,8 @@ import dagger.Subcomponent
 import dagger.android.AndroidInjector
 
 @Subcomponent
-interface TimeLineFragmentComponent : AndroidInjector<TimeLineFragment> {
+interface TimeLineFragmentComponent : AndroidInjector<TimelineFragment> {
 
     @Subcomponent.Builder
-    abstract class Builder : AndroidInjector.Builder<TimeLineFragment>()
+    abstract class Builder : AndroidInjector.Builder<TimelineFragment>()
 }

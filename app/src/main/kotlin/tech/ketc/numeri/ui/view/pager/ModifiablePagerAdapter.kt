@@ -6,18 +6,24 @@ import android.support.v4.app.Fragment
 import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
+import tech.ketc.numeri.util.Logger
 import java.io.Serializable
 
 @Suppress("UNCHECKED_CAST")
-class ModifiableViewPager<in ID : Serializable, in F : Fragment>(private val fm: FragmentManager)
+class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: FragmentManager)
     : FragmentStatePagerAdapter(fm) {
     private val mContents = ArrayList<Content<ID, F>>()
 
     private var previousContents = ArrayList<Content<ID, F>>()
+    private var restore = false
 
     override fun getItem(position: Int): Fragment = mContents[position].fragment
 
+    fun getContent(position: Int): Content<ID, F> = mContents[position]
+
     override fun getCount(): Int = mContents.count()
+
+    override fun getPageTitle(position: Int) = mContents[position].name
 
     fun setContents(contents: List<Content<ID, F>>) {
         previousContents = mContents
@@ -40,44 +46,58 @@ class ModifiableViewPager<in ID : Serializable, in F : Fragment>(private val fm:
     override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
         super.restoreState(state, loader)
         if (state != null) {
+            restore = true
             val bundle = state as Bundle
             val keys = bundle.keySet()
             val fragments = ArrayList<Pair<Int, F>>()
             val ids = ArrayList<Pair<Int, ID>>()
+            val names = ArrayList<Pair<Int, String>>()
             keys.forEach {
-                if (it.startsWith("f")) {
-                    val index = Integer.parseInt(it.substring(1))
-                    val fragment = fm.getFragment(bundle, it) as? F
-                    fragment?.let { f -> fragments.add(index to f) }
-                    notifyDataSetChanged()
-                } else if (it.startsWith("i")) {
-                    val index = Integer.parseInt(it.substring(1))
-                    val id = bundle.getSerializable(it) as? ID
-                    id?.let { ids.add(index to id) }
+                when {
+                    it.startsWith("f") -> {
+                        val index = Integer.parseInt(it.substring(1))
+                        val fragment = fm.getFragment(bundle, it) as? F
+                        fragment?.let { fragments.add(index to it) }
+                    }
+                    it.startsWith("i") -> {
+                        val index = Integer.parseInt(it.substring(1))
+                        val id = bundle.getSerializable(it) as? ID
+                        id?.let { ids.add(index to it) }
+                    }
+                    it.startsWith("n") -> {
+                        val index = Integer.parseInt(it.substring(1))
+                        val name = bundle.getString(it)
+                        name?.let { names.add(index to it) }
+                    }
                 }
             }
             val size = ids.size
             if (fragments.size != size) throw InternalError()
-            (0..(size - 1)).mapTo(mContents) { Content(ids[it].second, fragments[it].second) }
+            (0..(size - 1)).mapTo(mContents) { Content(ids[it].second, fragments[it].second, names[it].second) }
+            previousContents.addAll(mContents)
+            Logger.v(javaClass.name, "restoreState")
+            Logger.v(javaClass.name, mContents.joinToString(",") { "${it.id} ${it.fragment} ${it.name}" })
             notifyDataSetChanged()
         }
     }
 
-    override fun saveState(): Parcelable {
-        val state = super.saveState() as? Bundle ?: throw InternalError()
-        mContents.forEachIndexed { i, (id, _) ->
+    override fun saveState(): Parcelable? {
+        val state = super.saveState() as? Bundle ?: return null
+        mContents.forEachIndexed { i, (id, _, name) ->
             state.putSerializable("i$i", id)
+            state.putString("n$i", name)
         }
+        Logger.v(javaClass.name, "saveState")
         return state
     }
 
     override fun getItemPosition(`object`: Any): Int {
         val nonChange = mContents.any { content ->
-            content.fragment == `object`
+            content.fragment.id == (`object` as Fragment).id
                     && mContents.indexOf(content) == previousContents.indexOf(content)
         }
         return if (nonChange) PagerAdapter.POSITION_UNCHANGED else PagerAdapter.POSITION_NONE
     }
 
-    data class Content<out ID : Serializable, out F : Fragment>(val id: ID, val fragment: F)
+    data class Content<out ID : Serializable, out F : Fragment>(val id: ID, val fragment: F, val name: String)
 }

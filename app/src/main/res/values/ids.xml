@@ -56,7 +56,7 @@
     <item name="tab_follower" type="id" />
     <item name="buttons_relative" type="id" />
     <item name="follow_button" type="id" />
-    <item name="tweet_recycler" type="id" />
+    <item name="recycler" type="id" />
     <item name="text_input" type="id" />
     <item name="background_stream_text" type="id" />
     <item name="main_content" type="id" />

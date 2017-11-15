@@ -10,12 +10,16 @@ import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 import tech.ketc.numeri.util.arch.livedata.AsyncLiveData
 import tech.ketc.numeri.util.arch.response.Response
 
-class ClientHandler(accountRepository: IAccountRepository,
+class ClientHandler(private val accountRepository: IAccountRepository,
                     private val userRepository: ITwitterUserRepository)
     : IClientHandler {
 
-    override val clients = AsyncLiveData { accountRepository.clients() }
+    override val clients: AsyncLiveData<Set<TwitterClient>>
+        get() = AsyncLiveData { accountRepository.clients() }
 
     override fun getClientUser(owner: LifecycleOwner, client: TwitterClient, handle: (Response<TwitterUser>) -> Unit)
             = BindingLifecycleAsyncTask { client.getUser(userRepository) }.run(owner, handle)
+
+    override fun getClientUsers(owner: LifecycleOwner, clients: Set<TwitterClient>, handle: (Response<List<Pair<TwitterClient, TwitterUser>>>) -> Unit)
+            = BindingLifecycleAsyncTask { clients.map { it to it.getUser(userRepository) } }.run(owner, handle)
 }

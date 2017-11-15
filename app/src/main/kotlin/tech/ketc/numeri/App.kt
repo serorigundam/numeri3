@@ -1,5 +1,6 @@
 package tech.ketc.numeri
 
+import android.util.Log
 import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjector
 import dagger.android.DaggerApplication
@@ -17,6 +18,7 @@ class App : DaggerApplication() {
         val debug = resources.getBoolean(R.bool.debug)
         if (debug) {
             Logger.debug = true
+            Log.v(javaClass.name, "mode:debug")
         } else {
             Fabric.with(this, Crashlytics())
         }
@@ -25,6 +27,4 @@ class App : DaggerApplication() {
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
         return DaggerAppComponent.builder().create(this)
     }
-
-
 }

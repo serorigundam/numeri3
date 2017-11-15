@@ -51,4 +51,6 @@
     <string name="channel_send_tweet">ツイート送信</string>
     <string name="all_hashtag_tweet">全てのハッシュタグでツイート</string>
     <string name="message_failed_user_info">ユーザー情報の取得に失敗</string>
+    <string name="message_failed_acquire_info_necessary_for_browsing_timeline">タイムラインの閲覧に必要な情報の取得に失敗しました</string>
+    <string name="message_failure_acquire_tweet">ツイートの取得に失敗しました</string>
 </resources>

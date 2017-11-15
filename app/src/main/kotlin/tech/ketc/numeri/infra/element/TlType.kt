@@ -1,9 +1,10 @@
 package tech.ketc.numeri.infra.element
 
 import android.arch.persistence.room.TypeConverter
+import java.io.Serializable
 
-enum class TlType {
-    HOME, MENTIONS, USER, PUBLIC, FAVORITE, MEDIA;
+enum class TlType : Serializable {
+    HOME, MENTIONS, USER_LIST, PUBLIC, FAVORITE;
 
     class Converter {
         @TypeConverter

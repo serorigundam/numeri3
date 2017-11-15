@@ -10,10 +10,10 @@ import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.ui.initialize
 
-class TimelineUIComponent : ITimelineUIComponent {
+class SwipeRefreshRecyclerComponent : ISwipeRefreshRecyclerComponent {
     override lateinit var swipeRefresh: SwipeRefreshLayout
         private set
-    override lateinit var timelineRecycler: RecyclerView
+    override lateinit var recycler: RecyclerView
         private set
 
     override fun createView(ctx: Context) = ctx.relativeLayout {
@@ -22,9 +22,9 @@ class TimelineUIComponent : ITimelineUIComponent {
             swipeRefresh = this
             id = R.id.swipe_refresh
             recyclerView {
-                timelineRecycler = this
+                recycler = this
                 lparams(matchParent, matchParent)
-                id = R.id.tweet_recycler
+                id = R.id.recycler
                 isVerticalScrollBarEnabled = true
                 initialize()
             }

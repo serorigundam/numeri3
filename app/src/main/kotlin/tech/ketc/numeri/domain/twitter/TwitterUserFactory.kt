@@ -23,6 +23,10 @@ class TwitterUserFactory : ITwitterUserFactory {
         } ?: lock.write { TwitterUserInternal(user).also { map.put(it.id, it) } }
     }
 
+    override fun get(id: Long): TwitterUser? {
+        return lock.read { map[id] }
+    }
+
     override fun addUpdateListener(listener: UserUpdateListener) {
         updateListeners.add(listener)
     }
