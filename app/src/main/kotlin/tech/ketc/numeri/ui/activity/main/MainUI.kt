@@ -107,7 +107,7 @@ class MainUI : IMainUI {
             backgroundColor = Color.parseColor("#10505050")
             imageView {
                 id = R.id.icon_image
-                image = ctx.getDrawable(R.mipmap.ic_launcher)
+                image = ctx.getDrawable(R.drawable.ic_launcher)
             }.lparams(dimen(R.dimen.image_icon_large), dimen(R.dimen.image_icon_large)) {
                 topMargin = dimen(R.dimen.margin_medium)
                 marginStart = dimen(R.dimen.margin_medium)
