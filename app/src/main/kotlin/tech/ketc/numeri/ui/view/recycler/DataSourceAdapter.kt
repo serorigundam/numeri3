@@ -40,6 +40,8 @@ abstract class DataSourceAdapter
     private var isProgress = false
     private var mStoreLiveData: MutableLiveData<List<Value>>? = null
 
+    protected fun items() = mValues
+
     fun setStoreLiveData(store: MutableLiveData<List<Value>>) {
         mStoreLiveData = store
     }
@@ -112,12 +114,6 @@ abstract class DataSourceAdapter
             complete()
             it.ifError(error)
         }
-    }
-
-    fun insertTop(value: Value) {
-        if (mValues.any { it == value }) return
-        mValues.add(0, value)
-        notifyItemInserted(0)
     }
 
     override fun getItemCount(): Int {

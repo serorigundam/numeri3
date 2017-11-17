@@ -38,6 +38,11 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
 
     private val stream by lazy { getStream(mClient!!) }
 
+    val dataSource by lazy {
+        val info = mTimelineInfo!!
+        TimeLineDataSource(createDataSourceDelegate(tweetRepository, info.foreignId, info.type, mClient!!))
+    }
+
     fun initialize(timelineInfo: TimelineInfo, owner: LifecycleOwner, callback: (TwitterClient) -> Unit, error: (Throwable) -> Unit) {
         mTimelineInfo = timelineInfo
         clients.observe(owner) {
@@ -49,33 +54,25 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
         }
     }
 
+    private fun createOnStatusHandler(type: TlType): OnStatusHandler? = when (type) {
+        TlType.HOME -> HomeHandler()
+        TlType.MENTIONS -> MentionsHandler()
+        TlType.USER_LIST -> null
+        TlType.PUBLIC -> null
+        TlType.FAVORITE -> null
+    }
+
     fun startStream(owner: LifecycleOwner, handle: (Tweet) -> Unit): Boolean {
         val type = mTimelineInfo!!.type
-        if (type != TlType.HOME && type != TlType.MENTIONS) return false
+        val handler = createOnStatusHandler(type) ?: return false
         stream.latestTweet.observe(owner) { tweet ->
-            if (type == TlType.MENTIONS) {
-                if (tweet.isMention(mClient!!)) handle(tweet)
-            } else {
-                handle(tweet)
-            }
+            handler.onStatus(mClient!!, tweet, handle)
         }
         return true
     }
 
-    val dataSource by lazy {
-        TimeLineDataSource {
-            val foreignId = mTimelineInfo!!.foreignId
-            when (mTimelineInfo!!.type) {
-                TlType.HOME -> mClient!!.home(it, tweetRepository)
-                TlType.MENTIONS -> mClient!!.mentions(it, tweetRepository)
-                TlType.USER_LIST -> mClient!!.userList(it, tweetRepository, foreignId)
-                TlType.PUBLIC -> mClient!!.public(it, tweetRepository, foreignId)
-                TlType.FAVORITE -> mClient!!.favorite(it, tweetRepository, foreignId)
-            }
-        }
-    }
-
     companion object {
+
         private val home: TwitterClient.(Paging, ITweetRepository) -> MutableList<Tweet> = { paging, repo ->
             twitter.getHomeTimeline(paging).map { repo.createOrUpdate(it) }.toMutableList()
         }
@@ -91,5 +88,41 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
         private val favorite: TwitterClient.(Paging, ITweetRepository, Long) -> MutableList<Tweet> = { paging, repo, userId ->
             twitter.getFavorites(userId, paging).map { repo.createOrUpdate(it) }.toMutableList()
         }
+
+        private fun createDataSourceDelegate(repository: ITweetRepository, foreignId: Long, type: TlType,
+                                             client: TwitterClient): (Paging) -> MutableList<Tweet> = when (type) {
+            TlType.HOME -> {
+                { client.home(it, repository) }
+            }
+            TlType.MENTIONS -> {
+                { client.mentions(it, repository) }
+            }
+            TlType.USER_LIST -> {
+                { client.userList(it, repository, foreignId) }
+            }
+            TlType.PUBLIC -> {
+                { client.public(it, repository, foreignId) }
+            }
+            TlType.FAVORITE -> {
+                { client.favorite(it, repository, foreignId) }
+            }
+        }
     }
+
+    private interface OnStatusHandler {
+        fun onStatus(client: TwitterClient, tweet: Tweet, handle: (Tweet) -> Unit)
+    }
+
+    private class HomeHandler : OnStatusHandler {
+        override fun onStatus(client: TwitterClient, tweet: Tweet, handle: (Tweet) -> Unit) {
+            handle(tweet)
+        }
+    }
+
+    private class MentionsHandler : OnStatusHandler {
+        override fun onStatus(client: TwitterClient, tweet: Tweet, handle: (Tweet) -> Unit) {
+            if (tweet.isMention(client)) handle(tweet)
+        }
+    }
+
 }

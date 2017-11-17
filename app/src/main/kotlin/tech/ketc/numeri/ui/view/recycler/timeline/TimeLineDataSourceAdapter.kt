@@ -14,4 +14,25 @@ class TimeLineDataSourceAdapter(owner: LifecycleOwner,
     override fun onBindValueViewHolder(holder: TweetViewHolder, position: Int) {
         holder.bind(getItem(position))
     }
+
+    private val storedList = ArrayList<Tweet>()
+
+    fun store(value: Tweet) {
+        storedList.add(0, value)
+    }
+
+    fun insertTop(value: Tweet) {
+        val items = items()
+        if (items.any { it == value }) return
+        items.add(0, value)
+        notifyItemInserted(0)
+    }
+
+    fun marge() {
+        val items = items()
+        val filtered = storedList.filter { tweet -> !items.any { it == tweet } }
+        storedList.clear()
+        items.addAll(0, filtered)
+        notifyItemRangeInserted(0, filtered.size)
+    }
 }

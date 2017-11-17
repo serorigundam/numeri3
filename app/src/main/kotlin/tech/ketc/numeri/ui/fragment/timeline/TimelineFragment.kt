@@ -34,8 +34,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
     private var savedTopChildAdapterPosition: Int? = null
     private var mAdapter: TimeLineDataSourceAdapter? = null
     private val pref by lazy { act.pref }
-    private var mIsStreamEnabled = false
-    private var mIsEnableAutoScroll = false
+    private var mIsStreamEnabled = true
+    private var mIsEnableAutoScroll = true
     private var mIsStreamStart = false
 
     companion object {
@@ -108,6 +108,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
             if (mIsStreamEnabled) {
                 mAdapter!!.insertTop(it)
                 if (mIsEnableAutoScroll) autoScroll()
+            } else {
+                mAdapter!!.store(it)
             }
         }
         setSwipeRefreshEnabled()
@@ -130,10 +132,21 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
     }
 
     private fun loadPrefSetting() {
+        val prevStreamEnabled = mIsStreamEnabled
         mIsStreamEnabled = pref.getBoolean(getString(R.string.pref_key_is_stream_enabled), true)
         mIsEnableAutoScroll = pref.getBoolean(getString(R.string.pref_key_auto_scroll), true)
+        if (mIsStreamStart && prevStreamEnabled != mIsStreamEnabled) {
+            changeStreamSetting()
+        }
         Logger.v(logTag, "isStreamEnabled $mIsStreamEnabled")
     }
+
+    private fun changeStreamSetting() {
+        if (mIsStreamEnabled) {
+            mAdapter!!.marge()
+        }
+    }
+
 
     override fun onSaveInstanceState(outState: Bundle) {
         getChildAdapterPosition()?.let {
