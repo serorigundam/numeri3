@@ -1,14 +1,12 @@
 package tech.ketc.numeri.domain.twitter
 
-import android.arch.lifecycle.LiveData
-import android.arch.lifecycle.MutableLiveData
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.ITweetRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
 import tech.ketc.numeri.domain.twitter.client.*
 import tech.ketc.numeri.domain.twitter.client.TwitterStream
 import tech.ketc.numeri.domain.twitter.model.Tweet
-import tech.ketc.numeri.util.arch.livedata.mediate
+import tech.ketc.numeri.util.arch.StreamSource
 import twitter4j.*
 import twitter4j.TwitterStreamFactory
 import java.lang.Exception
@@ -44,31 +42,23 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
             stream.user()
         }
 
-        val mLatestTweet = MutableLiveData<Tweet>()
-        val mLatestTweetDeletionNotice = MutableLiveData<StatusDeletionNotice>()
-        val mLatestFavoriteNotice = MutableLiveData<StatusNotice>()
-        val mLatestUnFavoriteNotice = MutableLiveData<StatusNotice>()
-        val mLatestFollowNotice = MutableLiveData<UserNotice>()
-        val mLatestUnFollowNotice = MutableLiveData<UserNotice>()
-        val mLatestBlockNotice = MutableLiveData<UserNotice>()
-        val mLatestUnBlockNotice = MutableLiveData<UserNotice>()
+        val mLatestTweet = StreamSource<Tweet>()
+        val mLatestTweetDeletionNotice = StreamSource<StatusDeletionNotice>()
+        val mLatestFavoriteNotice = StreamSource<StatusNotice>()
+        val mLatestUnFavoriteNotice = StreamSource<StatusNotice>()
+        val mLatestFollowNotice = StreamSource<UserNotice>()
+        val mLatestUnFollowNotice = StreamSource<UserNotice>()
+        val mLatestBlockNotice = StreamSource<UserNotice>()
+        val mLatestUnBlockNotice = StreamSource<UserNotice>()
 
-        override val latestTweet: LiveData<Tweet>
-            get() = mLatestTweet.mediate()
-        override val latestTweetDeletionNotice: LiveData<StatusDeletionNotice>
-            get() = mLatestTweetDeletionNotice.mediate()
-        override val latestFavoriteNotice: LiveData<StatusNotice>
-            get() = mLatestFavoriteNotice.mediate()
-        override val latestUnFavoriteNotice: LiveData<StatusNotice>
-            get() = mLatestUnFavoriteNotice.mediate()
-        override val latestFollowNotice: LiveData<UserNotice>
-            get() = mLatestFollowNotice.mediate()
-        override val latestUnFollowNotice: LiveData<UserNotice>
-            get() = mLatestUnFollowNotice.mediate()
-        override val latestBlockNotice: LiveData<UserNotice>
-            get() = mLatestBlockNotice.mediate()
-        override val latestUnBlockNotice: LiveData<UserNotice>
-            get() = mLatestUnBlockNotice.mediate()
+        override val latestTweet = mLatestTweet.stream()
+        override val latestTweetDeletionNotice = mLatestTweetDeletionNotice.stream()
+        override val latestFavoriteNotice = mLatestFavoriteNotice.stream()
+        override val latestUnFavoriteNotice = mLatestUnFavoriteNotice.stream()
+        override val latestFollowNotice = mLatestFollowNotice.stream()
+        override val latestUnFollowNotice = mLatestUnFollowNotice.stream()
+        override val latestBlockNotice = mLatestBlockNotice.stream()
+        override val latestUnBlockNotice = mLatestUnBlockNotice.stream()
 
         private fun User.toTwitterUser() = toTwitterUser(userRepository)
 
@@ -78,13 +68,13 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onFavorite(source: User, target: User, favoritedStatus: Status) {
-            mLatestFavoriteNotice.postValue(StatusNotice(source.toTwitterUser(),
+            mLatestFavoriteNotice.post(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
                     favoritedStatus.toTweet()))
         }
 
         override fun onBlock(source: User, blockedUser: User) {
-            mLatestBlockNotice.postValue(UserNotice(source.toTwitterUser(), blockedUser.toTwitterUser()))
+            mLatestBlockNotice.post(UserNotice(source.toTwitterUser(), blockedUser.toTwitterUser()))
         }
 
         override fun onUserListUpdate(listOwner: User, list: UserList) {
@@ -106,7 +96,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
-            mLatestTweetDeletionNotice.postValue(statusDeletionNotice)
+            mLatestTweetDeletionNotice.post(statusDeletionNotice)
         }
 
         override fun onUserProfileUpdate(updatedUser: User) {
@@ -120,7 +110,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onFollow(source: User, followedUser: User) {
-            mLatestFollowNotice.postValue(UserNotice(source.toTwitterUser(), followedUser.toTwitterUser()))
+            mLatestFollowNotice.post(UserNotice(source.toTwitterUser(), followedUser.toTwitterUser()))
         }
 
         override fun onUserListMemberDeletion(deletedMember: User, listOwner: User, list: UserList) {
@@ -130,7 +120,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnfollow(source: User, unfollowedUser: User) {
-            mLatestUnFollowNotice.postValue(UserNotice(source.toTwitterUser(), unfollowedUser.toTwitterUser()))
+            mLatestUnFollowNotice.post(UserNotice(source.toTwitterUser(), unfollowedUser.toTwitterUser()))
         }
 
         override fun onRetweetedRetweet(source: User, target: User, retweetedStatus: Status) {
@@ -149,7 +139,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnfavorite(source: User, target: User, unfavoritedStatus: Status) {
-            mLatestUnFavoriteNotice.postValue(StatusNotice(source.toTwitterUser(),
+            mLatestUnFavoriteNotice.post(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
                     unfavoritedStatus.toTweet()))
         }
@@ -161,11 +151,11 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnblock(source: User, unblockedUser: User) {
-            mLatestUnBlockNotice.postValue(UserNotice(source.toTwitterUser(), unblockedUser.toTwitterUser()))
+            mLatestUnBlockNotice.post(UserNotice(source.toTwitterUser(), unblockedUser.toTwitterUser()))
         }
 
         override fun onStatus(status: Status) {
-            mLatestTweet.postValue(status.toTweet())
+            mLatestTweet.post(status.toTweet())
         }
 
         override fun onUserSuspension(suspendedUser: Long) {

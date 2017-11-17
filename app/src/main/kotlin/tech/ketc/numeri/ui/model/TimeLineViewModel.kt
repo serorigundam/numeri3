@@ -11,7 +11,6 @@ import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSource
-import tech.ketc.numeri.util.arch.livedata.observeNonnullOnly
 import twitter4j.Paging
 import javax.inject.Inject
 
@@ -53,7 +52,7 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
     fun startStream(owner: LifecycleOwner, handle: (Tweet) -> Unit): Boolean {
         val type = mTimelineInfo!!.type
         if (type != TlType.HOME && type != TlType.MENTIONS) return false
-        stream.latestTweet.observeNonnullOnly(owner) { tweet ->
+        stream.latestTweet.observe(owner) { tweet ->
             if (type == TlType.MENTIONS) {
                 if (tweet.isMention(mClient!!)) handle(tweet)
             } else {
