@@ -40,6 +40,9 @@ abstract class DataSourceAdapter
     private var isProgress = false
     private var mStoreLiveData: MutableLiveData<List<Value>>? = null
 
+    /**
+     * be careful about the adapter state when making changes to items
+     */
     protected fun items() = mValues
 
     fun setStoreLiveData(store: MutableLiveData<List<Value>>) {
