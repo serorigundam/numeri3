@@ -7,10 +7,10 @@ import android.graphics.Color
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
+import kotlinx.coroutines.experimental.Job
 import org.jetbrains.anko.backgroundColor
 import org.jetbrains.anko.image
 import tech.ketc.numeri.R
-import tech.ketc.numeri.domain.model.BitmapContent
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.isMention
 import tech.ketc.numeri.domain.twitter.model.Tweet
@@ -19,7 +19,8 @@ import tech.ketc.numeri.ui.components.TweetUIComponent
 import tech.ketc.numeri.ui.model.delegate.IImageLoadable
 import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.ui.enableRippleEffect
-import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
+import tech.ketc.numeri.util.arch.coroutine.bindLaunch
+import tech.ketc.numeri.util.coroutine.dispose
 
 class TweetViewHolder(ctx: Context,
                       private val mClient: TwitterClient,
@@ -30,14 +31,14 @@ class TweetViewHolder(ctx: Context,
         ITweetUIComponent by tweetUIComponent
         , IImageLoadable by imageLoadable {
     private val mContext = itemView.context
-    private val mImageLoadTasks = ArrayList<BindingLifecycleAsyncTask<BitmapContent>>()
+    private val mImageLoadTasks = ArrayList<Job>()
 
     init {
         itemView.enableRippleEffect()
     }
 
     fun bind(tweet: Tweet) {
-        mImageLoadTasks.forEach(BindingLifecycleAsyncTask<BitmapContent>::cancel)
+        mImageLoadTasks.forEach(Job::dispose)
         mImageLoadTasks.clear()
         val displayTweet = tweet.retweetedTweet ?: tweet
         setColor(tweet)
@@ -48,12 +49,10 @@ class TweetViewHolder(ctx: Context,
 
     private fun ImageView.setImageUrl(url: String, cache: Boolean = true) {
         setImageBitmap(null)
-        imageLoad(mOwner, url, cache) {
-            it.ifPresent { (bitmap, _) ->
-                setImageBitmap(bitmap)
-                fadeIn()
-            }
-        }.let { mImageLoadTasks.add(it) }
+        bindLaunch(mOwner) {
+            val res = imageLoad(url, cache).await()
+            res.ifPresent { (b, _) -> setImageBitmap(b);fadeIn() }
+        }.also { mImageLoadTasks.add(it) }
     }
 
     @SuppressLint("SetTextI18n")
