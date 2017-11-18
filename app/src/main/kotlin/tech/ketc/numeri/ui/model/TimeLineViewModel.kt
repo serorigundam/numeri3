@@ -3,6 +3,8 @@ package tech.ketc.numeri.ui.model
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
+import kotlinx.coroutines.experimental.Deferred
+import kotlinx.coroutines.experimental.async
 import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.isMention
@@ -11,16 +13,18 @@ import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSource
+import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.arch.response.response
 import twitter4j.Paging
 import javax.inject.Inject
 
-class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository,
+class TimeLineViewModel @Inject constructor(private val mAccountRepository: AccountRepository,
                                             userRepository: ITwitterUserRepository,
                                             imageRepository: IImageRepository,
                                             streamRepository: ITwitterStreamRepository,
                                             private val mTweetRepository: ITweetRepository)
     : ViewModel(),
-        IClientHandler by ClientHandler(accountRepository, userRepository),
+        IClientHandler by ClientHandler(mAccountRepository, userRepository),
         IImageLoadable by ImageLoadable(imageRepository) {
 
     private var mClient: TwitterClient? = null
@@ -42,14 +46,13 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
         TimeLineDataSource(createDataSourceDelegate(mTweetRepository, info.foreignId, info.type, mClient!!))
     }
 
-    fun initialize(timelineInfo: TimelineInfo, owner: LifecycleOwner, callback: (TwitterClient) -> Unit, error: (Throwable) -> Unit) {
+    fun initialize(timelineInfo: TimelineInfo): Deferred<Response<TwitterClient>> {
         mTimelineInfo = timelineInfo
-        clients.observe(owner) {
-            it.ifPresent {
-                mClient = it.find { it.id == timelineInfo.accountId }
-                callback(mClient!!)
+        return async {
+            response {
+                val clients = mAccountRepository.clients()
+                clients.find { it.id == timelineInfo.accountId }!!.also { mClient = it }
             }
-            it.ifError { error(it) }
         }
     }
 

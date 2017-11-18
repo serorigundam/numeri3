@@ -10,6 +10,10 @@ inline fun <T : Any> Response<T>.orElseGet(supply: () -> T) = nullable() ?: supp
 
 fun <T : Any> Response<T>.orElse(other: T) = nullable() ?: other
 
+inline fun <T : Any> Response<T>.orError(error: (Throwable) -> Unit) = nullable().also {
+    if (!isSuccessful) error(this.error)
+}
+
 fun <R : Any> response(func: () -> R): Response<R> {
     var result: R? = null
     var throwable: Throwable? = null

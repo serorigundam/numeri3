@@ -23,6 +23,8 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.pref
+import tech.ketc.numeri.util.arch.owner.bindLaunch
+import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent by SwipeRefreshRecyclerComponent() {
@@ -57,11 +59,13 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
         savedInstanceState?.let { restoreInstanceState(it) }
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         loadPrefSetting()
-        mModel.initialize(mTlInfo, this, callback = {
-            initialize(it)
-        }, error = {
-            toast(R.string.message_failed_acquire_info_necessary_for_browsing_timeline)
-        })
+        bindLaunch {
+            val res = mModel.initialize(mTlInfo).await()
+            val client = res.orError {
+                toast(R.string.message_failed_acquire_info_necessary_for_browsing_timeline)
+            } ?: return@bindLaunch
+            initialize(client)
+        }
     }
 
     private fun initialize(client: TwitterClient) {

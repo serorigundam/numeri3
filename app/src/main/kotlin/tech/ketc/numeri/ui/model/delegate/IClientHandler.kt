@@ -1,13 +1,12 @@
 package tech.ketc.numeri.ui.model.delegate
 
-import android.arch.lifecycle.LifecycleOwner
+import kotlinx.coroutines.experimental.Deferred
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
-import tech.ketc.numeri.util.arch.livedata.AsyncLiveData
 import tech.ketc.numeri.util.arch.response.Response
 
 interface IClientHandler {
-    val clients: AsyncLiveData<Set<TwitterClient>>
-    fun getClientUser(owner: LifecycleOwner, client: TwitterClient, handle: (Response<TwitterUser>) -> Unit)
-    fun getClientUsers(owner: LifecycleOwner, clients: Set<TwitterClient>, handle: (Response<List<Pair<TwitterClient, TwitterUser>>>) -> Unit)
+    fun clients(): Deferred<Response<Set<TwitterClient>>>
+    fun getClientUser(client: TwitterClient): Deferred<Response<TwitterUser>>
+    fun getClientUsers(clients: Set<TwitterClient>): Deferred<Response<List<Pair<TwitterClient, TwitterUser>>>>
 }

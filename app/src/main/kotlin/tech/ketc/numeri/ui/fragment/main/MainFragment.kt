@@ -7,6 +7,8 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import org.jetbrains.anko.support.v4.toast
+import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.entity.TimelineInfo
@@ -18,6 +20,8 @@ import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.arg
+import tech.ketc.numeri.util.arch.owner.bindLaunch
+import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.viewmodel.commonViewModel
 import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
@@ -51,13 +55,16 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         pager.adapter = mPagerAdapter
         tab.addOnTabSelectedListener(this)
         if (savedInstanceState == null)
-            mModel.clients.observe(this) {
-                it.ifPresent {
-                    mModel.getClientUsers(this, it) {
-                        it.ifPresent { initializeTimeline(it) }
-                    }
-                }
-                it.ifError { it.printStackTrace() }
+            bindLaunch {
+                val clientRes = mModel.clients().await()
+                val clients = clientRes.orError {
+                    toast(R.string.message_failed_user_info)
+                } ?: return@bindLaunch
+                val usersRes = mModel.getClientUsers(clients).await()
+                val users = usersRes.orError {
+                    toast(R.string.message_failed_user_info)
+                } ?: return@bindLaunch
+                initializeTimeline(users)
             }
     }
 

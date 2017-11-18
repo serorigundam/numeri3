@@ -33,6 +33,7 @@ import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.fadeOut
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.owner.bindLaunch
+import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
 import tech.ketc.numeri.util.logTag
@@ -120,17 +121,15 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
-        mModel.clients.observe(this) { res ->
-            res.ifPresent {
-                if (it.isEmpty()) showAddAccountDialog()
-                else initializeAccountListComponent(it)
-                if (savedInstanceState == null)
-                    initializeTimelineGroup()
-            }
-            res.ifError {
+        bindLaunch {
+            val clientsRes = mModel.clients().await()
+            val clients = clientsRes.orError {
                 toast(R.string.message_failed_user_info)
-                it.printStackTrace()
-            }
+            } ?: return@bindLaunch
+            if (clients.isEmpty()) showAddAccountDialog()
+            else initializeAccountListComponent(clients)
+            if (savedInstanceState == null)
+                initializeTimelineGroup()
         }
     }
 
@@ -174,12 +173,13 @@ class MainActivity : AppCompatActivity(), AutoInject,
             observeAccountUpdate(user, component)
         }
 
-        mModel.getClientUser(this, client) {
-            it.ifPresent { addAccountComponent(it) }
-            it.ifError {
+        bindLaunch {
+            val res = mModel.getClientUser(client).await()
+            val user = res.orError {
                 val message = getString(R.string.message_failed_user_info)
                 toast("$message accountId:${client.id}")
-            }
+            } ?: return@bindLaunch
+            addAccountComponent(user)
         }
     }
 
