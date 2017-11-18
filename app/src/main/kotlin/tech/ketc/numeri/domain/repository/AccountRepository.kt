@@ -16,20 +16,20 @@ import javax.inject.Inject
 import kotlin.concurrent.read
 import kotlin.concurrent.write
 
-class AccountRepository @Inject constructor(private val app: App,
-                                            private val db: AccountDatabase,
-                                            private val oAuthSupportFactory: IOAuthSupportFactory,
-                                            private val twitterClientFactory: ITwitterClientFactory,
-                                            private val timelineInfoRepository: ITimelineInfoRepository)
+class AccountRepository @Inject constructor(private val mApp: App,
+                                            private val mDatabase: AccountDatabase,
+                                            private val mOAuthSupportFactory: IOAuthSupportFactory,
+                                            private val mTwitterClientFactory: ITwitterClientFactory,
+                                            private val mTimelineInfoRepository: ITimelineInfoRepository)
     : IAccountRepository {
     private var mOAuthSupport: OAuthSupport? = null
     private var mClients: MutableSet<TwitterClient>? = null
-    private val dao = db.accountDao()
-    private val lock = ReentrantReadWriteLock()
+    private val mDao = mDatabase.accountDao()
+    private val mLock = ReentrantReadWriteLock()
 
     override fun createAuthorizationURL(): String {
-        val oAuthSupport = oAuthSupportFactory.create()
-        val oAuthRequestToken = oAuthSupport.getOAuthRequestToken(app.twitterCallbackUrl)
+        val oAuthSupport = mOAuthSupportFactory.create()
+        val oAuthRequestToken = oAuthSupport.getOAuthRequestToken(mApp.twitterCallbackUrl)
         val authorizationURL: String? = oAuthRequestToken.authorizationURL
         return authorizationURL?.also {
             mOAuthSupport = oAuthSupport
@@ -43,14 +43,14 @@ class AccountRepository @Inject constructor(private val app: App,
             return set
         }
 
-        return lock.write {
+        return mLock.write {
             val oAuthSupport = mOAuthSupport ?: throw IllegalStateException("need to call the clients createAuthorizationURL()")
             val accessToken = oAuthSupport.getOAuthAccessToken(oauthVerifier)
             val accountToken = AccountToken(accessToken)
-            dao.insert(accountToken)
+            mDao.insert(accountToken)
             val clients = mClients ?: create()
             val generate = clients.isEmpty()
-            twitterClientFactory.create(accountToken).also {
+            mTwitterClientFactory.create(accountToken).also {
                 clients.add(it)
                 if (generate)
                     createDefaultTimelineGroup(accountToken)
@@ -59,19 +59,19 @@ class AccountRepository @Inject constructor(private val app: App,
     }
 
     private fun createDefaultTimelineGroup(token: AccountToken) {
-        val group = timelineInfoRepository.createGroup("Main")
+        val group = mTimelineInfoRepository.createGroup("Main")
         val accountId = token.id
-        val home = timelineInfoRepository.getInfo(TlType.HOME, accountId)
-        val mentions = timelineInfoRepository.getInfo(TlType.MENTIONS, accountId)
-        timelineInfoRepository.joinToGroup(group, home)
-        timelineInfoRepository.joinToGroup(group, mentions)
-        timelineInfoRepository.notifyDataChanged()
+        val home = mTimelineInfoRepository.getInfo(TlType.HOME, accountId)
+        val mentions = mTimelineInfoRepository.getInfo(TlType.MENTIONS, accountId)
+        mTimelineInfoRepository.joinToGroup(group, home)
+        mTimelineInfoRepository.joinToGroup(group, mentions)
+        mTimelineInfoRepository.notifyDataChanged()
     }
 
 
-    private fun createClients() = lock.read {
-        val tokens = dao.selectAll()
-        tokens.map { twitterClientFactory.create(it) }.toSet().also {
+    private fun createClients() = mLock.read {
+        val tokens = mDao.selectAll()
+        tokens.map { mTwitterClientFactory.create(it) }.toSet().also {
             mClients = it.toMutableSet()
         }
     }
@@ -80,13 +80,13 @@ class AccountRepository @Inject constructor(private val app: App,
 
 
     override fun deleteClient(twitterClient: TwitterClient) {
-        lock.write {
+        mLock.write {
             val clients = mClients
             clients ?: throw IllegalStateException("need to call the clients() or createTwitterClient()")
             if (clients.isEmpty()) throw IllegalStateException("TwitterClient is not registered")
             val deletionClient = clients.find { it.id == twitterClient.id }
                     ?: throw IllegalArgumentException("does not exist specified twitterClient")
-            dao.deleteById(deletionClient.id)
+            mDao.deleteById(deletionClient.id)
             clients.remove(deletionClient)
         }
     }

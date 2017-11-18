@@ -11,42 +11,42 @@ import kotlin.concurrent.write
 
 class TwitterUserFactory : ITwitterUserFactory {
 
-    private val map = LinkedHashMap<Long, TwitterUserInternal>()
-    private val updateListeners = ArrayList<UserUpdateListener>()
-    private val deleteListeners = ArrayList<UserDeleteListener>()
+    private val mMap = LinkedHashMap<Long, TwitterUserInternal>()
+    private val mUpdateListeners = ArrayList<UserUpdateListener>()
+    private val mDeleteListeners = ArrayList<UserDeleteListener>()
 
-    private val lock = ReentrantReadWriteLock()
+    private val mLock = ReentrantReadWriteLock()
 
     override fun createOrGet(user: User): TwitterUser {
-        return lock.read { map[user.id] }?.also { tu ->
-            if (tu.update(user)) updateListeners.forEach { it(tu) }
-        } ?: lock.write { TwitterUserInternal(user).also { map.put(it.id, it) } }
+        return mLock.read { mMap[user.id] }?.also { tu ->
+            if (tu.update(user)) mUpdateListeners.forEach { it(tu) }
+        } ?: mLock.write { TwitterUserInternal(user).also { mMap.put(it.id, it) } }
     }
 
     override fun get(id: Long): TwitterUser? {
-        return lock.read { map[id] }
+        return mLock.read { mMap[id] }
     }
 
     override fun addUpdateListener(listener: UserUpdateListener) {
-        updateListeners.add(listener)
+        mUpdateListeners.add(listener)
     }
 
     override fun removeUpdateListener(listener: UserUpdateListener) {
-        updateListeners.remove(listener)
+        mUpdateListeners.remove(listener)
     }
 
     override fun delete(user: TwitterUser) {
-        lock.read { map[user.id] } ?: return
-        deleteListeners.forEach { it(user) }
-        lock.write { map.remove(user.id) }
+        mLock.read { mMap[user.id] } ?: return
+        mDeleteListeners.forEach { it(user) }
+        mLock.write { mMap.remove(user.id) }
     }
 
     override fun addDeleteListener(listener: UserDeleteListener) {
-        deleteListeners.add(listener)
+        mDeleteListeners.add(listener)
     }
 
     override fun removeListener(listener: UserDeleteListener) {
-        deleteListeners.remove(listener)
+        mDeleteListeners.remove(listener)
     }
 
     private class TwitterUserInternal(user: User) : TwitterUser {

@@ -17,15 +17,15 @@ import kotlin.concurrent.write
 
 class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterStreamFactory {
 
-    private val map = LinkedHashMap<Long, TwitterStream>()
-    private val lock = ReentrantReadWriteLock()
+    private val mMap = LinkedHashMap<Long, TwitterStream>()
+    private val mLock = ReentrantReadWriteLock()
 
     override fun createOrGet(client: TwitterClient,
                              tweetRepository: ITweetRepository,
                              userRepository: ITwitterUserRepository): TwitterStream
-            = lock.read { map[client.id] }
+            = mLock.read { mMap[client.id] }
             ?: TwitterStreamInternal(app, client, tweetRepository, userRepository)
-            .also { lock.write { map.put(client.id, it) } }
+            .also { mLock.write { mMap.put(client.id, it) } }
 
 
     private class TwitterStreamInternal(app: App,

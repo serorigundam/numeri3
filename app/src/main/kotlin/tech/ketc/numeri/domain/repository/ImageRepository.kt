@@ -24,17 +24,17 @@ import kotlin.concurrent.read
 import kotlin.concurrent.write
 
 
-class ImageRepository @Inject constructor(private val app: App, private val db: ImageDatabase) : IImageRepository {
+class ImageRepository @Inject constructor(private val mApp: App, private val mDatabase: ImageDatabase) : IImageRepository {
 
     companion object {
         private val MAX = 5 * 1024 * 1024
         private val LOCAL_RECORD_MAX = 150
     }
 
-    private val dao = db.imageDao()
+    private val mDao = mDatabase.imageDao()
 
-    private val cacheLock = ReentrantReadWriteLock()
-    private val dbLock = ReentrantReadWriteLock()
+    private val mCacheLock = ReentrantReadWriteLock()
+    private val mDatabaseLock = ReentrantReadWriteLock()
 
 
     private val bitmapCache = object : LruCache<String, BitmapContent>(MAX) {
@@ -48,17 +48,17 @@ class ImageRepository @Inject constructor(private val app: App, private val db: 
 
     private fun localGet(urlStr: String): BitmapContent? {
         fun getForDB(): BitmapContent? {
-            val image = dbLock.read {
-                dao.selectById(urlStr)
+            val image = mDatabaseLock.read {
+                mDao.selectById(urlStr)
             } ?: return null
             val data = image.pngData
             val mimeType = image.mimeType
             val bitmap = BitmapFactory.decodeByteArray(data, 0, data.size)
             return BitmapContent(bitmap, mimeType).also {
-                cacheLock.write { bitmapCache.put(urlStr, it) }
+                mCacheLock.write { bitmapCache.put(urlStr, it) }
             }
         }
-        return cacheLock.read { bitmapCache[urlStr] } ?: getForDB()
+        return mCacheLock.read { bitmapCache[urlStr] } ?: getForDB()
     }
 
     private fun download(urlStr: String, cache: Boolean): BitmapContent {
@@ -103,7 +103,7 @@ class ImageRepository @Inject constructor(private val app: App, private val db: 
 
 
     private fun saveLocalDatabase(urlStr: String, content: BitmapContent) {
-        cacheLock.write { bitmapCache.put(urlStr, content) }
+        mCacheLock.write { bitmapCache.put(urlStr, content) }
         launch {
             val byteArray = async(coroutineContext + CommonPool) {
                 ByteArrayOutputStream().use {
@@ -112,9 +112,9 @@ class ImageRepository @Inject constructor(private val app: App, private val db: 
                 }
             }.await()
 
-            dbLock.write {
-                if (dao.count() == LOCAL_RECORD_MAX) dao.deleteOldest()
-                dao.insert(Image(urlStr, byteArray, content.mimeType))
+            mDatabaseLock.write {
+                if (mDao.count() == LOCAL_RECORD_MAX) mDao.deleteOldest()
+                mDao.insert(Image(urlStr, byteArray, content.mimeType))
             }
         }
     }
@@ -137,7 +137,7 @@ class ImageRepository @Inject constructor(private val app: App, private val db: 
             put(MediaStore.Images.Media.MIME_TYPE, mimeTypeStr)
             put(MediaStore.Images.Media.DATA, path)
         }
-        app.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
+        mApp.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
         return File(path)
     }
 }

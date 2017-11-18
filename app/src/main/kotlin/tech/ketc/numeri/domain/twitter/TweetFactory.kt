@@ -13,49 +13,49 @@ import kotlin.concurrent.write
 
 class TweetFactory : ITweetFactory {
 
-    private val map = LinkedHashMap<Long, TweetInternal>()
-    private val updateListeners = ArrayList<TweetUpdateListener>()
-    private val deleteListeners = ArrayList<TweetUpdateListener>()
+    private val mMap = LinkedHashMap<Long, TweetInternal>()
+    private val mUpdateListeners = ArrayList<TweetUpdateListener>()
+    private val mDeleteListeners = ArrayList<TweetUpdateListener>()
 
-    private val lock = ReentrantReadWriteLock()
+    private val mLock = ReentrantReadWriteLock()
 
     override fun createOrGet(userFactory: ITwitterUserFactory, status: Status): Tweet {
-        val tweet = lock.read { map[status.id] }
+        val tweet = mLock.read { mMap[status.id] }
         return tweet?.also { it.updateAndCallback(status) }
-                ?: lock.write { TweetInternal(this, userFactory, status).also { map.put(it.id, it) } }
+                ?: mLock.write { TweetInternal(this, userFactory, status).also { mMap.put(it.id, it) } }
     }
 
     private fun TweetInternal.updateAndCallback(status: Status) {
-        if (update(status)) updateListeners.forEach { it(this) }
+        if (update(status)) mUpdateListeners.forEach { it(this) }
     }
 
     override fun addUpdateListener(listener: TweetUpdateListener) {
-        updateListeners.add(listener)
+        mUpdateListeners.add(listener)
     }
 
     override fun removeUpdateListener(listener: TweetUpdateListener) {
-        updateListeners.remove(listener)
+        mUpdateListeners.remove(listener)
     }
 
     override fun delete(tweet: Tweet) {
-        lock.read { map[tweet.id] } ?: return
-        deleteListeners.forEach { it(tweet) }
-        lock.write { map.remove(tweet.id) }
+        mLock.read { mMap[tweet.id] } ?: return
+        mDeleteListeners.forEach { it(tweet) }
+        mLock.write { mMap.remove(tweet.id) }
     }
 
     override fun deleteByUser(user: TwitterUser) {
-        lock.read { map.filter { it.value.user.id == user.id } }.forEach { (key, value) ->
-            deleteListeners.forEach { it(value) }
-            lock.write { map.remove(key) }
+        mLock.read { mMap.filter { it.value.user.id == user.id } }.forEach { (key, value) ->
+            mDeleteListeners.forEach { it(value) }
+            mLock.write { mMap.remove(key) }
         }
     }
 
     override fun addDeleteListener(listener: TweetDeleteListener) {
-        deleteListeners.add(listener)
+        mDeleteListeners.add(listener)
     }
 
     override fun removeListener(listener: TweetDeleteListener) {
-        deleteListeners.remove(listener)
+        mDeleteListeners.remove(listener)
     }
 
     private class TweetInternal(tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {

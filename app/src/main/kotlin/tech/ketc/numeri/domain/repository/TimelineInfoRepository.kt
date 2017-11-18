@@ -15,78 +15,68 @@ import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.inject.Inject
 import kotlin.concurrent.read
 
-class TimelineInfoRepository @Inject constructor(private val db: AccountDatabase) : ITimelineInfoRepository {
-    private val groupDao = db.timeLineGroupDao()
-    private val infoDao = db.timeLineInfoDao()
-    private val groupToInfoListMap = ArrayMap<String, MutableList<TimelineInfo>>()
-    private var isInitialized = false
-    private var lock = ReentrantReadWriteLock()
-    private val mEmptyLiveData = MutableLiveData<Int>()
-    private var change = 1
+class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountDatabase) : ITimelineInfoRepository {
+    private val mGroupDao = mDatabase.timeLineGroupDao()
+    private val mInfoDao = mDatabase.timeLineInfoDao()
+    private val mGroupToInfoListMap = ArrayMap<String, MutableList<TimelineInfo>>()
+    private var mIsInitialized = false
+    private var mLock = ReentrantReadWriteLock()
+    private val mEmptyLiveData = MutableLiveData<Any>()
 
-    private fun changeData(): Int {
-        change = if (change == 1) {
-            2
-        } else {
-            1
-        }
-        return change
-    }
-
-    private fun initialize() = lock.read {
-        if (isInitialized) return
-        val groupList = groupDao.selectAll()
+    private fun initialize() = mLock.read {
+        if (mIsInitialized) return
+        val groupList = mGroupDao.selectAll()
         groupList.forEach {
             val groupName = it.name
-            val infoList = infoDao.selectByGroupName(groupName)
-            groupToInfoListMap.put(groupName, infoList.toMutableList())
+            val infoList = mInfoDao.selectByGroupName(groupName)
+            mGroupToInfoListMap.put(groupName, infoList.toMutableList())
         }
-        isInitialized = true
+        mIsInitialized = true
     }
 
     override fun createGroup(groupName: String): TimelineGroup {
         initialize()
-        val list = groupToInfoListMap[groupName]
+        val list = mGroupToInfoListMap[groupName]
         if (list != null) throw AlreadyExistsException("TimelineGroup", "groupName[$groupName]")
         val group = TimelineGroup(groupName)
-        groupToInfoListMap.put(groupName, ArrayList())
-        groupDao.insert(group)
+        mGroupToInfoListMap.put(groupName, ArrayList())
+        mGroupDao.insert(group)
         return group
     }
 
     override fun joinToGroup(group: TimelineGroup, info: TimelineInfo) {
         initialize()
-        groupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
-        val count = infoDao.countInfoByGroup(group.name)
-        infoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
-        groupToInfoListMap[group.name]!!.add(info)
+        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
+        val count = mInfoDao.countInfoByGroup(group.name)
+        mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
+        mGroupToInfoListMap[group.name]!!.add(info)
     }
 
     override fun selectByGroup(group: TimelineGroup): List<TimelineInfo> {
         initialize()
-        return groupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
+        return mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
     }
 
     override fun getInfo(type: TlType, accountId: Long, foreignId: Long): TimelineInfo {
-        infoDao.selectAll().forEach {
+        mInfoDao.selectAll().forEach {
             Logger.v(javaClass.name, "${it.id} ${it.type.name} ${it.accountId} ${it.foreignId}")
         }
         fun insert(): TimelineInfo {
-            infoDao.insert(TimelineInfo(type = type,
+            mInfoDao.insert(TimelineInfo(type = type,
                     accountId = accountId,
                     foreignId = foreignId))
-            return infoDao.select(type, accountId, foreignId)!!
+            return mInfoDao.select(type, accountId, foreignId)!!
         }
-        return infoDao.select(type, accountId, foreignId) ?: insert()
+        return mInfoDao.select(type, accountId, foreignId) ?: insert()
     }
 
     override fun getGroupList(): List<TimelineGroup> {
         initialize()
-        return groupToInfoListMap.keys.map { TimelineGroup(it) }.unmodifiableList()
+        return mGroupToInfoListMap.keys.map { TimelineGroup(it) }.unmodifiableList()
     }
 
     override fun notifyDataChanged() {
-        mEmptyLiveData.postValue(changeData())
+        mEmptyLiveData.postValue(Any())
     }
 
     override fun observe(owner: LifecycleOwner, handle: () -> Unit) {

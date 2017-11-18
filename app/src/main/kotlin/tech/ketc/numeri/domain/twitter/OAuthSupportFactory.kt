@@ -5,7 +5,7 @@ import twitter4j.auth.OAuthAuthorization
 import twitter4j.conf.ConfigurationContext
 import javax.inject.Inject
 
-class OAuthSupportFactory @Inject constructor(private val app: App) : IOAuthSupportFactory {
+class OAuthSupportFactory @Inject constructor(private val mApp: App) : IOAuthSupportFactory {
     override fun create() = OAuthAuthorization(ConfigurationContext.getInstance())
-            .apply { setOAuthConsumer(app.twitterApiKey, app.twitterSecretKey) }
+            .apply { setOAuthConsumer(mApp.twitterApiKey, mApp.twitterSecretKey) }
 }

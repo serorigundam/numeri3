@@ -8,8 +8,8 @@ import twitter4j.TwitterFactory
 import twitter4j.conf.ConfigurationBuilder
 import javax.inject.Inject
 
-class TwitterClientFactory @Inject constructor(private val app: App) : ITwitterClientFactory {
-    override fun create(token: AccountToken): TwitterClient = TwitterClientInternal(app, token)
+class TwitterClientFactory @Inject constructor(private val mApp: App) : ITwitterClientFactory {
+    override fun create(token: AccountToken): TwitterClient = TwitterClientInternal(mApp, token)
 
     class TwitterClientInternal(app: App, token: AccountToken) : TwitterClient {
         override val id: Long = token.id

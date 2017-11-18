@@ -11,8 +11,8 @@ import tech.ketc.numeri.util.arch.livedata.mediate
 import twitter4j.User
 import javax.inject.Inject
 
-class TwitterUserRepository @Inject constructor(private val userFactory: ITwitterUserFactory,
-                                                private val tweetRepository: ITweetRepository) : ITwitterUserRepository {
+class TwitterUserRepository @Inject constructor(private val mUserFactory: ITwitterUserFactory,
+                                                private val mTweetRepository: ITweetRepository) : ITwitterUserRepository {
 
     private val updateListener: UserUpdateListener = {
         mLatestUpdatedUser.postValue(it)
@@ -23,8 +23,8 @@ class TwitterUserRepository @Inject constructor(private val userFactory: ITwitte
     }
 
     init {
-        userFactory.addUpdateListener(updateListener)
-        userFactory.addDeleteListener(deleteListener)
+        mUserFactory.addUpdateListener(updateListener)
+        mUserFactory.addDeleteListener(deleteListener)
     }
 
     private val mLatestUpdatedUser = MutableLiveData<TwitterUser>()
@@ -37,15 +37,15 @@ class TwitterUserRepository @Inject constructor(private val userFactory: ITwitte
         get() = mLatestDeletedUser.mediate()
 
     override fun createOrGet(user: User): TwitterUser {
-        return userFactory.createOrGet(user)
+        return mUserFactory.createOrGet(user)
     }
 
     override fun show(client: TwitterClient, id: Long): TwitterUser {
-        return userFactory.get(id) ?: createOrGet(client.twitter.showUser(id))
+        return mUserFactory.get(id) ?: createOrGet(client.twitter.showUser(id))
     }
 
     override fun delete(user: TwitterUser) {
-        tweetRepository.deleteByUser(user)
-        userFactory.delete(user)
+        mTweetRepository.deleteByUser(user)
+        mUserFactory.delete(user)
     }
 }

@@ -9,8 +9,8 @@ import tech.ketc.numeri.util.arch.livedata.map
 import twitter4j.Status
 import javax.inject.Inject
 
-class TweetRepository @Inject constructor(private val tweetFactory: ITweetFactory,
-                                          private val userFactory: ITwitterUserFactory)
+class TweetRepository @Inject constructor(private val mTweetFactory: ITweetFactory,
+                                          private val mUserFactory: ITwitterUserFactory)
     : ITweetRepository {
 
     private val mLatestUpdateTweet = MutableLiveData<Tweet>()
@@ -25,8 +25,8 @@ class TweetRepository @Inject constructor(private val tweetFactory: ITweetFactor
     }
 
     init {
-        tweetFactory.addUpdateListener(updateListener)
-        tweetFactory.addDeleteListener(deleteListener)
+        mTweetFactory.addUpdateListener(updateListener)
+        mTweetFactory.addDeleteListener(deleteListener)
     }
 
 
@@ -36,14 +36,14 @@ class TweetRepository @Inject constructor(private val tweetFactory: ITweetFactor
         get() = mLatestDeletedTweet.map { it }
 
     override fun createOrUpdate(status: Status): Tweet {
-        return tweetFactory.createOrGet(userFactory, status)
+        return mTweetFactory.createOrGet(mUserFactory, status)
     }
 
     override fun delete(tweet: Tweet) {
-        tweetFactory.delete(tweet)
+        mTweetFactory.delete(tweet)
     }
 
     override fun deleteByUser(user: TwitterUser) {
-        tweetFactory.deleteByUser(user)
+        mTweetFactory.deleteByUser(user)
     }
 }
