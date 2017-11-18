@@ -9,10 +9,13 @@ import android.support.v4.app.FragmentManager
 import dagger.android.AndroidInjection
 import dagger.android.support.AndroidSupportInjection
 import dagger.android.support.HasSupportFragmentInjector
+import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.logTag
 
 fun Application.applyAutoInject()
         = registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
     override fun onActivityCreated(activity: Activity, p1: Bundle?) {
+        Logger.v(activity.logTag, "onCrate() isRestore:${p1 != null}")
         if (activity is AutoInject || activity is HasSupportFragmentInjector) {
             AndroidInjection.inject(activity)
         }
@@ -29,22 +32,27 @@ fun Application.applyAutoInject()
     }
 
     //not use
-    override fun onActivityPaused(p0: Activity) {
+    override fun onActivityPaused(activity: Activity) {
+        Logger.v(activity.logTag, "onPause()")
     }
 
-    override fun onActivityResumed(p0: Activity) {
+    override fun onActivityResumed(activity: Activity) {
+        Logger.v(activity.logTag, "onResumed()")
     }
 
-    override fun onActivityStarted(p0: Activity) {
+    override fun onActivityStarted(activity: Activity) {
+        Logger.v(activity.logTag, "onStarted()")
     }
 
-    override fun onActivityDestroyed(p0: Activity) {
+    override fun onActivityDestroyed(activity: Activity) {
+        Logger.v(activity.logTag, "onDestroyed()")
     }
 
-    override fun onActivitySaveInstanceState(p0: Activity, p1: Bundle) {
+    override fun onActivitySaveInstanceState(activity: Activity, outState: Bundle) {
+        Logger.v(activity.logTag, "onSaveInstanceState()")
     }
 
-    override fun onActivityStopped(p0: Activity) {
+    override fun onActivityStopped(activity: Activity) {
+        Logger.v(activity.logTag, "onStopped()")
     }
-
 })
