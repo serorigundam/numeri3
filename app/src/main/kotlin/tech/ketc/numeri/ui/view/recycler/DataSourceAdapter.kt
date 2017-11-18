@@ -17,9 +17,9 @@ import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 
 @Suppress("UNCHECKED_CAST")
 abstract class DataSourceAdapter
-<Key, Value, in VH : RecyclerView.ViewHolder>(protected val owner: LifecycleOwner,
-                                              private val dataSource: DataSource<Key, Value>,
-                                              private val creator: () -> VH)
+<Key, Value, in VH : RecyclerView.ViewHolder>(private val mOwner: LifecycleOwner,
+                                              private val mDataSource: DataSource<Key, Value>,
+                                              private val mVHCreator: () -> VH)
     : RecyclerView.Adapter<RecyclerView.ViewHolder>() {
 
     companion object {
@@ -31,13 +31,13 @@ abstract class DataSourceAdapter
 
     private val mValues = ArrayList<Value>()
 
-    private val itemCountInternal: Int
+    private val mItemCount: Int
         get() = mValues.size
 
     private val currentLatestPosition: Int
-        get() = itemCountInternal - 1
+        get() = mItemCount - 1
 
-    private var isProgress = false
+    private var mIsProgress = false
     private var mStoreLiveData: MutableLiveData<List<Value>>? = null
 
     /**
@@ -58,25 +58,25 @@ abstract class DataSourceAdapter
     }
 
     private fun checkProgress() {
-        if (isProgress) throw IllegalStateException()
+        if (mIsProgress) throw IllegalStateException()
     }
 
     var error: (Throwable) -> Unit = {}
 
     fun loadAfter(complete: () -> Unit = {}) {
         checkProgress()
-        isProgress = true
+        mIsProgress = true
         val item = mValues.firstOrNull()
         if (item == null) loadInitial(complete)
         else BindingLifecycleAsyncTask {
-            dataSource.loadAfter(dataSource.getKey(item), pageSize)
-        }.run(owner) {
+            mDataSource.loadAfter(mDataSource.getKey(item), pageSize)
+        }.run(mOwner) {
             it.ifPresent {
                 mValues.addAll(0, it)
                 mStoreLiveData?.value = mValues
                 notifyItemRangeInserted(0, it.size)
             }
-            isProgress = false
+            mIsProgress = false
             complete()
             it.ifError(error)
         }
@@ -84,19 +84,19 @@ abstract class DataSourceAdapter
 
     fun loadBefore(complete: () -> Unit = {}) {
         checkProgress()
-        isProgress = true
+        mIsProgress = true
         val item = mValues.lastOrNull()
         if (item == null) loadInitial(complete)
         else BindingLifecycleAsyncTask {
-            dataSource.loadBefore(dataSource.getKey(item), pageSize)
-        }.run(owner) {
+            mDataSource.loadBefore(mDataSource.getKey(item), pageSize)
+        }.run(mOwner) {
             it.ifPresent {
                 val last = mValues.size
                 mValues.addAll(it)
                 mStoreLiveData?.value = mValues
                 notifyItemRangeInserted(last, it.size)
             }
-            isProgress = false
+            mIsProgress = false
             complete()
             it.ifError(error)
         }
@@ -104,23 +104,23 @@ abstract class DataSourceAdapter
 
     fun loadInitial(complete: () -> Unit = {}) {
         checkProgress()
-        isProgress = true
+        mIsProgress = true
         BindingLifecycleAsyncTask {
-            dataSource.loadInitial(pageSize)
-        }.run(owner) {
+            mDataSource.loadInitial(pageSize)
+        }.run(mOwner) {
             it.ifPresent {
                 mValues.addAll(it)
                 mStoreLiveData?.value = mValues
                 notifyDataSetChanged()
             }
-            isProgress = false
+            mIsProgress = false
             complete()
             it.ifError(error)
         }
     }
 
     override fun getItemCount(): Int {
-        return itemCountInternal + if (mValues.size > 1) 1 else 0
+        return mItemCount + if (mValues.size > 1) 1 else 0
     }
 
     protected fun getItem(position: Int) = mValues[position]
@@ -148,7 +148,7 @@ abstract class DataSourceAdapter
                     loadBefore { holder.change(false) }
                 }
             }
-            TYPE_VALUE -> creator()
+            TYPE_VALUE -> mVHCreator()
             else -> throw RuntimeException("unknown viewType $viewType")
         }
     }
