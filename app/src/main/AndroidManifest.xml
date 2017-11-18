@@ -45,6 +45,12 @@
             android:label="@string/title_activity_settings"
             android:launchMode="singleInstance"
             android:theme="@style/AppTheme.ActionBar" />
+
+
+        <activity
+            android:name=".ui.activity.timeline.TimelineManageActivity"
+            android:label="タイムライン管理"
+            android:theme="@style/AppTheme" />
         <!-- /activity -->
 
         <meta-data

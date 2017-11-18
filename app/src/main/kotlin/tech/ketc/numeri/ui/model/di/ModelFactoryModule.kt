@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider
 import dagger.Module
 import dagger.Provides
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
+import tech.ketc.numeri.ui.activity.timeline.TimelineManageActivityComponent
 import tech.ketc.numeri.ui.fragment.main.MainFragmentComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimeLineFragmentComponent
 import tech.ketc.numeri.ui.model.factory.ViewModelFactory
@@ -13,6 +14,7 @@ import javax.inject.Singleton
 @Module(subcomponents = arrayOf(
         MainActivityComponent::class,
         MainFragmentComponent::class,
+        TimelineManageActivityComponent::class,
         TimeLineFragmentComponent::class))
 class ModelFactoryModule {
 
