@@ -44,13 +44,17 @@ class SettingsActivity : AppCompatPreferenceActivity() {
         }
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
-            val id = item.itemId
-            if (id == android.R.id.home) {
-                startActivity(Intent(activity, SettingsActivity::class.java))
-                return true
+            when (item.itemId) {
+                android.R.id.home -> startActivity(Intent(activity, SettingsActivity::class.java))
+                else -> return super.onOptionsItemSelected(item)
             }
-            return super.onOptionsItemSelected(item)
+            return true
         }
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem) = when (item.itemId) {
+        android.R.id.home -> super.onOptionsItemSelected(item).takeIf { !it }?.also { finish() } ?: true
+        else -> super.onOptionsItemSelected(item)
     }
 
     companion object {
