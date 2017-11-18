@@ -32,6 +32,7 @@ import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.fadeOut
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
+import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
 import tech.ketc.numeri.util.logTag
@@ -153,11 +154,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
         fun initializeAccountUIComponent(user: TwitterUser, component: AccountUIComponent) {
             component.userNameText.text = user.name
             component.screenNameText.text = user.screenName
-            mModel.imageLoad(this, user.iconUrl) {
-                it.ifPresent { (bitmap, _) ->
-                    component.iconImage.setImageBitmap(bitmap)
-                }
-                it.ifError { it.printStackTrace() }
+            bindLaunch {
+                val res = mModel.imageLoad(user.iconUrl).await()
+                res.ifPresent { (b, _) -> component.iconImage.setImageBitmap(b) }
             }
         }
 
