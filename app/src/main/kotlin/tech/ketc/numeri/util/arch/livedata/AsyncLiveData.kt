@@ -3,7 +3,6 @@ package tech.ketc.numeri.util.arch.livedata
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.Observer
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
