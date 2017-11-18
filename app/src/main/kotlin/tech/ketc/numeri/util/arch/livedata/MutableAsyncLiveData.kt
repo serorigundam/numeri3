@@ -10,7 +10,7 @@ import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
 import tech.ketc.numeri.util.coroutine.asyncContext
 
-class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transform: suspend (S?) -> T)
+class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val mTransform: suspend (S?) -> T)
     : NonnullMediatorLiveData<Response<T>>(), Cancellable {
 
     private var mJob: Job? = null
@@ -41,7 +41,7 @@ class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transf
                 var result: T? = null
                 var error: Throwable? = null
                 try {
-                    result = transform(source)
+                    result = mTransform(source)
                 } catch (t: Throwable) {
                     error = t
                 }

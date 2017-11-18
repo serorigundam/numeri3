@@ -15,10 +15,10 @@ class TimeLineDataSourceAdapter(owner: LifecycleOwner,
         holder.bind(getItem(position))
     }
 
-    private val storedList = ArrayList<Tweet>()
+    private val mStoredList = ArrayList<Tweet>()
 
     fun store(value: Tweet) {
-        storedList.add(0, value)
+        mStoredList.add(0, value)
     }
 
     fun insertTop(value: Tweet) {
@@ -30,8 +30,8 @@ class TimeLineDataSourceAdapter(owner: LifecycleOwner,
 
     fun marge() {
         val items = items()
-        val filtered = storedList.filter { tweet -> !items.any { it == tweet } }
-        storedList.clear()
+        val filtered = mStoredList.filter { tweet -> !items.any { it == tweet } }
+        mStoredList.clear()
         items.addAll(0, filtered)
         notifyItemRangeInserted(0, filtered.size)
     }

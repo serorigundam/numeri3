@@ -39,7 +39,7 @@ class StreamSource<T> {
         }
     }
 
-    class BindStream<in T>(private val handle: (T) -> Unit) : LifecycleObserver {
+    class BindStream<in T>(private val mStreamHandle: (T) -> Unit) : LifecycleObserver {
         private var mIsDestroy = false
         private var mIsActive = true
         private val mQueue = ArrayList<T>()
@@ -47,14 +47,14 @@ class StreamSource<T> {
         private val mLock = ReentrantLock()
 
         fun post(value: T) = mLock.withLock {
-            if (!mIsDestroy && mIsActive) handle(value)
+            if (!mIsDestroy && mIsActive) mStreamHandle(value)
             else mQueue.add(value).let { Logger.v(logTag, "queuing") }
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         fun onResume() = mLock.withLock {
             mQueue.takeIf { it.isNotEmpty() }?.let { queue ->
-                queue.forEach(handle)
+                queue.forEach(mStreamHandle)
                 queue.clear()
             }
             mIsActive = true

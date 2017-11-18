@@ -17,12 +17,11 @@ import javax.inject.Inject
 class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository,
                                             userRepository: ITwitterUserRepository,
                                             imageRepository: IImageRepository,
-                                            private val tweetRepository: ITweetRepository,
-                                            private val streamRepository: ITwitterStreamRepository)
+                                            streamRepository: ITwitterStreamRepository,
+                                            private val mTweetRepository: ITweetRepository)
     : ViewModel(),
         IClientHandler by ClientHandler(accountRepository, userRepository),
-        IImageLoadable by ImageLoadable(imageRepository),
-        IStreamHandler by StreamHandler(streamRepository) {
+        IImageLoadable by ImageLoadable(imageRepository) {
 
     private var mClient: TwitterClient? = null
         get() {
@@ -36,11 +35,11 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
 
     val storeTweetsLiveData = MutableLiveData<List<Tweet>>()
 
-    private val stream by lazy { getStream(mClient!!) }
+    private val mStream by lazy { StreamHandler(streamRepository).getStream(mClient!!) }
 
     val dataSource by lazy {
         val info = mTimelineInfo!!
-        TimeLineDataSource(createDataSourceDelegate(tweetRepository, info.foreignId, info.type, mClient!!))
+        TimeLineDataSource(createDataSourceDelegate(mTweetRepository, info.foreignId, info.type, mClient!!))
     }
 
     fun initialize(timelineInfo: TimelineInfo, owner: LifecycleOwner, callback: (TwitterClient) -> Unit, error: (Throwable) -> Unit) {
@@ -65,7 +64,7 @@ class TimeLineViewModel @Inject constructor(accountRepository: AccountRepository
     fun startStream(owner: LifecycleOwner, handle: (Tweet) -> Unit): Boolean {
         val type = mTimelineInfo!!.type
         val handler = createOnStatusHandler(type) ?: return false
-        stream.latestTweet.observe(owner) { tweet ->
+        mStream.latestTweet.observe(owner) { tweet ->
             handler.onStatus(mClient!!, tweet, handle)
         }
         return true

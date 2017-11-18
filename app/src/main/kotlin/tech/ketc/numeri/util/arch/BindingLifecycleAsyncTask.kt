@@ -9,7 +9,7 @@ import tech.ketc.numeri.util.arch.response.Response
 import tech.ketc.numeri.util.coroutine.asyncContext
 import java.lang.ref.WeakReference
 
-class BindingLifecycleAsyncTask<out T : Any>(private val task: suspend () -> T) {
+class BindingLifecycleAsyncTask<out T : Any>(private val mTask: suspend () -> T) {
 
     private val mExecutor = TaskExecutor<T>()
     private var mIsExecuted = false
@@ -20,7 +20,7 @@ class BindingLifecycleAsyncTask<out T : Any>(private val task: suspend () -> T) 
         mIsExecuted = true
         mOwner = WeakReference(owner)
         owner.lifecycle.addObserver(mExecutor)
-        mExecutor.execute(task) {
+        mExecutor.execute(mTask) {
             handle(it)
             owner.lifecycle.removeObserver(mExecutor)
             mOwner = null

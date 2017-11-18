@@ -44,17 +44,17 @@ class MainActivity : AppCompatActivity(), AutoInject,
         OnDialogItemSelectedListener,
         IMainUI by MainUI() {
 
-    @Inject lateinit var androidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val model: MainViewModel by viewModel { viewModelFactory }
+    @Inject lateinit var mAndroidInjector: DispatchingAndroidInjector<Fragment>
+    @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
+    private val mModel: MainViewModel by viewModel { mViewModelFactory }
 
-    private val drawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
+    private val mDrawerToggle: ActionBarDrawerToggle by lazy { ActionBarDrawerToggle(this, drawer, 0, 0) }
 
-    private var navigationState = NavigationState.MENU
+    private var mNavigationState = NavigationState.MENU
 
-    private val groupNameToViewId = ArrayMap<String, Int>()
-    private var showingGroupName: String? = null
-    private var currentGroupList: List<TimelineGroup>? = null
+    private val mGroupNameToViewId = ArrayMap<String, Int>()
+    private var mShowingGroupName: String? = null
+    private var mCurrentGroupList: List<TimelineGroup>? = null
 
 
     companion object {
@@ -71,7 +71,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         ACCOUNT, MENU
     }
 
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = androidInjector
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
@@ -88,8 +88,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private fun initializeUI() {
         setSupportActionBar(toolbar)
         supportActionBar!!.setDisplayHomeAsUpEnabled(true)
-        drawer.addDrawerListener(drawerToggle)
-        drawerToggle.isDrawerIndicatorEnabled = true
+        drawer.addDrawerListener(mDrawerToggle)
+        mDrawerToggle.isDrawerIndicatorEnabled = true
         navigation.setNavigationItemSelectedListener(this)
     }
 
@@ -105,7 +105,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private fun startAuthorization() {
         val addAccountButton = accountListUI.addAccountButton
         addAccountButton.isClickable = false
-        model.createAuthorizationURL().observe(this) {
+        mModel.createAuthorizationURL().observe(this) {
             it.ifPresent {
                 val uri = Uri.parse(it)
                 startActivity(Intent(Intent.ACTION_VIEW, uri))
@@ -119,7 +119,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
-        model.clients.observe(this) { res ->
+        mModel.clients.observe(this) { res ->
             res.ifPresent {
                 if (it.isEmpty()) showAddAccountDialog()
                 else initializeAccountListComponent(it)
@@ -140,10 +140,10 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun initializeTimelineGroup() {
-        model.groupList.observe(this) {
+        mModel.groupList.observe(this) {
             it.ifPresent {
                 if (it.isEmpty()) return@ifPresent
-                currentGroupList = it
+                mCurrentGroupList = it
                 showFirstTimelineGroup(it)
             }
         }
@@ -153,7 +153,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         fun initializeAccountUIComponent(user: TwitterUser, component: AccountUIComponent) {
             component.userNameText.text = user.name
             component.screenNameText.text = user.screenName
-            model.imageLoad(this, user.iconUrl) {
+            mModel.imageLoad(this, user.iconUrl) {
                 it.ifPresent { (bitmap, _) ->
                     component.iconImage.setImageBitmap(bitmap)
                 }
@@ -162,7 +162,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
 
         fun observeAccountUpdate(user: TwitterUser, component: AccountUIComponent) {
-            model.latestUpdatedUser.observeIfNonnullOnly(this, { it.id == user.id }) { updatedUser ->
+            mModel.latestUpdatedUser.observeIfNonnullOnly(this, { it.id == user.id }) { updatedUser ->
                 initializeAccountUIComponent(updatedUser, component)
             }
         }
@@ -175,7 +175,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             observeAccountUpdate(user, component)
         }
 
-        model.getClientUser(this, client) {
+        mModel.getClientUser(this, client) {
             it.ifPresent { addAccountComponent(it) }
             it.ifError {
                 val message = getString(R.string.message_failed_user_info)
@@ -189,12 +189,12 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun addTimelineGroupView(groupName: String): View {
-        var viewId = groupNameToViewId[groupName]
+        var viewId = mGroupNameToViewId[groupName]
         var view: View? = if (viewId != null) findViewById(viewId) else null
         if (view != null) return view.also { Logger.v(logTag, "addTimelineGroupView() created:$groupName:$viewId") }
 
         if (viewId == null) viewId = View.generateViewId()
-        groupNameToViewId.put(groupName, viewId)
+        mGroupNameToViewId.put(groupName, viewId)
         Logger.v(javaClass.name, "addTimelineGroupView new")
         view = ctx.frameLayout {
             id = viewId!!
@@ -216,23 +216,23 @@ class MainActivity : AppCompatActivity(), AutoInject,
                 .add(viewId, MainFragment.create(groupName), groupName)
                 .commit()
         Logger.v(javaClass.name, "showTimelineGroup($groupName) fragment exists ${fragment != null}")
-        if (showingGroupName != null) {
-            val id = groupNameToViewId[groupName]
+        if (mShowingGroupName != null) {
+            val id = mGroupNameToViewId[groupName]
             id?.let { findViewById<View>(it).visibility = View.GONE }
         }
         view.visibility = View.VISIBLE
-        showingGroupName = groupName
+        mShowingGroupName = groupName
     }
 
     private fun removeTimelineGroup(groupName: String, groupList: List<TimelineGroup>) {
-        val viewId = groupNameToViewId[groupName]
+        val viewId = mGroupNameToViewId[groupName]
         viewId ?: return
         val fragment = fragmentManager.findFragmentById(viewId)
         if (fragment != null) {
             Logger.v(javaClass.name, "remove$groupName")
             fragmentManager.beginTransaction().remove(fragment).commit()
             columnGroupWrapper.removeView(findViewById(viewId))
-            if (showingGroupName == groupName) showFirstTimelineGroup(groupList)
+            if (mShowingGroupName == groupName) showFirstTimelineGroup(groupList)
         }
     }
 
@@ -245,18 +245,18 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
     private fun observeTimelineChange() {
         fun apply(newGroupList: List<TimelineGroup>) {
-            val previousList = currentGroupList
+            val previousList = mCurrentGroupList
             if (previousList == null) {
                 showFirstTimelineGroup(newGroupList)
             } else {
                 val deleted = previousList.filter { group -> !newGroupList.any { group.name == it.name } }
                 deleted.forEach { removeTimelineGroup(it.name, newGroupList) }
             }
-            currentGroupList = newGroupList
+            mCurrentGroupList = newGroupList
         }
-        model.timelineChange(this) {
+        mModel.timelineChange(this) {
             Logger.v(javaClass.name, "timelineChange")
-            model.groupList.observe(this) {
+            mModel.groupList.observe(this) {
                 it.ifPresent { apply(it) }
             }
         }
@@ -266,7 +266,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         super.onNewIntent(intent)
 
         val oauthIntent = intent.getParcelableExtra<Intent>(INTENT_OAUTH) ?: return
-        model.onNewIntent(oauthIntent, this) {
+        mModel.onNewIntent(oauthIntent, this) {
             it.ifPresent { addAccountComponent(it) }
             it.ifError {
                 toast(R.string.authentication_failure)
@@ -276,13 +276,13 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
-        outState.putSerializable(EXTRA_NAVIGATION_STATE, navigationState)
-        showingGroupName?.let { outState.putString(EXTRA_SHOWING_GROUP_NAME, showingGroupName) }
-        currentGroupList?.let {
+        outState.putSerializable(EXTRA_NAVIGATION_STATE, mNavigationState)
+        mShowingGroupName?.let { outState.putString(EXTRA_SHOWING_GROUP_NAME, mShowingGroupName) }
+        mCurrentGroupList?.let {
             outState.putSerializable(EXTRA_CURRENT_GROUP_LIST, it.toTypedArray())
             it.forEach { group ->
                 val name = group.name
-                outState.putInt(EXTRA_GROUP_VIEW_ID + name, groupNameToViewId[name]!!)
+                outState.putInt(EXTRA_GROUP_VIEW_ID + name, mGroupNameToViewId[name]!!)
             }
         }
         super.onSaveInstanceState(outState)
@@ -290,43 +290,43 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
     private fun restoreInstanceState(savedInstanceState: Bundle) {
         Logger.v(logTag, "restoreSaveInstance")
-        navigationState = savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE) as NavigationState
-        showingGroupName = savedInstanceState.getString(EXTRA_SHOWING_GROUP_NAME)
+        mNavigationState = savedInstanceState.getSerializable(EXTRA_NAVIGATION_STATE) as NavigationState
+        mShowingGroupName = savedInstanceState.getString(EXTRA_SHOWING_GROUP_NAME)
         val previousGroupArray = savedInstanceState.getSerializable(EXTRA_CURRENT_GROUP_LIST) as? Array<*>
         previousGroupArray?.let { groupArray ->
             Logger.v(logTag, "restore timelineGroup")
             val groupList = ArrayList<TimelineGroup>()
             groupArray.mapTo(groupList) { it as TimelineGroup }
-            currentGroupList = groupList
+            mCurrentGroupList = groupList
 
             val nameToIdMap = groupList
                     .map { it.name to savedInstanceState.getInt(EXTRA_GROUP_VIEW_ID + it.name) }
                     .toMap()
-            groupNameToViewId.putAll(nameToIdMap)
+            mGroupNameToViewId.putAll(nameToIdMap)
             groupList.forEach {
                 addTimelineGroupView(it.name)
             }
-            showingGroupName?.let { showTimelineGroup(it) }
+            mShowingGroupName?.let { showTimelineGroup(it) }
         }
     }
 
     override fun onPostCreate(savedInstanceState: Bundle?) {
         super.onPostCreate(savedInstanceState)
-        drawerToggle.syncState()
+        mDrawerToggle.syncState()
     }
 
     override fun onResume() {
         super.onResume()
-        toggleNavigationState(navigationState)
+        toggleNavigationState(mNavigationState)
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
         super.onConfigurationChanged(newConfig)
-        drawerToggle.onConfigurationChanged(newConfig)
+        mDrawerToggle.onConfigurationChanged(newConfig)
     }
 
     override fun onOptionsItemSelected(item: MenuItem): Boolean {
-        if (drawerToggle.onOptionsItemSelected(item))
+        if (mDrawerToggle.onOptionsItemSelected(item))
             return true
         return super.onOptionsItemSelected(item)
     }
@@ -346,14 +346,14 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun toggleNavigationState(state: NavigationState? = null) {
-        if (state != null) navigationState = when (state) {
+        if (state != null) mNavigationState = when (state) {
             NavigationState.MENU -> NavigationState.ACCOUNT
             NavigationState.ACCOUNT -> NavigationState.MENU
         }
         val drawable: Drawable
-        when (navigationState) {
+        when (mNavigationState) {
             NavigationState.MENU -> {
-                navigationState = NavigationState.ACCOUNT
+                mNavigationState = NavigationState.ACCOUNT
                 navigation.menu.setGroupVisible(R.id.main_menu, false)
                 drawable = getDrawable(R.drawable.ic_expand_less_white_24dp)
                 navigationHeaderUI.navigationStateIndicator.image = drawable
@@ -363,7 +363,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             }
             NavigationState.ACCOUNT -> {
                 drawable = getDrawable(R.drawable.ic_expand_more_white_24dp)
-                navigationState = NavigationState.MENU
+                mNavigationState = NavigationState.MENU
                 navigationHeaderUI.navigationStateIndicator.image = drawable
                 accountListUI.container.visibility = View.GONE
                 accountListUI.container.animate().fadeOut().withEndAction {

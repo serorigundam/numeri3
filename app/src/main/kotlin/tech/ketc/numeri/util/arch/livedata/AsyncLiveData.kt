@@ -10,7 +10,7 @@ import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
 import tech.ketc.numeri.util.coroutine.asyncContext
 
-open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
+open class AsyncLiveData<T : Any>(private val mCallback: suspend () -> T)
     : NonnullLiveData<Response<T>>(), Cancellable {
 
 
@@ -28,7 +28,7 @@ open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
                     var result: T? = null
                     var error: Throwable? = null
                     try {
-                        result = func()
+                        result = mCallback()
                     } catch (t: Throwable) {
                         error = t
                     }

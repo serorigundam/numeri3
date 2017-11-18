@@ -10,9 +10,9 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 
 class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject {
-    @Inject lateinit var androidInjector: DispatchingAndroidInjector<Fragment>
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var mAndroidInjector: DispatchingAndroidInjector<Fragment>
+    @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
 
     //impl interface
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = androidInjector
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector
 }

@@ -10,12 +10,11 @@ import tech.ketc.numeri.util.Logger
 import java.io.Serializable
 
 @Suppress("UNCHECKED_CAST")
-class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: FragmentManager)
-    : FragmentStatePagerAdapter(fm) {
+class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: FragmentManager)
+    : FragmentStatePagerAdapter(mFm) {
     private val mContents = ArrayList<Content<ID, F>>()
 
-    private var previousContents = ArrayList<Content<ID, F>>()
-    private var restore = false
+    private var mPreviousContents = ArrayList<Content<ID, F>>()
 
     override fun getItem(position: Int): Fragment = mContents[position].fragment
 
@@ -26,7 +25,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: Fr
     override fun getPageTitle(position: Int) = mContents[position].name
 
     fun setContents(contents: List<Content<ID, F>>) {
-        previousContents = mContents
+        mPreviousContents = mContents
         val diffSize = contents.size != mContents.size
         var isChange = diffSize
         if (!diffSize) {
@@ -46,7 +45,6 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: Fr
     override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
         super.restoreState(state, loader)
         if (state != null) {
-            restore = true
             val bundle = state as Bundle
             val keys = bundle.keySet()
             val fragments = ArrayList<Pair<Int, F>>()
@@ -56,7 +54,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: Fr
                 when {
                     it.startsWith("f") -> {
                         val index = Integer.parseInt(it.substring(1))
-                        val fragment = fm.getFragment(bundle, it) as? F
+                        val fragment = mFm.getFragment(bundle, it) as? F
                         fragment?.let { fragments.add(index to it) }
                     }
                     it.startsWith("i") -> {
@@ -74,7 +72,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: Fr
             val size = ids.size
             if (fragments.size != size) throw InternalError()
             (0..(size - 1)).mapTo(mContents) { Content(ids[it].second, fragments[it].second, names[it].second) }
-            previousContents.addAll(mContents)
+            mPreviousContents.addAll(mContents)
             Logger.v(javaClass.name, "restoreState")
             Logger.v(javaClass.name, mContents.joinToString(",") { "${it.id} ${it.fragment} ${it.name}" })
             notifyDataSetChanged()
@@ -94,7 +92,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val fm: Fr
     override fun getItemPosition(`object`: Any): Int {
         val nonChange = mContents.any { content ->
             content.fragment.id == (`object` as Fragment).id
-                    && mContents.indexOf(content) == previousContents.indexOf(content)
+                    && mContents.indexOf(content) == mPreviousContents.indexOf(content)
         }
         return if (nonChange) PagerAdapter.POSITION_UNCHANGED else PagerAdapter.POSITION_NONE
     }

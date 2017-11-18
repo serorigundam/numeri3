@@ -22,23 +22,23 @@ import tech.ketc.numeri.util.android.ui.enableRippleEffect
 import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
 
 class TweetViewHolder(ctx: Context,
-                      private val client: TwitterClient,
-                      private val owner: LifecycleOwner,
+                      private val mClient: TwitterClient,
+                      private val mOwner: LifecycleOwner,
                       imageLoadable: IImageLoadable,
                       tweetUIComponent: ITweetUIComponent = TweetUIComponent())
     : RecyclerView.ViewHolder(tweetUIComponent.createView(ctx)),
         ITweetUIComponent by tweetUIComponent
         , IImageLoadable by imageLoadable {
-    private val context = itemView.context
-    private val imageLoadTasks = ArrayList<BindingLifecycleAsyncTask<BitmapContent>>()
+    private val mContext = itemView.context
+    private val mImageLoadTasks = ArrayList<BindingLifecycleAsyncTask<BitmapContent>>()
 
     init {
         itemView.enableRippleEffect()
     }
 
     fun bind(tweet: Tweet) {
-        imageLoadTasks.forEach(BindingLifecycleAsyncTask<BitmapContent>::cancel)
-        imageLoadTasks.clear()
+        mImageLoadTasks.forEach(BindingLifecycleAsyncTask<BitmapContent>::cancel)
+        mImageLoadTasks.clear()
         val displayTweet = tweet.retweetedTweet ?: tweet
         setColor(tweet)
         setSubInfo(tweet)
@@ -48,12 +48,12 @@ class TweetViewHolder(ctx: Context,
 
     private fun ImageView.setImageUrl(url: String, cache: Boolean = true) {
         setImageBitmap(null)
-        imageLoad(owner, url, cache) {
+        imageLoad(mOwner, url, cache) {
             it.ifPresent { (bitmap, _) ->
                 setImageBitmap(bitmap)
                 fadeIn()
             }
-        }.let { imageLoadTasks.add(it) }
+        }.let { mImageLoadTasks.add(it) }
     }
 
     @SuppressLint("SetTextI18n")
@@ -61,7 +61,7 @@ class TweetViewHolder(ctx: Context,
         if (tweet.retweetedTweet != null) {
             subInfoText.visibility = View.VISIBLE
             subInfoText.text = "${tweet.user.screenName}さんからのRT"
-            subInfoIcon.image = context.getDrawable(R.drawable.ic_autorenew_white_24dp)
+            subInfoIcon.image = mContext.getDrawable(R.drawable.ic_autorenew_white_24dp)
         } else {
             subInfoText.visibility = View.GONE
             subInfoText.text = ""
@@ -74,7 +74,7 @@ class TweetViewHolder(ctx: Context,
         screenNameText.text = displayTweet.user.screenName
         userNameText.text = displayTweet.user.name
         iconImage.setImageUrl(displayTweet.user.iconUrl)
-        //iconImage.setOnClickListener { UserInfoActivity.start(ctx, client.id, displayTweet.user.id) }
+        //iconImage.setOnClickListener { UserInfoActivity.start(ctx, mClient.id, displayTweet.user.id) }
         text.text = displayTweet.text
         sourceText.text = displayTweet.source
     }
@@ -96,7 +96,7 @@ class TweetViewHolder(ctx: Context,
 
     private fun setColor(tweet: Tweet) {
         when {
-            tweet.isMention(client) -> overlayRelative.backgroundColor = Color.parseColor("#60f46e42")
+            tweet.isMention(mClient) -> overlayRelative.backgroundColor = Color.parseColor("#60f46e42")
             tweet.retweetedTweet != null -> overlayRelative.backgroundColor = Color.parseColor("#6042dff4")
             else -> overlayRelative.backgroundColor = Color.parseColor("#00000000")
         }

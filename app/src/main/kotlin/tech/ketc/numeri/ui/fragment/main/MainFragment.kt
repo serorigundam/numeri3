@@ -25,19 +25,17 @@ import javax.inject.Inject
 class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         IScrollableTabPagerComponent by ScrollableTabPagerComponent() {
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val model: MainViewModel by commonViewModel { viewModelFactory }
+    @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
+    private val mModel: MainViewModel by commonViewModel { mViewModelFactory }
 
-    private val pagerAdapter by lazy { ModifiablePagerAdapter<String, TimelineFragment>(childFragmentManager) }
-    private val groupName by lazy { arg.getString(EXTRA_TIMELINE_GROUP) }
+    private val mPagerAdapter by lazy { ModifiablePagerAdapter<String, TimelineFragment>(childFragmentManager) }
+    private val mGroupName by lazy { arg.getString(EXTRA_TIMELINE_GROUP) }
 
     companion object {
         private val EXTRA_TIMELINE_GROUP = "EXTRA_TIMELINE_GROUP"
-        fun create(groupName: String): MainFragment {
-            return MainFragment().apply {
-                arguments = Bundle().apply {
-                    putString(EXTRA_TIMELINE_GROUP, groupName)
-                }
+        fun create(groupName: String) = MainFragment().apply {
+            arguments = Bundle().apply {
+                putString(EXTRA_TIMELINE_GROUP, groupName)
             }
         }
     }
@@ -50,12 +48,12 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         super.onViewCreated(view, savedInstanceState)
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         tab.setupWithViewPager(pager)
-        pager.adapter = pagerAdapter
+        pager.adapter = mPagerAdapter
         tab.addOnTabSelectedListener(this)
         if (savedInstanceState == null)
-            model.clients.observe(this) {
+            mModel.clients.observe(this) {
                 it.ifPresent {
-                    model.getClientUsers(this, it) {
+                    mModel.getClientUsers(this, it) {
                         it.ifPresent { initializeTimeline(it) }
                     }
                 }
@@ -65,22 +63,22 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     private fun initializeTimeline(clientUsers: List<Pair<TwitterClient, TwitterUser>>) {
         fun setTimeline(infoList: List<TimelineInfo>) {
-            model.createNameList(this, clientUsers, infoList) { names ->
+            mModel.createNameList(this, clientUsers, infoList) { names ->
                 val contents = infoList.mapIndexed { i, info ->
                     ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
                             TimelineFragment.create(info), names[i])
                 }
-                pagerAdapter.setContents(contents)
+                mPagerAdapter.setContents(contents)
             }
         }
-        model.loadTimelineInfoList(this, groupName) {
+        mModel.loadTimelineInfoList(this, mGroupName) {
             setTimeline(it)
         }
     }
 
     //interface impl
     override fun onTabReselected(tab: TabLayout.Tab) {
-        pagerAdapter.getContent(tab.position).fragment.scrollToTop()
+        mPagerAdapter.getContent(tab.position).fragment.scrollToTop()
     }
 
     override fun onTabUnselected(tab: TabLayout.Tab) {

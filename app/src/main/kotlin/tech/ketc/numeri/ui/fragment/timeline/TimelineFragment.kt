@@ -27,13 +27,13 @@ import tech.ketc.numeri.util.logTag
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent by SwipeRefreshRecyclerComponent() {
 
-    @Inject lateinit var viewModelFactory: ViewModelProvider.Factory
-    private val model: TimeLineViewModel by viewModel { viewModelFactory }
+    @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
+    private val mModel: TimeLineViewModel by viewModel { mViewModelFactory }
 
-    private val tlInfo by lazy { arg.getSerializable(EXTRA_TIMELINE_INFO) as TimelineInfo }
-    private var savedTopChildAdapterPosition: Int? = null
+    private val mTlInfo by lazy { arg.getSerializable(EXTRA_TIMELINE_INFO) as TimelineInfo }
+    private var mSavedTopChildAdapterPosition: Int? = null
     private var mAdapter: TimeLineDataSourceAdapter? = null
-    private val pref by lazy { act.pref }
+    private val mPref by lazy { act.pref }
     private var mIsStreamEnabled = true
     private var mIsEnableAutoScroll = true
     private var mIsStreamStart = false
@@ -57,7 +57,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
         savedInstanceState?.let { restoreInstanceState(it) }
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         loadPrefSetting()
-        model.initialize(tlInfo, this, callback = {
+        mModel.initialize(mTlInfo, this, callback = {
             initialize(it)
         }, error = {
             toast(R.string.message_failed_acquire_info_necessary_for_browsing_timeline)
@@ -66,17 +66,17 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
 
     private fun initialize(client: TwitterClient) {
         val adapter = TimeLineDataSourceAdapter(this,
-                model.dataSource, { TweetViewHolder(ctx, client, this, model) })
+                mModel.dataSource, { TweetViewHolder(ctx, client, this, mModel) })
         mAdapter = adapter
         adapter.pageSize = DEFAULT_PAGE_SIZE
         recycler.adapter = adapter
-        adapter.setStoreLiveData(model.storeTweetsLiveData)
+        adapter.setStoreLiveData(mModel.storeTweetsLiveData)
         adapter.error = {
             toast(R.string.message_failure_acquire_tweet)
         }
         if (adapter.restore()) {
             Logger.v(javaClass.name, "restore adapter")
-            savedTopChildAdapterPosition?.let {
+            mSavedTopChildAdapterPosition?.let {
                 recycler.scrollToPosition(it)
             }
             startStream()
@@ -104,7 +104,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
     }
 
     private fun startStream() {
-        mIsStreamStart = model.startStream(this) {
+        mIsStreamStart = mModel.startStream(this) {
             if (mIsStreamEnabled) {
                 mAdapter!!.insertTop(it)
                 if (mIsEnableAutoScroll) autoScroll()
@@ -133,8 +133,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
 
     private fun loadPrefSetting() {
         val prevStreamEnabled = mIsStreamEnabled
-        mIsStreamEnabled = pref.getBoolean(getString(R.string.pref_key_is_stream_enabled), true)
-        mIsEnableAutoScroll = pref.getBoolean(getString(R.string.pref_key_auto_scroll), true)
+        mIsStreamEnabled = mPref.getBoolean(getString(R.string.pref_key_is_stream_enabled), true)
+        mIsEnableAutoScroll = mPref.getBoolean(getString(R.string.pref_key_auto_scroll), true)
         if (mIsStreamStart && prevStreamEnabled != mIsStreamEnabled) {
             changeStreamSetting()
         }
@@ -170,7 +170,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
     }
 
     private fun restoreInstanceState(savedInstanceState: Bundle) {
-        savedTopChildAdapterPosition = savedInstanceState.getInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION)
+        mSavedTopChildAdapterPosition = savedInstanceState.getInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION)
     }
 
     fun scrollToTop() = recycler.scrollToPosition(0)

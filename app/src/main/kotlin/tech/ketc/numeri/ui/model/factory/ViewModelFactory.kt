@@ -11,17 +11,17 @@ import javax.inject.Provider
 
 @Suppress("UNCHECKED_CAST")
 class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponent) : ViewModelProvider.Factory {
-    private val providers = ArrayMap<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>()
+    private val mProviders = ArrayMap<Class<out ViewModel>, @JvmSuppressWildcards Provider<ViewModel>>()
 
     init {
-        providers.put(MainViewModel::class.java, Provider(viewModelComponent::mainViewModel))
-        providers.put(TimeLineViewModel::class.java, Provider(viewModelComponent::timeLineViewModel))
+        mProviders.put(MainViewModel::class.java, Provider(viewModelComponent::mainViewModel))
+        mProviders.put(TimeLineViewModel::class.java, Provider(viewModelComponent::timeLineViewModel))
     }
 
     override fun <T : ViewModel?> create(viewModelClass: Class<T>): T {
-        var provider: Provider<ViewModel>? = providers[viewModelClass]
+        var provider: Provider<ViewModel>? = mProviders[viewModelClass]
         if (provider == null) {
-            for ((key, value) in providers) {
+            for ((key, value) in mProviders) {
                 if (viewModelClass.isAssignableFrom(key)) {
                     provider = value
                     break
