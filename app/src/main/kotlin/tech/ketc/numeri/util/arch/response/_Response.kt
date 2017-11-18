@@ -24,7 +24,7 @@ fun <R : Any> response(func: () -> R): Response<R> {
     }
     return object : Response<R> {
         override val result: R
-            get() = result ?: throw IllegalStateException()
+            get() = result ?: throw throwable!!
         override val error: Throwable
             get() = throwable ?: throw IllegalStateException()
         override val isSuccessful: Boolean
@@ -42,7 +42,7 @@ fun <R : Any> deferredRes(context: CoroutineContext, func: suspend () -> R): Def
     }
     object : Response<R> {
         override val result: R
-            get() = result ?: throw IllegalStateException()
+            get() = result ?: throw throwable!!
         override val error: Throwable
             get() = throwable ?: throw IllegalStateException()
         override val isSuccessful: Boolean

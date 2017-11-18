@@ -46,13 +46,11 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: Acco
         TimeLineDataSource(createDataSourceDelegate(mTweetRepository, info.foreignId, info.type, mClient!!))
     }
 
-    fun initialize(timelineInfo: TimelineInfo): Deferred<Response<TwitterClient>> {
-        mTimelineInfo = timelineInfo
-        return async {
-            response {
-                val clients = mAccountRepository.clients()
-                clients.find { it.id == timelineInfo.accountId }!!.also { mClient = it }
-            }
+    fun initialize(timelineInfo: TimelineInfo): Deferred<Response<TwitterClient>> = async {
+        response {
+            mTimelineInfo = timelineInfo
+            val clients = mAccountRepository.clients()
+            clients.find { it.id == timelineInfo.accountId }!!.also { mClient = it }
         }
     }
 

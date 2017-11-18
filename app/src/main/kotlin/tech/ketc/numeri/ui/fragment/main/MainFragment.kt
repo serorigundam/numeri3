@@ -11,7 +11,6 @@ import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
-import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.components.IScrollableTabPagerComponent
 import tech.ketc.numeri.ui.components.ScrollableTabPagerComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
@@ -21,6 +20,7 @@ import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.arg
 import tech.ketc.numeri.util.arch.owner.bindLaunch
+import tech.ketc.numeri.util.arch.response.nullable
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.viewmodel.commonViewModel
 import tech.ketc.numeri.util.di.AutoInject
@@ -69,17 +69,16 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
     }
 
     private fun initializeTimeline(clientUsers: List<Pair<TwitterClient, TwitterUser>>) {
-        fun setTimeline(infoList: List<TimelineInfo>) {
-            mModel.createNameList(this, clientUsers, infoList) { names ->
-                val contents = infoList.mapIndexed { i, info ->
-                    ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
-                            TimelineFragment.create(info), names[i])
-                }
-                mPagerAdapter.setContents(contents)
+        bindLaunch {
+            val infoListRes = mModel.loadTimelineInfoList(mGroupName).await()
+            val infoList = infoListRes.nullable() ?: return@bindLaunch
+            val namesRes = mModel.createNameList(clientUsers, infoList).await()
+            val names = namesRes.nullable() ?: return@bindLaunch
+            val contents = infoList.mapIndexed { i, info ->
+                ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
+                        TimelineFragment.create(info), names[i])
             }
-        }
-        mModel.loadTimelineInfoList(this, mGroupName) {
-            setTimeline(it)
+            mPagerAdapter.setContents(contents)
         }
     }
 

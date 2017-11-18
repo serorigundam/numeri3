@@ -9,10 +9,13 @@ import android.view.View
 import android.view.ViewGroup
 import android.widget.ProgressBar
 import android.widget.TextView
+import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.ui.enableRippleEffect
-import tech.ketc.numeri.util.arch.BindingLifecycleAsyncTask
+import tech.ketc.numeri.util.arch.coroutine.bindLaunch
+import tech.ketc.numeri.util.arch.response.orError
+import tech.ketc.numeri.util.arch.response.response
 
 
 @Suppress("UNCHECKED_CAST")
@@ -68,17 +71,16 @@ abstract class DataSourceAdapter
         mIsProgress = true
         val item = mValues.firstOrNull()
         if (item == null) loadInitial(complete)
-        else BindingLifecycleAsyncTask {
-            mDataSource.loadAfter(mDataSource.getKey(item), pageSize)
-        }.run(mOwner) {
-            it.ifPresent {
-                mValues.addAll(0, it)
-                mStoreLiveData?.value = mValues
-                notifyItemRangeInserted(0, it.size)
-            }
-            mIsProgress = false
+        else bindLaunch(mOwner) {
+            val listRes = async {
+                response { mDataSource.loadAfter(mDataSource.getKey(item), pageSize) }
+            }.await()
+            val list = listRes.orError(error) ?: return@bindLaunch
+            mValues.addAll(0, list)
+            mStoreLiveData?.value = mValues
+            notifyItemRangeInserted(0, list.size)
             complete()
-            it.ifError(error)
+            mIsProgress = false
         }
     }
 
@@ -87,35 +89,33 @@ abstract class DataSourceAdapter
         mIsProgress = true
         val item = mValues.lastOrNull()
         if (item == null) loadInitial(complete)
-        else BindingLifecycleAsyncTask {
-            mDataSource.loadBefore(mDataSource.getKey(item), pageSize)
-        }.run(mOwner) {
-            it.ifPresent {
-                val last = mValues.size
-                mValues.addAll(it)
-                mStoreLiveData?.value = mValues
-                notifyItemRangeInserted(last, it.size)
-            }
-            mIsProgress = false
+        else bindLaunch(mOwner) {
+            val listRes = async {
+                response { mDataSource.loadBefore(mDataSource.getKey(item), pageSize) }
+            }.await()
+            val list = listRes.orError(error) ?: return@bindLaunch
+            val last = mValues.size
+            mValues.addAll(list)
+            mStoreLiveData?.value = mValues
+            notifyItemRangeInserted(last, list.size)
             complete()
-            it.ifError(error)
+            mIsProgress = false
         }
     }
 
     fun loadInitial(complete: () -> Unit = {}) {
         checkProgress()
         mIsProgress = true
-        BindingLifecycleAsyncTask {
-            mDataSource.loadInitial(pageSize)
-        }.run(mOwner) {
-            it.ifPresent {
-                mValues.addAll(it)
-                mStoreLiveData?.value = mValues
-                notifyDataSetChanged()
-            }
-            mIsProgress = false
+        bindLaunch(mOwner) {
+            val listRes = async {
+                response { mDataSource.loadInitial(pageSize) }
+            }.await()
+            val list = listRes.orError(error) ?: return@bindLaunch
+            mValues.addAll(list)
+            mStoreLiveData?.value = mValues
+            notifyDataSetChanged()
             complete()
-            it.ifError(error)
+            mIsProgress = false
         }
     }
 

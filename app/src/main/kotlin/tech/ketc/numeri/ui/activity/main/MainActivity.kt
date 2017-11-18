@@ -105,18 +105,15 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun startAuthorization() {
-        val addAccountButton = accountListUI.addAccountButton
-        addAccountButton.isClickable = false
-        mModel.createAuthorizationURL().observe(this) {
-            it.ifPresent {
-                val uri = Uri.parse(it)
-                startActivity(Intent(Intent.ACTION_VIEW, uri))
-            }
-            it.ifError {
+        bindLaunch {
+            val addAccountButton = accountListUI.addAccountButton
+            addAccountButton.isClickable = false
+            val res = mModel.createAuthorizationURL().await()
+            val url = res.orError {
                 toast(getString(R.string.failed_generate_authentication_url))
-                it.printStackTrace()
-            }
-            addAccountButton.isClickable = true
+            } ?: return@bindLaunch
+            val uri = Uri.parse(url)
+            startActivity(Intent(Intent.ACTION_VIEW, uri))
         }
     }
 
@@ -140,12 +137,11 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun initializeTimelineGroup() {
-        mModel.groupList.observe(this) {
-            it.ifPresent {
-                if (it.isEmpty()) return@ifPresent
-                mCurrentGroupList = it
-                showFirstTimelineGroup(it)
-            }
+        bindLaunch {
+            val groupList = mModel.groupList().await().result
+            if (groupList.isEmpty()) return@bindLaunch
+            mCurrentGroupList = groupList
+            showFirstTimelineGroup(groupList)
         }
     }
 
@@ -255,8 +251,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
         mModel.timelineChange(this) {
             Logger.v(javaClass.name, "timelineChange")
-            mModel.groupList.observe(this) {
-                it.ifPresent { apply(it) }
+            bindLaunch {
+                val result = mModel.groupList().await().result
+                apply(result)
             }
         }
     }
@@ -265,12 +262,11 @@ class MainActivity : AppCompatActivity(), AutoInject,
         super.onNewIntent(intent)
 
         val oauthIntent = intent.getParcelableExtra<Intent>(INTENT_OAUTH) ?: return
-        mModel.onNewIntent(oauthIntent, this) {
-            it.ifPresent { addAccountComponent(it) }
-            it.ifError {
-                toast(R.string.authentication_failure)
-                it.printStackTrace()
-            }
+        val deferred = mModel.onNewIntent(oauthIntent) ?: return
+        bindLaunch {
+            val res = deferred.await()
+            val client = res.orError { toast(R.string.authentication_failure) } ?: return@bindLaunch
+            addAccountComponent(client)
         }
     }
 

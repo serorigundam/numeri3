@@ -2,13 +2,6 @@ package tech.ketc.numeri.util.arch.livedata
 
 import android.arch.lifecycle.*
 
-open class NonnullLiveData<T : Any> : LiveData<T>()
-
-open class NonnullMediatorLiveData<T : Any> : MediatorLiveData<T>()
-
-
-fun <S, T : Any> LiveData<S?>.asyncMap(func: suspend (S?) -> T) = MutableAsyncLiveData(this, func)
-
 fun <T, R> LiveData<T>.switchMap(func: (T) -> LiveData<R>): LiveData<R>
         = Transformations.switchMap(this, func)
 
