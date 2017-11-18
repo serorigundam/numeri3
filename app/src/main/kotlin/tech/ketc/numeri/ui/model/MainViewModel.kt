@@ -18,36 +18,37 @@ import tech.ketc.numeri.util.arch.response.Response
 import javax.inject.Inject
 
 @SuppressLint("StaticFieldLeak")
-class MainViewModel @Inject constructor(private val app: App,
-                                        private val accountRepository: IAccountRepository,
-                                        private val timelineRepository: ITimelineInfoRepository,
-                                        private val userRepository: ITwitterUserRepository,
+class MainViewModel @Inject constructor(private val mApp: App,
+                                        private val mAccountRepository: IAccountRepository,
+                                        private val mTimelineRepository: ITimelineInfoRepository,
+                                        private val mUserRepository: ITwitterUserRepository,
                                         imageRepository: IImageRepository,
                                         streamRepository: ITwitterStreamRepository)
     : ViewModel(),
         IImageLoadable by ImageLoadable(imageRepository),
-        IClientHandler by ClientHandler(accountRepository, userRepository),
+        IClientHandler by ClientHandler(mAccountRepository, mUserRepository),
         IStreamHandler by StreamHandler(streamRepository),
-        IUserHandler by UserHandler(userRepository),
-        ITimelineChangeObserver by TimelineChangeObserver(timelineRepository) {
+        IUserHandler by UserHandler(mUserRepository),
+        ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository) {
+
 
     val groupList: AsyncLiveData<List<TimelineGroup>>
-        get() = AsyncLiveData { timelineRepository.getGroupList() }
+        get() = AsyncLiveData { mTimelineRepository.getGroupList() }
 
-    fun createAuthorizationURL() = AsyncLiveData { accountRepository.createAuthorizationURL() }
+    fun createAuthorizationURL() = AsyncLiveData { mAccountRepository.createAuthorizationURL() }
 
     private fun createNewClientTask(oauthVerifier: String)
-            = BindingLifecycleAsyncTask { accountRepository.createTwitterClient(oauthVerifier) }
+            = BindingLifecycleAsyncTask { mAccountRepository.createTwitterClient(oauthVerifier) }
 
     fun onNewIntent(intent: Intent, owner: LifecycleOwner, handle: (Response<TwitterClient>) -> Unit) {
         val data = intent.data ?: return
         val oauthVerifier = data.getQueryParameter("oauth_verifier") ?: return
-        if (!data.toString().startsWith(app.twitterCallbackUrl)) return
+        if (!data.toString().startsWith(mApp.twitterCallbackUrl)) return
         createNewClientTask(oauthVerifier).run(owner, handle)
     }
 
     fun loadTimelineInfoList(owner: LifecycleOwner, groupName: String, handle: (List<TimelineInfo>) -> Unit) = BindingLifecycleAsyncTask {
-        timelineRepository.selectByGroup(TimelineGroup(groupName))
+        mTimelineRepository.selectByGroup(TimelineGroup(groupName))
     }.run(owner) {
         it.ifPresent { handle(it) }
         it.ifError { it.printStackTrace() }
@@ -65,8 +66,8 @@ class MainViewModel @Inject constructor(private val app: App,
                 TlType.HOME -> "Home:${user.screenName}"
                 TlType.MENTIONS -> "Mentions:${user.screenName}"
                 TlType.USER_LIST -> "List:${client.twitter.showUserList(foreignId).name}"
-                TlType.PUBLIC -> "User:${userRepository.show(client, foreignId).name}"
-                TlType.FAVORITE -> "Favorite:${userRepository.show(client, foreignId).name}"
+                TlType.PUBLIC -> "User:${mUserRepository.show(client, foreignId).name}"
+                TlType.FAVORITE -> "Favorite:${mUserRepository.show(client, foreignId).name}"
             }
         }
         infoList.map { it.toName(clientUsers) }
