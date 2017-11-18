@@ -1,37 +1,37 @@
 package tech.ketc.numeri.util.arch
 
 import android.arch.lifecycle.*
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.coroutine.asyncContext
 import java.lang.ref.WeakReference
 
 class BindingLifecycleAsyncTask<out T : Any>(private val task: suspend () -> T) {
 
-    private val executor = TaskExecutor<T>()
-    private var isExecuted = false
+    private val mExecutor = TaskExecutor<T>()
+    private var mIsExecuted = false
     private var mOwner: WeakReference<LifecycleOwner>? = null
 
     fun run(owner: LifecycleOwner, handle: (Response<T>) -> Unit) {
-        if (isExecuted) throw IllegalStateException()
-        isExecuted = true
+        if (mIsExecuted) throw IllegalStateException()
+        mIsExecuted = true
         mOwner = WeakReference(owner)
-        owner.lifecycle.addObserver(executor)
-        executor.execute(task) {
+        owner.lifecycle.addObserver(mExecutor)
+        mExecutor.execute(task) {
             handle(it)
-            owner.lifecycle.removeObserver(executor)
+            owner.lifecycle.removeObserver(mExecutor)
             mOwner = null
         }
     }
 
     fun cancel() {
-        if (!isExecuted) throw IllegalStateException()
+        if (!mIsExecuted) throw IllegalStateException()
         val ownerRef = mOwner ?: return
         val owner = ownerRef.get() ?: return
-        owner.lifecycle.removeObserver(executor.also { it.cancel() })
+        owner.lifecycle.removeObserver(mExecutor.also { it.cancel() })
         mOwner = null
     }
 
@@ -59,7 +59,7 @@ class BindingLifecycleAsyncTask<out T : Any>(private val task: suspend () -> T) 
 
         fun execute(task: suspend () -> T, callback: (Response<T>) -> Unit) {
             job = launch(UI) {
-                val res = async(coroutineContext + CommonPool) {
+                val res = async(asyncContext) {
                     var result: T? = null
                     var error: Throwable? = null
                     try {

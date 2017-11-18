@@ -9,11 +9,11 @@ import android.view.View
 
 
 class SimpleItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
-    private val divider: Drawable
+    private val mDivider: Drawable
 
     init {
         val attr: TypedArray = context.obtainStyledAttributes(arrayOf(android.R.attr.listDivider).toIntArray())
-        divider = attr.getDrawable(0)
+        mDivider = attr.getDrawable(0)
         attr.recycle()
     }
 
@@ -26,9 +26,9 @@ class SimpleItemDecoration(context: Context) : RecyclerView.ItemDecoration() {
             val view: View = parent.getChildAt(i)
             val params = view.layoutParams as RecyclerView.LayoutParams
             val top = view.bottom + params.bottomMargin
-            val bottom = top + divider.intrinsicHeight
-            divider.setBounds(left, top, right, bottom)
-            divider.draw(c)
+            val bottom = top + mDivider.intrinsicHeight
+            mDivider.setBounds(left, top, right, bottom)
+            mDivider.draw(c)
         }
     }
 }

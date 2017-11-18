@@ -9,12 +9,13 @@ import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.coroutine.asyncContext
 
 open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
     : NonnullLiveData<Response<T>>(), Cancellable {
 
 
-    private var job: Job? = null
+    private var mJob: Job? = null
 
     fun observe(owner: LifecycleOwner, onChanged: (Response<T>) -> Unit) {
         super.observe(owner, Observer { onChanged(it ?: throw IllegalStateException()) })
@@ -22,9 +23,9 @@ open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
 
     override fun onActive() {
         super.onActive()
-        if (job == null) {
-            job = launch(UI) {
-                val res = async(coroutineContext + CommonPool) {
+        if (mJob == null) {
+            mJob = launch(UI) {
+                val res = async(asyncContext) {
                     var result: T? = null
                     var error: Throwable? = null
                     try {
@@ -47,6 +48,6 @@ open class AsyncLiveData<T : Any>(private val func: suspend () -> T)
     }
 
     override fun cancel() {
-        job?.cancel()
+        mJob?.cancel()
     }
 }

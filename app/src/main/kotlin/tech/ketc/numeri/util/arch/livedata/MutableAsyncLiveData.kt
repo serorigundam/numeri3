@@ -3,17 +3,17 @@ package tech.ketc.numeri.util.arch.livedata
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
-import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.coroutine.asyncContext
 
 class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transform: suspend (S?) -> T)
     : NonnullMediatorLiveData<Response<T>>(), Cancellable {
 
-    private var job: Job? = null
+    private var mJob: Job? = null
 
     init {
         addSource(trigger, { asyncTransform(it) })
@@ -34,10 +34,10 @@ class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transf
     }
 
     private fun asyncTransform(source: S?) {
-        job?.cancel()
-        job = null
-        job = launch(UI) {
-            val res = async(coroutineContext + CommonPool) {
+        mJob?.cancel()
+        mJob = null
+        mJob = launch(UI) {
+            val res = async(asyncContext) {
                 var result: T? = null
                 var error: Throwable? = null
                 try {
@@ -59,6 +59,6 @@ class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val transf
     }
 
     override fun cancel() {
-        job?.cancel()
+        mJob?.cancel()
     }
 }
