@@ -5,9 +5,9 @@ import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.Observer
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.arch.response.deferredRes
 import tech.ketc.numeri.util.coroutine.asyncContext
 
 class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val mTransform: suspend (S?) -> T)
@@ -37,24 +37,7 @@ class MutableAsyncLiveData<S, T : Any>(trigger: LiveData<S?>, private val mTrans
         mJob?.cancel()
         mJob = null
         mJob = launch(UI) {
-            val res = async(asyncContext) {
-                var result: T? = null
-                var error: Throwable? = null
-                try {
-                    result = mTransform(source)
-                } catch (t: Throwable) {
-                    error = t
-                }
-                object : Response<T> {
-                    override val result: T
-                        get() = result ?: throw IllegalStateException()
-                    override val error: Throwable
-                        get() = error ?: throw IllegalStateException()
-                    override val isSuccessful: Boolean
-                        get() = result != null
-                }
-            }.await()
-            setValue(res)
+            setValue(deferredRes(asyncContext) { mTransform(source) }.await())
         }
     }
 
