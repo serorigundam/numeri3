@@ -13,8 +13,6 @@ import tech.ketc.numeri.util.di.applyAutoInject
 class App : DaggerApplication() {
 
     override fun onCreate() {
-        super.onCreate()
-        applyAutoInject()
         val debug = resources.getBoolean(R.bool.debug)
         if (debug) {
             Logger.debug = true
@@ -22,6 +20,8 @@ class App : DaggerApplication() {
         } else {
             Fabric.with(this, Crashlytics())
         }
+        applyAutoInject()
+        super.onCreate()
     }
 
     override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
