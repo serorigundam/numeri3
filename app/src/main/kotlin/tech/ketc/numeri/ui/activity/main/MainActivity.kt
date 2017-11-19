@@ -1,5 +1,6 @@
 package tech.ketc.numeri.ui.activity.main
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
 import android.content.res.Configuration
@@ -368,12 +369,18 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
     }
 
+
+    private inline fun <reified T : Activity> startLeftOut(params: List<Pair<String, Any>> = emptyList()) {
+        startActivity<T>(*params.toTypedArray())
+        overridePendingTransition(R.anim.right_in, R.anim.left_out)
+    }
+
     //interface impl
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
             R.id.column_manage -> toast("not implement")//todo not implement
             R.id.changing_column_group -> toast("not implement")//todo not implement
-            R.id.setting -> startActivity<SettingsActivity>()
+            R.id.setting -> startLeftOut<SettingsActivity>()
             else -> return super.onOptionsItemSelected(item)
         }
         drawer.closeDrawer(navigation)
