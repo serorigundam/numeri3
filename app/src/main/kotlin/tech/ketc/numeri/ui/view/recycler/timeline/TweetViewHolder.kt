@@ -74,7 +74,7 @@ class TweetViewHolder(ctx: Context,
         userNameText.text = displayTweet.user.name
         iconImage.setImageUrl(displayTweet.user.iconUrl)
         //iconImage.setOnClickListener { UserInfoActivity.start(ctx, mClient.id, displayTweet.user.id) }
-        text.text = displayTweet.text
+        contentText.text = displayTweet.text
         sourceText.text = displayTweet.source
     }
 

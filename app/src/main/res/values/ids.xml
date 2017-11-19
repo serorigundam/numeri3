@@ -1,72 +1,26 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-    <item name="toolbar" type="id" />
-    <item name="drawer" type="id" />
-    <item name="navigation" type="id" />
-    <item name="icon_image" type="id" />
-    <item name="show_account_relative" type="id" />
+    <!--view id-->
     <item name="show_account_indicator" type="id" />
-    <item name="user_name_text" type="id" />
-    <item name="screen_name_text" type="id" />
-    <item name="navigation_content" type="id" />
-    <item name="add_account_button" type="id" />
     <item name="accounts_linear" type="id" />
-    <item name="tweet_text" type="id" />
-    <item name="swipe_refresh" type="id" />
-    <item name="users_recycler" type="id" />
-    <item name="column_group_wrapper_coordinator" type="id" />
-    <item name="read_more_text" type="id" />
-    <item name="progress_bar" type="id" />
+    <item name="fragment_wrapper" type="id" />
+    <item name="icon_image" type="id" />
+    <item name="user_name_text" type="id" />
+    <item name="tab" type="id" />
     <item name="sub_info_text" type="id" />
     <item name="twitter_bird_image" type="id" />
     <item name="created_at_text" type="id" />
+    <item name="content_text" type="id" />
+    <item name="via_text" type="id" />
+    <item name="thumbnails_relative" type="id" />
     <item name="thumb_image1" type="id" />
     <item name="thumb_image2" type="id" />
     <item name="thumb_image3" type="id" />
     <item name="thumb_image4" type="id" />
-    <item name="via_text" type="id" />
-    <item name="thumbnails_relative" type="id" />
-    <item name="source_text" type="id" />
-    <item name="overlay_relative" type="id" />
-    <item name="menu_text" type="id" />
-    <item name="menu_linear" type="id" />
-    <item name="nested_scroll" type="id" />
-    <item name="sub_info_icon" type="id" />
-    <item name="tab" type="id" />
+    <item name="read_more_text" type="id" />
+    <item name="progress_bar" type="id" />
     <item name="pager" type="id" />
-    <item name="groups_recycler" type="id" />
-    <item name="add_fab" type="id" />
-    <item name="root" type="id" />
-    <item name="displays_recycler" type="id" />
-    <item name="column_group_name_edit" type="id" />
-    <item name="app_bar" type="id" />
-    <item name="message_text" type="id" />
-    <item name="icon_frame" type="id" />
-    <item name="header_relative" type="id" />
-    <item name="dummy_header" type="id" />
-    <item name="dummy_header2" type="id" />
-    <item name="header_image" type="id" />
-    <item name="description_text" type="id" />
-    <item name="location_text" type="id" />
-    <item name="tab_tweets" type="id" />
-    <item name="user_profile_tab" type="id" />
-    <item name="tab_favorite" type="id" />
-    <item name="tab_media" type="id" />
-    <item name="tab_following" type="id" />
-    <item name="tab_follower" type="id" />
-    <item name="buttons_relative" type="id" />
-    <item name="follow_button" type="id" />
     <item name="recycler" type="id" />
-    <item name="text_input" type="id" />
-    <item name="background_stream_text" type="id" />
-    <item name="main_content" type="id" />
-    <item name="bottom_content" type="id" />
-    <item name="edit_text" type="id" />
-    <item name="send_tweet_button" type="id" />
-    <item name="camera_button" type="id" />
-    <item name="select_media_button" type="id" />
-    <item name="remaining_text" type="id" />
-    <item name="reply_info_text" type="id" />
-    <item name="thumbnails_frame" type="id" />
-    <item name="select_user_button" type="id" />
+    <item name="column_group_wrapper" type="id" />
+    <!--/view id-->
 </resources>

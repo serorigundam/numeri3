@@ -47,11 +47,9 @@ class MainUI : IMainUI {
     override fun createView(ui: AnkoContext<MainActivity>) = ui.create {
         drawerLayout {
             drawer = this
-            id = R.id.drawer
             coordinatorLayout {
                 appBarLayout {
                     toolbar {
-                        id = R.id.toolbar
                         toolbar = this
                     }.lparams(matchParent, wrapContent) {
                         scrollFlags = AppBarLayout.LayoutParams.SCROLL_FLAG_ENTER_ALWAYS or
@@ -60,7 +58,7 @@ class MainUI : IMainUI {
                 }.lparams(matchParent, wrapContent)
                 coordinatorLayout {
                     columnGroupWrapper = this
-                    id = R.id.column_group_wrapper_coordinator
+                    id = R.id.column_group_wrapper
                 }.lparams(matchParent, matchParent) {
                     behavior = AppBarLayout.ScrollingViewBehavior()
                 }
@@ -72,12 +70,11 @@ class MainUI : IMainUI {
                 }.lparams {
                     margin = dimen(R.dimen.margin_medium)
                     anchorGravity = Gravity.BOTTOM or Gravity.END
-                    anchorId = R.id.column_group_wrapper_coordinator
+                    anchorId = R.id.column_group_wrapper
                 }
             }
 
             navigationView {
-                id = R.id.navigation
                 navigation = this
                 inflateMenu(R.menu.main_navigation)
 
@@ -106,7 +103,6 @@ class MainUI : IMainUI {
             lparams(matchParent, dip(160))
             backgroundColor = Color.parseColor("#10505050")
             imageView {
-                id = R.id.icon_image
                 image = ctx.getDrawable(R.drawable.ic_launcher)
             }.lparams(dimen(R.dimen.image_icon_large), dimen(R.dimen.image_icon_large)) {
                 topMargin = dimen(R.dimen.margin_medium)
@@ -115,7 +111,6 @@ class MainUI : IMainUI {
 
             relativeLayout {
                 toggleNavigationStateButton = this
-                id = R.id.show_account_relative
                 lparams(matchParent, dip(72)) {
                     alignParentBottom()
                 }
@@ -127,7 +122,6 @@ class MainUI : IMainUI {
                     }
                     backgroundResource = ctx.getResourceId(android.R.attr.selectableItemBackground)
                     textView {
-                        id = R.id.user_name_text
                         text = "アカウント一覧"
                         lines = 1
                     }.lparams {
@@ -163,7 +157,6 @@ class MainUI : IMainUI {
 
         override fun createView(ctx: Context) = ctx.relativeLayout {
             lparams(matchParent, matchParent)
-            id = R.id.navigation_content
             container = this
             visibility = View.GONE
             topPadding = dip(168)
@@ -179,7 +172,6 @@ class MainUI : IMainUI {
                 }
                 relativeLayout {
                     addAccountButton = this
-                    id = R.id.add_account_button
                     lparams(matchParent, dip(48)) {
                         below(R.id.accounts_linear)
                     }

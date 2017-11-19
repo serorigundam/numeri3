@@ -20,11 +20,10 @@ class SwipeRefreshRecyclerComponent : ISwipeRefreshRecyclerComponent {
         lparams(matchParent, matchParent)
         swipeRefreshLayout {
             swipeRefresh = this
-            id = R.id.swipe_refresh
             recyclerView {
                 recycler = this
-                lparams(matchParent, matchParent)
                 id = R.id.recycler
+                lparams(matchParent, matchParent)
                 isVerticalScrollBarEnabled = true
                 initialize()
             }

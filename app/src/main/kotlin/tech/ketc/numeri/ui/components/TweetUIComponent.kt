@@ -26,7 +26,7 @@ class TweetUIComponent : ITweetUIComponent {
         private set
     override lateinit var createdAtText: TextView
         private set
-    override lateinit var text: TextView
+    override lateinit var contentText: TextView
         private set
     override lateinit var sourceText: TextView
         private set
@@ -42,7 +42,6 @@ class TweetUIComponent : ITweetUIComponent {
         lparams(matchParent, wrapContent)
         relativeLayout {
             overlayRelative = this
-            id = R.id.overlay_relative
             lparams(matchParent, wrapContent) {
                 padding = dimen(R.dimen.margin_small)
             }
@@ -62,7 +61,6 @@ class TweetUIComponent : ITweetUIComponent {
 
             imageView {
                 subInfoIcon = this
-                id = R.id.sub_info_icon
             }.lparams(dip(16), dip(16)) {
                 alignEnd(R.id.icon_image)
                 bottomMargin = dimen(R.dimen.margin_text_small)
@@ -104,7 +102,6 @@ class TweetUIComponent : ITweetUIComponent {
 
             textView {
                 screenNameText = this
-                id = R.id.screen_name_text
                 lines = 1
                 ellipsize = TextUtils.TruncateAt.END
             }.lparams(wrapContent, wrapContent) {
@@ -124,8 +121,8 @@ class TweetUIComponent : ITweetUIComponent {
             }
 
             textView {
-                this@TweetUIComponent.text = this
-                id = R.id.text
+                this@TweetUIComponent.contentText = this
+                id = R.id.content_text
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.icon_image)
                 endOf(R.id.icon_image)
@@ -145,7 +142,6 @@ class TweetUIComponent : ITweetUIComponent {
 
             textView {
                 sourceText = this
-                id = R.id.source_text
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.thumbnails_relative)
                 endOf(R.id.via_text)
@@ -168,7 +164,7 @@ class TweetUIComponent : ITweetUIComponent {
             lparams(matchParent, matchParent) {
                 endOf(R.id.icon_image)
                 topMargin = dimen(R.dimen.margin_small)
-                below(R.id.text)
+                below(R.id.content_text)
             }
 
             thumb(R.id.thumb_image1)

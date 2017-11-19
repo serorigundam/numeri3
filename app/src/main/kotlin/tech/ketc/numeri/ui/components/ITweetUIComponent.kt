@@ -13,7 +13,7 @@ interface ITweetUIComponent : UIComponent<FrameLayout> {
     val screenNameText: TextView
     val userNameText: TextView
     val createdAtText: TextView
-    val text: TextView
+    val contentText: TextView
     val thumbnails: List<ImageView>
     val sourceText: TextView
     val overlayRelative: RelativeLayout

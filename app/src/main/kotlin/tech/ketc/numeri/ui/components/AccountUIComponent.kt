@@ -48,7 +48,6 @@ class AccountUIComponent : IAccountUIComponent {
         }
         textView {
             screenNameText = this
-            id = R.id.screen_name_text
             ellipsize = TextUtils.TruncateAt.END
             lines = 1
             textSizeDimen = R.dimen.text_size_medium
