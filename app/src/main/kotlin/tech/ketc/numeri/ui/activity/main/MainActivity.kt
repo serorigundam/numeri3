@@ -100,15 +100,14 @@ class MainActivity : AppCompatActivity(), AutoInject,
         navigationHeaderUI
                 .toggleNavigationStateButton
                 .setOnClickListener { toggleNavigationState() }
-        accountListUI.addAccountButton.setOnClickListener {
-            startAuthorization()
-        }
+        accountListUI
+                .addAccountButton
+                .setOnClickListener { startAuthorization() }
     }
 
     private fun startAuthorization() {
         bindLaunch {
-            val addAccountButton = accountListUI.addAccountButton
-            addAccountButton.isClickable = false
+            accountListUI.addAccountButton.isClickable = false
             val res = mModel.createAuthorizationURL().await()
             val url = res.orError {
                 toast(getString(R.string.failed_generate_authentication_url))
