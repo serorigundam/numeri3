@@ -8,6 +8,7 @@ import io.fabric.sdk.android.Fabric
 import tech.ketc.numeri.di.DaggerAppComponent
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.di.applyAutoInject
+import tech.ketc.numeri.util.logTag
 
 
 class App : DaggerApplication() {
@@ -15,8 +16,7 @@ class App : DaggerApplication() {
     override fun onCreate() {
         val debug = resources.getBoolean(R.bool.debug)
         if (debug) {
-            Logger.debug = true
-            Log.v(javaClass.name, "mode:debug")
+            debugMode()
         } else {
             Fabric.with(this, Crashlytics())
         }
@@ -24,7 +24,17 @@ class App : DaggerApplication() {
         super.onCreate()
     }
 
-    override fun applicationInjector(): AndroidInjector<out DaggerApplication> {
-        return DaggerAppComponent.builder().create(this)
+    private fun debugMode() {
+        Logger.debug = true
+        Log.v(javaClass.name, "mode:debug")
+        val defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
+        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+            Log.v(logTag, "Uncaught", throwable)
+            defaultUncaughtExceptionHandler.uncaughtException(thread, throwable)
+        }
     }
+
+
+    override fun applicationInjector(): AndroidInjector<out DaggerApplication> =
+            DaggerAppComponent.builder().create(this)
 }
