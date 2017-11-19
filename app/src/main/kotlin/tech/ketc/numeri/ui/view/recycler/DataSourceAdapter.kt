@@ -12,10 +12,13 @@ import android.widget.TextView
 import kotlinx.coroutines.experimental.async
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
+import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.ui.enableRippleEffect
 import tech.ketc.numeri.util.arch.coroutine.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.response.response
+import tech.ketc.numeri.util.logTag
+import java.lang.ref.WeakReference
 
 
 @Suppress("UNCHECKED_CAST")
@@ -42,6 +45,8 @@ abstract class DataSourceAdapter
 
     private var mIsProgress = false
     private var mStoreLiveData: MutableLiveData<List<Value>>? = null
+
+    private var mProgressViewHolderRef: WeakReference<ProgressViewHolder>? = null
 
     /**
      * be careful about the adapter state when making changes to items
@@ -140,14 +145,26 @@ abstract class DataSourceAdapter
         }
     }
 
+    private fun createOrGetProgressVH(context: Context): ProgressViewHolder {
+        fun createRef(): WeakReference<ProgressViewHolder> = ProgressViewHolder(context).also { holder ->
+            Logger.v(logTag,"create ProgressViewHolder")
+            holder.itemView.setOnClickListener {
+                holder.change(true)
+                loadBefore { holder.change(false) }
+            }
+        }.let { WeakReference(it).also { mProgressViewHolderRef = it } }
+
+        val ref = mProgressViewHolderRef
+        return if (ref == null) {
+            createRef().get()!!
+        } else {
+            ref.get() ?: createRef().get()!!
+        }
+    }
+
     override fun onCreateViewHolder(parent: ViewGroup, viewType: Int): RecyclerView.ViewHolder {
         return when (viewType) {
-            TYPE_PROGRESS -> ProgressViewHolder(parent.context).also { holder ->
-                holder.itemView.setOnClickListener {
-                    holder.change(true)
-                    loadBefore { holder.change(false) }
-                }
-            }
+            TYPE_PROGRESS -> createOrGetProgressVH(parent.context)
             TYPE_VALUE -> mVHCreator()
             else -> throw RuntimeException("unknown viewType $viewType")
         }
