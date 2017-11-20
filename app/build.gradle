@@ -131,7 +131,6 @@ dependencies {
     //android arch
     implementation "android.arch.lifecycle:runtime:$android_arch_lifecycle_ver"
     kapt "android.arch.lifecycle:compiler:$android_arch_ver"
-    implementation "android.arch.lifecycle:common-java8:$android_arch_ver"
     implementation "android.arch.lifecycle:extensions:$android_arch_ver"
     testImplementation "android.arch.core:core-testing:$android_arch_ver"
     implementation "android.arch.paging:runtime:$android_arch_paging_ver"
