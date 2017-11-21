@@ -2,7 +2,7 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
     <group android:id="@+id/main_menu">
         <item
-            android:id="@+id/column_manage"
+            android:id="@+id/timeline_manage"
             android:icon="@drawable/ic_view_column_white_24dp"
             android:title="@string/column_manage" />
 

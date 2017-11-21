@@ -24,6 +24,7 @@ import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.setting.SettingsActivity
+import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.fragment.dialog.MessageDialogFragment
 import tech.ketc.numeri.ui.fragment.dialog.OnDialogItemSelectedListener
@@ -32,6 +33,8 @@ import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.fadeIn
 import tech.ketc.numeri.util.android.fadeOut
+import tech.ketc.numeri.util.android.setUpSupportActionbar
+import tech.ketc.numeri.util.android.supportActBar
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
@@ -80,17 +83,16 @@ class MainActivity : AppCompatActivity(), AutoInject,
         super.onCreate(savedInstanceState)
         setContentView(this)
         initializeUI()
-        initializeUIBehavior()
-        savedInstanceState?.let {
-            restoreInstanceState(it)
-        }
-        initialize(savedInstanceState)
-        observeTimelineChange()
+//        initializeUIBehavior()
+//        savedInstanceState?.let {
+//            restoreInstanceState(it)
+//        }
+//        initialize(savedInstanceState)
+//        observeTimelineChange()
     }
 
     private fun initializeUI() {
-        setSupportActionBar(toolbar)
-        supportActionBar!!.setDisplayHomeAsUpEnabled(true)
+        setUpSupportActionbar(toolbar)
         drawer.addDrawerListener(mDrawerToggle)
         mDrawerToggle.isDrawerIndicatorEnabled = true
         navigation.setNavigationItemSelectedListener(this)
@@ -203,7 +205,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun showTimelineGroup(groupName: String) {
-        supportActionBar!!.subtitle = groupName
+        supportActBar.subtitle = groupName
         val view = addTimelineGroupView(groupName)
         val fragment = supportFragmentManager.findFragmentByTag(groupName)
         val viewId = view.id
@@ -235,7 +237,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         Logger.v(javaClass.name, "showFirstTimelineGroup")
         val group = groupList.firstOrNull()
         if (group != null) showTimelineGroup(group.name)
-        else supportActionBar!!.subtitle = ""
+        else supportActBar.subtitle = ""
     }
 
     private fun observeTimelineChange() {
@@ -377,7 +379,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     //interface impl
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.column_manage -> toast("not implement")//todo not implement
+            R.id.timeline_manage -> startLeftOut<TimelineManageActivity>()
             R.id.changing_column_group -> toast("not implement")//todo not implement
             R.id.setting -> startLeftOut<SettingsActivity>()
             else -> return super.onOptionsItemSelected(item)

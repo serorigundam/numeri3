@@ -8,8 +8,8 @@ import dagger.multibindings.IntoMap
 import dagger.Binds
 import dagger.Module
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
-import tech.ketc.numeri.ui.activity.timeline.TimelineManageActivity
-import tech.ketc.numeri.ui.activity.timeline.TimelineManageActivityComponent
+import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
+import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityComponent
 
 
 @Module
