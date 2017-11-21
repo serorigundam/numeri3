@@ -21,9 +21,6 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: TimelineManageViewModel by viewModel { mViewModelFactory }
 
-    //impl interface
-    override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector
-
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
@@ -39,4 +36,7 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
     private fun initializeUIBehavior() {
         toolbar.setFinishWithNavigationClick(this)
     }
+
+    //impl interface
+    override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector
 }
