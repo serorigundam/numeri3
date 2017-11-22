@@ -11,7 +11,6 @@ import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.infra.element.TlType
-import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.util.arch.response.Response
@@ -30,10 +29,8 @@ class MainViewModel @Inject constructor(private val mApp: App,
         IClientHandler by ClientHandler(mAccountRepository, mUserRepository),
         IStreamHandler by StreamHandler(streamRepository),
         IUserHandler by UserHandler(mUserRepository),
-        ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository) {
-
-
-    fun groupList() = async { response { mTimelineRepository.getGroupList() } }
+        ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository),
+        ITimelineInfoReader by TimelineInfoReader(mTimelineRepository) {
 
     fun createAuthorizationURL() = async { response { mAccountRepository.createAuthorizationURL() } }
 
@@ -45,10 +42,6 @@ class MainViewModel @Inject constructor(private val mApp: App,
         val oauthVerifier = data.getQueryParameter("oauth_verifier") ?: return null
         if (!data.toString().startsWith(mApp.twitterCallbackUrl)) return null
         return createNewClient(oauthVerifier)
-    }
-
-    fun loadTimelineInfoList(groupName: String) = async {
-        response { mTimelineRepository.selectByGroup(TimelineGroup(groupName)) }
     }
 
     fun createNameList(clientUsers: List<Pair<TwitterClient, TwitterUser>>,

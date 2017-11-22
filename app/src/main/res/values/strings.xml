@@ -10,7 +10,7 @@
     <string name="destroy_retweet">RTを解除</string>
     <string name="create_retweet">RTを行う</string>
     <string name="column_manage">タイムライン管理</string>
-    <string name="hint_input_column_group_name">カラムグループ名を入力してください</string>
+    <string name="hint_input_timline_group_name">タイムラインのグループ名</string>
     <string name="label_create_column_group">グループ作成</string>
     <string name="changing_column_group">カラムグループ切替</string>
     <string name="select_column_group">表示するカラムグループを選択</string>
@@ -66,4 +66,7 @@
     <string name="pref_title_auto_scroll">オートスクロール</string>
     <string name="pref_desc_auto_scroll">ユーザーストリーム時の自動スクロール\n(リストの一番上を見ているときのみ)</string>
     <string name="pref_key_auto_scroll">pref_id_auto_scroll</string>
+    <string name="dialog_message_add_timeline_group">タイムライングループを追加</string>
+    <string name="add">追加</string>
+    <string name="error_enter_in_range_up_to">文字までの範囲で入力</string>
 </resources>

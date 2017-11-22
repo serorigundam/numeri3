@@ -85,7 +85,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent 
             }
             startStream()
         } else {
-            Logger.v(javaClass.name, "initialize adapter")
+            Logger.v(javaClass.name, "simpleInit adapter")
             initializeAdapter()
         }
     }

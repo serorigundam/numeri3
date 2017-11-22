@@ -1,4 +1,4 @@
-package tech.ketc.numeri.ui.view.recycler
+package tech.ketc.numeri.util.android.ui.recycler
 
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData

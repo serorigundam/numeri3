@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
 //        savedInstanceState?.let {
 //            restoreInstanceState(it)
 //        }
-//        initialize(savedInstanceState)
+//        simpleInit(savedInstanceState)
 //        observeTimelineChange()
     }
 
@@ -134,13 +134,15 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
     private fun showAddAccountDialog() {
         val dialog = MessageDialogFragment
-                .create(REQUEST_CODE_ADD_ACCOUNT_DIALOG, R.string.message_need_to_add_an_account)
+                .create(REQUEST_CODE_ADD_ACCOUNT_DIALOG,
+                        R.string.message_need_to_add_an_account,
+                        positiveId = R.string.add)
         dialog.show(supportFragmentManager, TAG_ADD_ACCOUNT_DIALOG)
     }
 
     private fun initializeTimelineGroup() {
         bindLaunch {
-            val groupList = mModel.groupList().await().result
+            val groupList = mModel.loadGroupList().await().result
             if (groupList.isEmpty()) return@bindLaunch
             mCurrentGroupList = groupList
             showFirstTimelineGroup(groupList)
@@ -254,7 +256,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         mModel.timelineChange(this) {
             Logger.v(javaClass.name, "timelineChange")
             bindLaunch {
-                val result = mModel.groupList().await().result
+                val result = mModel.loadGroupList().await().result
                 apply(result)
             }
         }
@@ -391,7 +393,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
         fun accountDialog() {
             when (itemId) {
-                R.string.yes -> startAuthorization()
+                R.string.add -> startAuthorization()
                 R.string.cancel -> showAddAccountDialog()
             }
         }

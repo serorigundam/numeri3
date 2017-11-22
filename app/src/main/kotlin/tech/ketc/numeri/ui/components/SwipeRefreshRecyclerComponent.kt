@@ -8,7 +8,7 @@ import org.jetbrains.anko.recyclerview.v7.recyclerView
 import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import tech.ketc.numeri.R
-import tech.ketc.numeri.util.android.ui.initialize
+import tech.ketc.numeri.util.android.ui.recycler.simpleInit
 
 class SwipeRefreshRecyclerComponent : ISwipeRefreshRecyclerComponent {
     override lateinit var swipeRefresh: SwipeRefreshLayout
@@ -25,7 +25,7 @@ class SwipeRefreshRecyclerComponent : ISwipeRefreshRecyclerComponent {
                 id = R.id.recycler
                 lparams(matchParent, matchParent)
                 isVerticalScrollBarEnabled = true
-                initialize()
+                simpleInit()
             }
         }.lparams(matchParent, matchParent)
     }

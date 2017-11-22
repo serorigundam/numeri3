@@ -10,6 +10,7 @@ import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.infra.entity.TlGroupToTlInfo
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.arch.livedata.observe
+import tech.ketc.numeri.util.logTag
 import tech.ketc.numeri.util.unmodifiableList
 import java.util.concurrent.locks.ReentrantReadWriteLock
 import javax.inject.Inject
@@ -25,6 +26,7 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     private fun initialize() = mLock.read {
         if (mIsInitialized) return
+        Logger.v(logTag, "initialize()")
         val groupList = mGroupDao.selectAll()
         groupList.forEach {
             val groupName = it.name
@@ -46,7 +48,7 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     override fun joinToGroup(group: TimelineGroup, info: TimelineInfo) {
         initialize()
-        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
+        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")
         val count = mInfoDao.countInfoByGroup(group.name)
         mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
         mGroupToInfoListMap[group.name]!!.add(info)
@@ -54,7 +56,7 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     override fun selectByGroup(group: TimelineGroup): List<TimelineInfo> {
         initialize()
-        return mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "groupList[${group.name}]")
+        return mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")
     }
 
     override fun getInfo(type: TlType, accountId: Long, foreignId: Long): TimelineInfo {

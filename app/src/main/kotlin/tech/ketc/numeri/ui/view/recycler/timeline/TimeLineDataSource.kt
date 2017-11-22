@@ -1,7 +1,7 @@
 package tech.ketc.numeri.ui.view.recycler.timeline
 
 import tech.ketc.numeri.domain.twitter.model.Tweet
-import tech.ketc.numeri.ui.view.recycler.DataSource
+import tech.ketc.numeri.util.android.ui.recycler.DataSource
 import twitter4j.Paging
 
 class TimeLineDataSource(private val mTweetsSupplier: (Paging) -> MutableList<Tweet>) : DataSource<Long, Tweet> {

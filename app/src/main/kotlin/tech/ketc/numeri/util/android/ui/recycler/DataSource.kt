@@ -1,4 +1,4 @@
-package tech.ketc.numeri.ui.view.recycler
+package tech.ketc.numeri.util.android.ui.recycler
 
 
 interface DataSource<Key, Value> {

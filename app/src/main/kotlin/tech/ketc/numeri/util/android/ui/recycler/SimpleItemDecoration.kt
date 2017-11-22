@@ -1,4 +1,4 @@
-package tech.ketc.numeri.util.android.ui
+package tech.ketc.numeri.util.android.ui.recycler
 
 import android.content.Context
 import android.content.res.TypedArray
