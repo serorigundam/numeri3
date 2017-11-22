@@ -87,7 +87,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
 //        savedInstanceState?.let {
 //            restoreInstanceState(it)
 //        }
-//        simpleInit(savedInstanceState)
+//        initialize(savedInstanceState)
 //        observeTimelineChange()
     }
 
@@ -154,7 +154,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             component.userNameText.text = user.name
             component.screenNameText.text = user.screenName
             bindLaunch {
-                val res = mModel.imageLoad(user.iconUrl).await()
+                val res = mModel.loadImage(user.iconUrl).await()
                 res.ifPresent { (b, _) -> component.iconImage.setImageBitmap(b) }
             }
         }

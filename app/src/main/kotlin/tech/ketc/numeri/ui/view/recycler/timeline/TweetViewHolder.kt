@@ -50,7 +50,7 @@ class TweetViewHolder(ctx: Context,
     private fun ImageView.setImageUrl(url: String, cache: Boolean = true) {
         setImageBitmap(null)
         bindLaunch(mOwner) {
-            val res = imageLoad(url, cache).await()
+            val res = loadImage(url, cache).await()
             res.ifPresent { (b, _) -> setImageBitmap(b);fadeIn() }
         }.also { mImageLoadTasks.add(it) }
     }
