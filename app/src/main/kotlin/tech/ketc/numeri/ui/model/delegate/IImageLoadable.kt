@@ -1,10 +1,8 @@
 package tech.ketc.numeri.ui.model.delegate
 
-import kotlinx.coroutines.experimental.Deferred
 import tech.ketc.numeri.domain.model.BitmapContent
-import tech.ketc.numeri.util.arch.response.Response
+import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
 
 interface IImageLoadable {
-    fun imageLoad(urlStr: String, cache: Boolean = true)
-            : Deferred<Response<BitmapContent>>
+    fun imageLoad(urlStr: String, cache: Boolean = true): ResponseDeferred<BitmapContent>
 }

@@ -3,8 +3,6 @@ package tech.ketc.numeri.ui.model
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.MutableLiveData
 import android.arch.lifecycle.ViewModel
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
 import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.isMention
@@ -13,8 +11,8 @@ import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSource
-import tech.ketc.numeri.util.arch.response.Response
-import tech.ketc.numeri.util.arch.response.response
+import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
+import tech.ketc.numeri.util.arch.coroutine.asyncResponse
 import twitter4j.Paging
 import javax.inject.Inject
 
@@ -46,12 +44,10 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: Acco
         TimeLineDataSource(createDataSourceDelegate(mTweetRepository, info.foreignId, info.type, mClient!!))
     }
 
-    fun initialize(timelineInfo: TimelineInfo): Deferred<Response<TwitterClient>> = async {
-        response {
-            mTimelineInfo = timelineInfo
-            val clients = mAccountRepository.clients()
-            clients.find { it.id == timelineInfo.accountId }!!.also { mClient = it }
-        }
+    fun initialize(timelineInfo: TimelineInfo): ResponseDeferred<TwitterClient> = asyncResponse {
+        mTimelineInfo = timelineInfo
+        val clients = mAccountRepository.clients()
+        clients.find { it.id == timelineInfo.accountId }!!.also { mClient = it }
     }
 
     private fun createOnStatusHandler(type: TlType): OnStatusHandler? = when (type) {

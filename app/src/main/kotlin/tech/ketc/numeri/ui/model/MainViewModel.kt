@@ -13,6 +13,8 @@ import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
+import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
+import tech.ketc.numeri.util.arch.coroutine.asyncResponse
 import tech.ketc.numeri.util.arch.response.Response
 import tech.ketc.numeri.util.arch.response.response
 import javax.inject.Inject
@@ -32,12 +34,12 @@ class MainViewModel @Inject constructor(private val mApp: App,
         ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository),
         ITimelineInfoReader by TimelineInfoReader(mTimelineRepository) {
 
-    fun createAuthorizationURL() = async { response { mAccountRepository.createAuthorizationURL() } }
+    fun createAuthorizationURL() = asyncResponse { mAccountRepository.createAuthorizationURL() }
 
     private fun createNewClient(oauthVerifier: String)
-            = async { response { mAccountRepository.createTwitterClient(oauthVerifier) } }
+            = asyncResponse { mAccountRepository.createTwitterClient(oauthVerifier) }
 
-    fun onNewIntent(intent: Intent): Deferred<Response<TwitterClient>>? {
+    fun onNewIntent(intent: Intent): ResponseDeferred<TwitterClient>? {
         val data = intent.data ?: return null
         val oauthVerifier = data.getQueryParameter("oauth_verifier") ?: return null
         if (!data.toString().startsWith(mApp.twitterCallbackUrl)) return null
@@ -45,7 +47,7 @@ class MainViewModel @Inject constructor(private val mApp: App,
     }
 
     fun createNameList(clientUsers: List<Pair<TwitterClient, TwitterUser>>,
-                       infoList: List<TimelineInfo>): Deferred<Response<List<String>>> {
+                       infoList: List<TimelineInfo>): ResponseDeferred<List<String>> {
         fun TimelineInfo.toName(clientUsers: List<Pair<TwitterClient, TwitterUser>>): String {
             val clientUser = clientUsers.find { it.first.id == accountId }!!
             val client = clientUser.first
@@ -58,11 +60,6 @@ class MainViewModel @Inject constructor(private val mApp: App,
                 TlType.FAVORITE -> "Favorite:${mUserRepository.show(client, foreignId).name}"
             }
         }
-
-        return async {
-            response {
-                infoList.map { it.toName(clientUsers) }
-            }
-        }
+        return asyncResponse { infoList.map { it.toName(clientUsers) } }
     }
 }
