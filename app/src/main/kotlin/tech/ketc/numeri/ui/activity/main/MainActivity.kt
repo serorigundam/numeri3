@@ -135,7 +135,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private fun showAddAccountDialog() {
         val dialog = MessageDialogFragment
                 .create(REQUEST_CODE_ADD_ACCOUNT_DIALOG,
-                        R.string.message_need_to_add_an_account,
+                        getString(R.string.message_need_to_add_an_account),
                         positiveId = R.string.add)
         dialog.show(supportFragmentManager, TAG_ADD_ACCOUNT_DIALOG)
     }

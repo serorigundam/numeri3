@@ -4,6 +4,7 @@ import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
+import android.view.View
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -15,12 +16,13 @@ import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragment
 import tech.ketc.numeri.ui.model.TimelineManageViewModel
 import tech.ketc.numeri.util.android.setFinishWithNavigationClick
 import tech.ketc.numeri.util.android.setUpSupportActionbar
+import tech.ketc.numeri.util.android.ui.SnackbarMaker
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 
 class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, AutoInject,
-        ITimelineManageUI by TimelineManageUI(), OnGroupSelectedListener {
+        ITimelineManageUI by TimelineManageUI(), OnGroupSelectedListener, SnackbarMaker {
     @Inject lateinit var mAndroidInjector: DispatchingAndroidInjector<Fragment>
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: TimelineManageViewModel by viewModel { mViewModelFactory }
@@ -56,6 +58,8 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
 
     //impl interface
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector
+
+    override fun getSnackSourceView() = fab
 
     override fun onGroupSelected(group: TimelineGroup) {
         toast("onGroupSelected :${group.name}")

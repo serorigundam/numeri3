@@ -9,10 +9,7 @@ import android.support.v7.app.AlertDialog
 import android.text.Editable
 import android.text.InputType
 import android.text.TextWatcher
-import android.view.Gravity
-import android.view.LayoutInflater
-import android.view.View
-import android.view.ViewGroup
+import android.view.*
 import android.widget.EditText
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.textInputLayout
@@ -21,9 +18,13 @@ import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.timelinemanage.OnAddFabClickListener
 import tech.ketc.numeri.ui.components.RecyclerUIComponent
 import tech.ketc.numeri.ui.components.IRecyclerUIComponent
+import tech.ketc.numeri.ui.fragment.dialog.MessageDialogFragment
+import tech.ketc.numeri.ui.fragment.dialog.OnDialogItemSelectedListener
 import tech.ketc.numeri.ui.model.TimelineManageViewModel
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.act
+import tech.ketc.numeri.util.android.pref
+import tech.ketc.numeri.util.android.ui.recycler.SimpleItemTouchHelper
 import tech.ketc.numeri.util.android.ui.recycler.SimpleRecyclerAdapter
 import tech.ketc.numeri.util.anko.marginBottom
 import tech.ketc.numeri.util.anko.marginTop
@@ -35,7 +36,7 @@ import tech.ketc.numeri.util.logTag
 import javax.inject.Inject
 
 class TimelineGroupManageFragment : Fragment(), AutoInject,
-        IRecyclerUIComponent by RecyclerUIComponent(), OnAddFabClickListener {
+        IRecyclerUIComponent by RecyclerUIComponent(), OnAddFabClickListener, OnDialogItemSelectedListener {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: TimelineManageViewModel by commonViewModel { mViewModelFactory }
@@ -43,10 +44,24 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
     private val mAdapter = SimpleRecyclerAdapter<TimelineGroup>({ it.name }, {
         (act as? OnGroupSelectedListener)?.onGroupSelected(it)
     })
+    private var mReserveDeleteGroupName: String? = null
+    private var mReserveDeleteGroupPosition: Int = -1
+    private var mDeleteConfirmEnabled = true
 
     companion object {
         fun create() = TimelineGroupManageFragment()
         private val TAG_GROUP_CREATE = "TAG_GROUP_CREATE"
+        private val TAG_GROUP_DELETE = "TAG_GROUP_DELETE"
+        private val REQUEST_CONFIRM_DELETE = 100
+        private val EXTRA_RESERVE_DELETE_GROUP_NAME = "EXTRA_RESERVE_DELETE_GROUP_NAME"
+        private val EXTRA_RESERVE_DELETE_GROUP_POSITION = "EXTRA_RESERVE_DELETE_GROUP_POSITION"
+        private val PREF_DELETE_CONFIRM = "PREF_DELETE_CONFIRM"
+    }
+
+    override fun onCreate(savedInstanceState: Bundle?) {
+        super.onCreate(savedInstanceState)
+        mDeleteConfirmEnabled = act.pref.getBoolean(PREF_DELETE_CONFIRM, true)
+        setHasOptionsMenu(true)
     }
 
     override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?)
@@ -54,6 +69,9 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        savedInstanceState?.let {
+            mReserveDeleteGroupName = it.getString(EXTRA_RESERVE_DELETE_GROUP_NAME)
+        }
         initialize()
     }
 
@@ -64,16 +82,65 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
             Logger.v(logTag, groups.joinToString { it.name })
             mAdapter.values.addAll(groups)
             mAdapter.notifyDataSetChanged()
+            initializeUIBehavior()
         }
     }
 
+    private fun initializeUIBehavior() {
+        val helper = SimpleItemTouchHelper(swipeEnable = true, onSwiped = { viewHolder, _ ->
+            val position = viewHolder.adapterPosition
+            val values = mAdapter.values
+            if (position <= values.lastIndex) {
+                val groupName = values[position].name
+                mReserveDeleteGroupName = groupName
+                mReserveDeleteGroupPosition = position
+                if (mDeleteConfirmEnabled)
+                    showConfirmDeleteDialog(groupName)
+                else
+                    deleteGroup(groupName)
+            }
+        })
+        helper.attachToRecyclerView(recycler)
+    }
+
+    override fun onCreateOptionsMenu(menu: Menu, inflater: MenuInflater) {
+        super.onCreateOptionsMenu(menu, inflater)
+        inflater.inflate(R.menu.group_manage, menu)
+        menu.findItem(R.id.check_delete_confirm).isChecked = mDeleteConfirmEnabled
+    }
+
+    override fun onOptionsItemSelected(item: MenuItem): Boolean {
+        when (item.itemId) {
+            R.id.check_delete_confirm -> {
+                act.pref.edit()
+                        .putBoolean(PREF_DELETE_CONFIRM, !mDeleteConfirmEnabled)
+                        .apply()
+                mDeleteConfirmEnabled = !mDeleteConfirmEnabled
+                item.isChecked = mDeleteConfirmEnabled
+            }
+            else -> super.onOptionsItemSelected(item)
+        }
+        return true
+    }
+
+
     private fun showGroupCreateDialog() = GroupCreateDialogFragment().show(childFragmentManager, TAG_GROUP_CREATE)
-
-
-    override fun onAddFabClick() = showGroupCreateDialog()
 
     private fun check(groupName: String) = !mAdapter.values.any { it.name == groupName }
 
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putString(EXTRA_RESERVE_DELETE_GROUP_NAME, mReserveDeleteGroupName)
+        outState.putInt(EXTRA_RESERVE_DELETE_GROUP_POSITION, mReserveDeleteGroupPosition)
+        super.onSaveInstanceState(outState)
+    }
+
+    private fun showConfirmDeleteDialog(groupName: String) {
+        mReserveDeleteGroupName = groupName
+        MessageDialogFragment
+                .create(REQUEST_CONFIRM_DELETE,
+                        "${getString(R.string.message_confirm_group_delete)}[$groupName]",
+                        positiveId = R.string.delete).show(childFragmentManager, TAG_GROUP_DELETE)
+    }
 
     private fun onPositiveClick(name: String) {
         bindLaunch {
@@ -83,6 +150,37 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
             mAdapter.notifyItemInserted(values.size)
         }
     }
+
+    private fun postDelete() {
+        mReserveDeleteGroupPosition = -1
+        mReserveDeleteGroupName = null
+    }
+
+    private fun deleteGroup(groupName: String) {
+        bindLaunch {
+            mModel.deleteGroup(TimelineGroup(groupName)).await().ifError { throw it }
+            Logger.v(logTag, "${mAdapter.values.size},$mReserveDeleteGroupPosition")
+            mAdapter.values.removeAt(mReserveDeleteGroupPosition)
+            mAdapter.notifyItemRemoved(mReserveDeleteGroupPosition)
+            postDelete()
+        }
+    }
+
+    //impl interface
+    override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
+        if (requestCode != REQUEST_CONFIRM_DELETE) return
+        when (itemId) {
+            R.string.delete -> {
+                deleteGroup(mReserveDeleteGroupName!!)
+            }
+            R.string.cancel -> {
+                mAdapter.notifyItemChanged(mReserveDeleteGroupPosition)
+                postDelete()
+            }
+        }
+    }
+
+    override fun onAddFabClick() = showGroupCreateDialog()
 
     class GroupCreateDialogFragment : DialogFragment() {
         private val parent by lazy { parentFragment as TimelineGroupManageFragment }

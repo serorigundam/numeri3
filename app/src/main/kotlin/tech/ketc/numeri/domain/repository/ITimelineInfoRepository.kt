@@ -19,5 +19,7 @@ interface ITimelineInfoRepository {
 
     fun getGroupList(): List<TimelineGroup>
 
+    fun deleteGroup(vararg group: TimelineGroup)
+
     fun notifyDataChanged()
 }

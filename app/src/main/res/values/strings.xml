@@ -71,4 +71,7 @@
     <string name="error_enter_in_range_up_to">文字までの範囲で入力</string>
     <string name="error_group_name_must_be_unique">グループ名は一意である必要があります。</string>
     <string name="retry">やり直す</string>
+    <string name="message_confirm_group_delete">グループを削除します</string>
+    <string name="delete">削除</string>
+    <string name="confirm_pre_delete">削除前に確認</string>
 </resources>

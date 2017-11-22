@@ -14,6 +14,9 @@ inline fun <T : Any> Response<T>.orError(error: (Throwable) -> Unit) = nullable(
     if (!isSuccessful) error(this.error)
 }
 
+val <T : Any>Response<T>.hasError: Boolean
+    get() = !isSuccessful
+
 fun <R : Any> response(func: () -> R): Response<R> {
     var result: R? = null
     var throwable: Throwable? = null

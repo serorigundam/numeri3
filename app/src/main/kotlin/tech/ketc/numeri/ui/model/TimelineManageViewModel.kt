@@ -2,6 +2,7 @@ package tech.ketc.numeri.ui.model
 
 import android.arch.lifecycle.ViewModel
 import tech.ketc.numeri.domain.repository.ITimelineInfoRepository
+import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.model.delegate.ITimelineInfoReader
 import tech.ketc.numeri.ui.model.delegate.TimelineInfoReader
 import tech.ketc.numeri.util.arch.coroutine.asyncResponse
@@ -14,5 +15,9 @@ class TimelineManageViewModel
 
     fun createGroup(groupName: String) = asyncResponse {
         mTimelineRepository.createGroup(groupName)
+    }
+
+    fun deleteGroup(group: TimelineGroup) = asyncResponse {
+        mTimelineRepository.deleteGroup(group)
     }
 }

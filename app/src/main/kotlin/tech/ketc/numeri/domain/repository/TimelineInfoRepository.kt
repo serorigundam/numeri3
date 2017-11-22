@@ -23,15 +23,18 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
     private var mIsInitialized = false
     private var mLock = ReentrantReadWriteLock()
     private val mEmptyLiveData = MutableLiveData<Any>()
+    private val mGroupList = ArrayList<TimelineGroup>()
 
     private fun initialize() = mLock.read {
         if (mIsInitialized) return
         Logger.v(logTag, "initialize()")
         val groupList = mGroupDao.selectAll()
         groupList.forEach {
+            mGroupList.add(it)
             val groupName = it.name
             val infoList = mInfoDao.selectByGroupName(groupName)
             mGroupToInfoListMap.put(groupName, infoList.toMutableList())
+            Logger.v(logTag, groupName)
         }
         mIsInitialized = true
     }
@@ -41,14 +44,15 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
         val list = mGroupToInfoListMap[groupName]
         if (list != null) throw AlreadyExistsException("TimelineGroup", "groupName[$groupName]")
         val group = TimelineGroup(groupName)
-        mGroupToInfoListMap.put(groupName, ArrayList())
         mGroupDao.insert(group)
+        mGroupToInfoListMap.put(groupName, ArrayList())
+        mGroupList.add(TimelineGroup(groupName))
         return group
     }
 
     override fun joinToGroup(group: TimelineGroup, info: TimelineInfo) {
         initialize()
-        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")
+        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "group[${group.name}]")
         val count = mInfoDao.countInfoByGroup(group.name)
         mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
         mGroupToInfoListMap[group.name]!!.add(info)
@@ -74,7 +78,20 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     override fun getGroupList(): List<TimelineGroup> {
         initialize()
-        return mGroupToInfoListMap.keys.map { TimelineGroup(it) }.unmodifiableList()
+        return mGroupList.unmodifiableList()
+    }
+
+    override fun deleteGroup(vararg group: TimelineGroup) {
+        val list = group
+                .map { g ->
+                    mGroupList.find { it.name == g.name }
+                            ?: throw NotExistsException("TimelineGroup", "group[${g.name}]")
+                }
+        mGroupDao.deleteAll(*list.toTypedArray())
+        list.forEach {
+            mGroupList.remove(it)
+            mGroupToInfoListMap.remove(it.name)
+        }
     }
 
     override fun notifyDataChanged() {

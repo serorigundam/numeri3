@@ -12,7 +12,7 @@ import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.arg
 
 class MessageDialogFragment : DialogFragment() {
-    private val mMessageId by lazy { arg.getInt(EXTRA_MESSAGE) }
+    private val mMessage by lazy { arg.getString(EXTRA_MESSAGE) }
     private val mPositiveId by lazy { arg.getInt(EXTRA_POSITIVE) }
     private val mNegativeId by lazy { arg.getInt(EXTRA_NEGATIVE) }
     private val mRequestCode by lazy { arg.getInt(EXTRA_REQUEST_CODE) }
@@ -22,9 +22,12 @@ class MessageDialogFragment : DialogFragment() {
         private val EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE"
         private val EXTRA_POSITIVE = "EXTRA_POSITIVE"
         private val EXTRA_NEGATIVE = "EXTRA_NEGATIVE"
-        fun create(requestCode: Int, @StringRes messageId: Int, @StringRes positiveId: Int = R.string.yes, @StringRes negativeId: Int = R.string.cancel) = MessageDialogFragment().apply {
+
+        fun create(requestCode: Int, message: String,
+                   @StringRes positiveId: Int = R.string.yes,
+                   @StringRes negativeId: Int = R.string.cancel) = MessageDialogFragment().apply {
             arguments = Bundle().apply {
-                putInt(EXTRA_MESSAGE, messageId)
+                putString(EXTRA_MESSAGE, message)
                 putInt(EXTRA_POSITIVE, positiveId)
                 putInt(EXTRA_NEGATIVE, negativeId)
                 putInt(EXTRA_REQUEST_CODE, requestCode)
@@ -35,12 +38,12 @@ class MessageDialogFragment : DialogFragment() {
     override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         fun listener(id: Int) = DialogInterface.OnClickListener { _, _ ->
             (act as? OnDialogItemSelectedListener)?.onDialogItemSelected(mRequestCode, id)
-            if (targetFragment != null) {
-                (targetFragment as? OnDialogItemSelectedListener
+            if (parentFragment != null) {
+                (parentFragment as? OnDialogItemSelectedListener
                         ?: throw IllegalStateException()).onDialogItemSelected(mRequestCode, id)
             }
         }
-        return AlertDialog.Builder(ctx).setMessage(mMessageId)
+        return AlertDialog.Builder(ctx).setMessage(mMessage)
                 .setPositiveButton(mPositiveId, listener(mPositiveId))
                 .setNegativeButton(mNegativeId, listener(mNegativeId))
                 .create()
