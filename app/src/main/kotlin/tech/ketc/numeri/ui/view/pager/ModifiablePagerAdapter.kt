@@ -7,6 +7,7 @@ import android.support.v4.app.FragmentManager
 import android.support.v4.app.FragmentStatePagerAdapter
 import android.support.v4.view.PagerAdapter
 import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.logTag
 import java.io.Serializable
 
 @Suppress("UNCHECKED_CAST")
@@ -40,6 +41,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: F
         mContents.clear()
         mContents.addAll(contents)
         notifyDataSetChanged()
+        Logger.v(logTag, "setContents() notifyDataSetChanged")
     }
 
     override fun restoreState(state: Parcelable?, loader: ClassLoader?) {
@@ -91,9 +93,10 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: F
 
     override fun getItemPosition(`object`: Any): Int {
         val nonChange = mContents.any { content ->
-            content.fragment.id == (`object` as Fragment).id
+            content.fragment == (`object` as Fragment)
                     && mContents.indexOf(content) == mPreviousContents.indexOf(content)
         }
+        Logger.v(logTag, "getItemPosition nonChange:$nonChange")
         return if (nonChange) PagerAdapter.POSITION_UNCHANGED else PagerAdapter.POSITION_NONE
     }
 
