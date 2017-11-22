@@ -4,7 +4,7 @@
         <item
             android:id="@+id/timeline_manage"
             android:icon="@drawable/ic_view_column_white_24dp"
-            android:title="@string/column_manage" />
+            android:title="@string/timeline_manage" />
 
         <item
             android:id="@+id/changing_column_group"

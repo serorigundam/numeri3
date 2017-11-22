@@ -9,7 +9,7 @@
     <string name="create_favorite">お気に入りに登録</string>
     <string name="destroy_retweet">RTを解除</string>
     <string name="create_retweet">RTを行う</string>
-    <string name="column_manage">タイムライン管理</string>
+    <string name="timeline_manage">タイムライン管理</string>
     <string name="hint_input_timline_group_name">タイムラインのグループ名</string>
     <string name="label_create_column_group">グループ作成</string>
     <string name="changing_column_group">カラムグループ切替</string>
@@ -74,4 +74,6 @@
     <string name="message_confirm_group_delete">グループを削除します</string>
     <string name="delete">削除</string>
     <string name="confirm_pre_delete">削除前に確認</string>
+    <string name="error_not_get_timeline_name_info">タイムライン名の特定に必要な情報が得られませんでした。</string>
+    <string name="deleted_list">削除済みのリスト</string>
 </resources>
