@@ -83,6 +83,6 @@ class SimpleRecyclerAdapter<Value>(private val mStrTransformer: (Value) -> Strin
     }
 
     class EmptyViewHolder(context: Context) : RecyclerView.ViewHolder(context.frameLayout {
-        lparams(matchParent, dip(320))
+        lparams(matchParent, dip(88))
     })
 }

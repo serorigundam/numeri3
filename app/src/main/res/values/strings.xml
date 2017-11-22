@@ -69,4 +69,6 @@
     <string name="dialog_message_add_timeline_group">タイムライングループを追加</string>
     <string name="add">追加</string>
     <string name="error_enter_in_range_up_to">文字までの範囲で入力</string>
+    <string name="error_group_name_must_be_unique">グループ名は一意である必要があります。</string>
+    <string name="retry">やり直す</string>
 </resources>

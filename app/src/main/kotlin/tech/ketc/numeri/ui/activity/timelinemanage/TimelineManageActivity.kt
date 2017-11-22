@@ -31,11 +31,7 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
         setContentView(this)
         initializeUI()
         initializeUIBehavior()
-        val fragment = TimelineGroupManageFragment.create()
-                .also { mOnAddFabClickListener = it }
-        supportFragmentManager.beginTransaction()
-                .add(fragmentView.id, fragment)
-                .commit()
+        if (savedInstanceState == null) initialize()
     }
 
     private fun initializeUI() {
@@ -48,6 +44,15 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
             mOnAddFabClickListener?.onAddFabClick()
         }
     }
+
+    private fun initialize() {
+        val fragment = TimelineGroupManageFragment.create()
+                .also { mOnAddFabClickListener = it }
+        supportFragmentManager.beginTransaction()
+                .replace(fragmentView.id, fragment)
+                .commit()
+    }
+
 
     //impl interface
     override fun supportFragmentInjector(): AndroidInjector<Fragment> = mAndroidInjector

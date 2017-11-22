@@ -16,7 +16,6 @@ import android.view.ViewGroup
 import android.widget.EditText
 import org.jetbrains.anko.*
 import org.jetbrains.anko.design.textInputLayout
-import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.timelinemanage.OnAddFabClickListener
@@ -68,16 +67,25 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
         }
     }
 
+    private fun showGroupCreateDialog() = GroupCreateDialogFragment().show(childFragmentManager, TAG_GROUP_CREATE)
 
-    override fun onAddFabClick() {
-        GroupCreateDialogFragment().show(childFragmentManager, TAG_GROUP_CREATE)
-    }
 
-    fun onPositiveClick(name: String) {
-        toast(name)
+    override fun onAddFabClick() = showGroupCreateDialog()
+
+    private fun check(groupName: String) = !mAdapter.values.any { it.name == groupName }
+
+
+    private fun onPositiveClick(name: String) {
+        bindLaunch {
+            val result = mModel.createGroup(name).await().result
+            val values = mAdapter.values
+            values.add(result)
+            mAdapter.notifyItemInserted(values.size)
+        }
     }
 
     class GroupCreateDialogFragment : DialogFragment() {
+        private val parent by lazy { parentFragment as TimelineGroupManageFragment }
 
         companion object {
             private val LIMIT_NAME_SIZE = 15
@@ -102,16 +110,14 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
             }
             val editText: EditText = view.findViewById(R.id.text_input)
 
-
             val dialog = AlertDialog.Builder(act)
                     .setMessage(R.string.dialog_message_add_timeline_group)
                     .setView(view)
                     .setNegativeButton(R.string.cancel, null)
                     .setPositiveButton(R.string.add) { _, _ ->
                         val name = editText.text.toString()
-                        (parentFragment as TimelineGroupManageFragment).onPositiveClick(name)
+                        parent.onPositiveClick(name)
                     }.create()
-
             editText.addTextChangedListener(object : TextWatcher {
                 override fun afterTextChanged(text: Editable) {
                 }
@@ -121,12 +127,19 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
 
                 override fun onTextChanged(text: CharSequence, p1: Int, p2: Int, p3: Int) {
                     val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    if (text.length > 15) {
-                        editText.error = "$LIMIT_NAME_SIZE${getString(R.string.error_enter_in_range_up_to)}"
-                        button.isEnabled = false
-                    } else {
-                        editText.error = null
-                        button.isEnabled = true
+                    when {
+                        text.length > 15 -> {
+                            editText.error = "$LIMIT_NAME_SIZE${getString(R.string.error_enter_in_range_up_to)}"
+                            button.isEnabled = false
+                        }
+                        !parent.check(text.toString()) -> {
+                            editText.error = getString(R.string.error_group_name_must_be_unique)
+                            button.isEnabled = false
+                        }
+                        else -> {
+                            editText.error = null
+                            button.isEnabled = true
+                        }
                     }
                 }
             })
