@@ -75,7 +75,7 @@ android {
     }
 }
 
-ext.anko_version = '0.10.2'
+ext.anko_version = '0.10.3'
 ext.junit_platform_ver = '1.0.0-M2'
 ext.spek_version = '1.0.89'
 ext.t4j_version = '4.0.6'
