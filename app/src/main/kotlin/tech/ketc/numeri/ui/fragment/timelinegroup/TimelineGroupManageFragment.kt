@@ -169,13 +169,19 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
     //impl interface
     override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
         if (requestCode != REQUEST_CONFIRM_DELETE) return
+        fun cancel() {
+            mAdapter.notifyItemChanged(mReserveDeleteGroupPosition)
+            postDelete()
+        }
         when (itemId) {
             R.string.delete -> {
                 deleteGroup(mReserveDeleteGroupName!!)
             }
             R.string.cancel -> {
-                mAdapter.notifyItemChanged(mReserveDeleteGroupPosition)
-                postDelete()
+                cancel()
+            }
+            MessageDialogFragment.CANCEL -> {
+                cancel()
             }
         }
     }

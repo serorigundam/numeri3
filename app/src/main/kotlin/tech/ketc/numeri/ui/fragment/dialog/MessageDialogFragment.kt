@@ -22,6 +22,7 @@ class MessageDialogFragment : DialogFragment() {
         private val EXTRA_REQUEST_CODE = "EXTRA_REQUEST_CODE"
         private val EXTRA_POSITIVE = "EXTRA_POSITIVE"
         private val EXTRA_NEGATIVE = "EXTRA_NEGATIVE"
+        val CANCEL = -1
 
         fun create(requestCode: Int, message: String,
                    @StringRes positiveId: Int = R.string.yes,
@@ -35,17 +36,23 @@ class MessageDialogFragment : DialogFragment() {
         }
     }
 
-    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
-        fun listener(id: Int) = DialogInterface.OnClickListener { _, _ ->
-            (act as? OnDialogItemSelectedListener)?.onDialogItemSelected(mRequestCode, id)
-            if (parentFragment != null) {
-                (parentFragment as? OnDialogItemSelectedListener
-                        ?: throw IllegalStateException()).onDialogItemSelected(mRequestCode, id)
-            }
+    private fun listener(id: Int) = DialogInterface.OnClickListener { _, _ ->
+        (act as? OnDialogItemSelectedListener)?.onDialogItemSelected(mRequestCode, id)
+        if (parentFragment != null) {
+            (parentFragment as? OnDialogItemSelectedListener
+                    ?: throw IllegalStateException()).onDialogItemSelected(mRequestCode, id)
         }
+    }
+
+    override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
         return AlertDialog.Builder(ctx).setMessage(mMessage)
                 .setPositiveButton(mPositiveId, listener(mPositiveId))
                 .setNegativeButton(mNegativeId, listener(mNegativeId))
                 .create()
+    }
+
+    override fun onCancel(dialog: DialogInterface) {
+        listener(CANCEL).onClick(dialog, 0)
+        super.onCancel(dialog)
     }
 }
