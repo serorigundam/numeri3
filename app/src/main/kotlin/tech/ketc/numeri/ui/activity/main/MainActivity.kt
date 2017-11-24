@@ -69,6 +69,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private var mCurrentGroupList: MutableList<TimelineGroup> = ArrayList()
     private var mInitialized = false
 
+    private var mIsFabMenuShowing = false
 
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
@@ -76,9 +77,11 @@ class MainActivity : AppCompatActivity(), AutoInject,
         private val EXTRA_SHOWING_GROUP_NAME = "EXTRA_SHOWING_GROUP_NAME"
         private val EXTRA_CURRENT_GROUP_LIST = "EXTRA_CURRENT_GROUP_LIST"
         private val EXTRA_GROUP_VIEW_ID = "EXTRA_GROUP_VIEW_ID"
+        private val EXTRA_IS_FAB_MENU_SHOWING = "EXTRA_IS_FAB_MENU_SHOWING"
         private val TAG_ADD_ACCOUNT_DIALOG = "TAG_ADD_ACCOUNT_DIALOG"
         private val TAG_TIMELINE_SELECT_DIALOG = "TAG_TIMELINE_SELECT_DIALOG"
         private val REQUEST_CODE_ADD_ACCOUNT_DIALOG = 1010
+
     }
 
     private enum class NavigationState : Serializable {
@@ -113,6 +116,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
         accountListUI
                 .addAccountButton
                 .setOnClickListener { startAuthorization() }
+        tweetFab.setOnClickListener { onClickTweetFab() }
+        tweetFab.setOnLongClickListener { onLongClickTweetFab() }
+        groupChangeFab.setOnClickListener { onClickGroupChangeFab() }
     }
 
     private fun startAuthorization() {
@@ -153,7 +159,10 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private fun initializeTimelineGroup() {
         bindLaunch {
             val groupList = mModel.loadGroupList().await().result
-            if (groupList.isEmpty()) return@bindLaunch
+            if (groupList.isEmpty()) {
+                mInitialized = true
+                return@bindLaunch
+            }
             mCurrentGroupList.addAll(groupList)
             groupList.forEach { createOrGetTimelineGroupView(it.name) }
             showFirstTimelineGroup()
@@ -293,6 +302,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             val name = group.name
             outState.putInt(EXTRA_GROUP_VIEW_ID + name, mGroupNameToViewId[name]!!)
         }
+        outState.putBoolean(EXTRA_IS_FAB_MENU_SHOWING, mIsFabMenuShowing)
         super.onSaveInstanceState(outState)
     }
 
@@ -315,6 +325,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
                 createOrGetTimelineGroupView(it.name)
             }
             mShowingGroupName?.let { showTimelineGroup(it) }
+            mIsFabMenuShowing = savedInstanceState.getBoolean(EXTRA_IS_FAB_MENU_SHOWING)
+            if (mIsFabMenuShowing) showFabMenu()
         }
     }
 
@@ -394,6 +406,39 @@ class MainActivity : AppCompatActivity(), AutoInject,
         TimelineGroupSelectDialog
                 .create(list.map { it.name }.let { ArrayList<String>().apply { addAll(it) } })
                 .show(supportFragmentManager, TAG_TIMELINE_SELECT_DIALOG)
+    }
+
+    private fun showFabMenu() {
+        mIsFabMenuShowing = true
+        groupChangeFab.animate().translationY(-dip(58).toFloat())
+    }
+
+    private fun hideFabMenu() {
+        mIsFabMenuShowing = false
+        groupChangeFab.animate().translationY(0f)
+    }
+
+    private fun onClickTweetFab() {
+        if (mIsFabMenuShowing) {
+            hideFabMenu()
+            return
+        }
+        if (!mInitialized) {
+            toast(R.string.message_initialization_not_completed)
+            return
+        }
+    }
+
+    private fun onLongClickTweetFab(): Boolean {
+        if (!mIsFabMenuShowing) {
+            showFabMenu()
+        }
+        return true
+    }
+
+    private fun onClickGroupChangeFab() {
+        showTimelineGroupSelectDialog()
+        hideFabMenu()
     }
 
     private inline fun <reified T : Activity> startLeftOut(params: List<Pair<String, Any>> = emptyList()) {

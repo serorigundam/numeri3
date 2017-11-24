@@ -17,9 +17,10 @@ interface IMainUI : AnkoComponent<MainActivity> {
     val drawer: DrawerLayout
     val navigation: NavigationView
     val columnGroupWrapper: CoordinatorLayout
-    val tweetButton: FloatingActionButton
+    val tweetFab: FloatingActionButton
     val accountListUI: IAccountListUI
     val navigationHeaderUI: INavigationHeaderUI
+    val groupChangeFab: FloatingActionButton
 
     interface IAccountListUI : UIComponent<RelativeLayout> {
         val accountList: ViewGroup

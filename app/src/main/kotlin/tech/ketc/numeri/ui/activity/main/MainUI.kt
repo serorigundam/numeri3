@@ -36,11 +36,13 @@ class MainUI : IMainUI {
         private set
     override lateinit var toolbar: Toolbar
         private set
-    override lateinit var tweetButton: FloatingActionButton
+    override lateinit var tweetFab: FloatingActionButton
         private set
     override lateinit var accountListUI: IMainUI.IAccountListUI
         private set
     override lateinit var navigationHeaderUI: IMainUI.INavigationHeaderUI
+        private set
+    override lateinit var groupChangeFab: FloatingActionButton
         private set
 
     override fun createView(ui: AnkoContext<MainActivity>) = ui.create {
@@ -63,7 +65,17 @@ class MainUI : IMainUI {
                 }
 
                 floatingActionButton {
-                    tweetButton = this
+                    groupChangeFab = this
+                    image = ctx.getDrawable(R.drawable.ic_view_carousel_white_24dp)
+                    size = FloatingActionButton.SIZE_MINI
+                }.lparams(dip(40), dip(40)) {
+                    anchorGravity = Gravity.BOTTOM or Gravity.END
+                    margin = dip(25)
+                    anchorId = R.id.column_group_wrapper
+                }
+
+                floatingActionButton {
+                    tweetFab = this
                     image = ctx.getDrawable(R.drawable.ic_mode_edit_white_24dp)
                     size = FloatingActionButton.SIZE_AUTO
                 }.lparams {
