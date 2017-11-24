@@ -3,20 +3,18 @@ package tech.ketc.numeri.ui.model
 import android.annotation.SuppressLint
 import android.arch.lifecycle.*
 import android.content.Intent
-import kotlinx.coroutines.experimental.Deferred
-import kotlinx.coroutines.experimental.async
+import android.util.ArrayMap
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.*
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
+import tech.ketc.numeri.domain.twitter.client.getUserList
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
+import tech.ketc.numeri.domain.twitter.model.UserList
 import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
-import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
 import tech.ketc.numeri.util.arch.coroutine.asyncResponse
-import tech.ketc.numeri.util.arch.response.Response
-import tech.ketc.numeri.util.arch.response.response
 import javax.inject.Inject
 
 @SuppressLint("StaticFieldLeak")
@@ -32,7 +30,7 @@ class MainViewModel @Inject constructor(private val mApp: App,
         IStreamHandler by StreamHandler(streamRepository),
         IUserHandler by UserHandler(mUserRepository),
         ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository),
-        ITimelineInfoReader by TimelineInfoReader(mTimelineRepository) {
+        ITimelineInfoReader by TimelineInfoReader(mApp, mTimelineRepository) {
 
     fun createAuthorizationURL() = asyncResponse { mAccountRepository.createAuthorizationURL() }
 
@@ -48,18 +46,12 @@ class MainViewModel @Inject constructor(private val mApp: App,
 
     fun createNameList(clientUsers: List<Pair<TwitterClient, TwitterUser>>,
                        infoList: List<TimelineInfo>): ResponseDeferred<List<String>> {
-        fun TimelineInfo.toName(clientUsers: List<Pair<TwitterClient, TwitterUser>>): String {
-            val clientUser = clientUsers.find { it.first.id == accountId }!!
-            val client = clientUser.first
-            val user = clientUser.second
-            return when (type) {
-                TlType.HOME -> "Home:${user.screenName}"
-                TlType.MENTIONS -> "Mentions:${user.screenName}"
-                TlType.USER_LIST -> "List:${client.twitter.showUserList(foreignId).name}"
-                TlType.PUBLIC -> "User:${mUserRepository.show(client, foreignId).name}"
-                TlType.FAVORITE -> "Favorite:${mUserRepository.show(client, foreignId).name}"
+        return asyncResponse {
+            val map = ArrayMap<TwitterClient, List<UserList>>()
+            clientUsers.map { it.first }.forEach {
+                map.put(it, it.getUserList(mUserRepository))
             }
+            infoList.map { toName(it, clientUsers, map) }
         }
-        return asyncResponse { infoList.map { it.toName(clientUsers) } }
     }
 }

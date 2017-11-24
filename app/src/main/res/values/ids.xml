@@ -23,5 +23,15 @@
     <item name="recycler" type="id" />
     <item name="column_group_wrapper" type="id" />
     <item name="text_input" type="id" />
+    <item name="root" type="id" />
+    <item name="home_radio" type="id" />
+    <item name="mentions_radio" type="id" />
+    <item name="list_radio" type="id" />
+    <item name="radio_group" type="id" />
+    <item name="account_spinner" type="id" />
+    <item name="account_text" type="id" />
+    <item name="user_list_text" type="id" />
+    <item name="user_list_spinner" type="id" />
+    <item name="radio_content" type="id" />
     <!--/view id-->
 </resources>

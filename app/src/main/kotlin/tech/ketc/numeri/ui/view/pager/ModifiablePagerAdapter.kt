@@ -15,7 +15,7 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: F
     : FragmentStatePagerAdapter(mFm) {
     private val mContents = ArrayList<Content<ID, F>>()
 
-    private var mPreviousContents = ArrayList<Content<ID, F>>()
+    private val mPreviousContents = ArrayList<Content<ID, F>>()
 
     override fun getItem(position: Int): Fragment = mContents[position].fragment
 
@@ -26,7 +26,8 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: F
     override fun getPageTitle(position: Int) = mContents[position].name
 
     fun setContents(contents: List<Content<ID, F>>) {
-        mPreviousContents = mContents
+        mPreviousContents.clear()
+        mPreviousContents.addAll(mContents)
         val diffSize = contents.size != mContents.size
         var isChange = diffSize
         if (!diffSize) {
@@ -38,8 +39,21 @@ class ModifiablePagerAdapter<ID : Serializable, F : Fragment>(private val mFm: F
             }
         }
         if (!isChange) return
+        val transaction = mFm.beginTransaction()
+        mContents.filter { content -> !contents.any { it.id == content.id } }.forEach {
+            transaction.remove(it.fragment)
+        }
+        transaction.commit()
         mContents.clear()
-        mContents.addAll(contents)
+        mContents.addAll(contents
+                .map { content ->
+                    mPreviousContents.find {
+                        it.id == content.id
+                                && contents.indexOf(content) ==
+                                mPreviousContents.indexOfFirst { it.id == content.id }
+                    } ?: content
+                })
+        Logger.v(logTag, mContents.joinToString { "${it.id} :  ${it.name}" })
         notifyDataSetChanged()
         Logger.v(logTag, "setContents() notifyDataSetChanged")
     }

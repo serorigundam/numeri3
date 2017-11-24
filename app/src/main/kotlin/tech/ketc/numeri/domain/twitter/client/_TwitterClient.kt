@@ -8,3 +8,9 @@ fun TwitterClient.getUser(repository: ITwitterUserRepository)
 
 fun TwitterClient.getStream(repository: ITwitterStreamRepository)
         = repository.createOrGet(this)
+
+fun TwitterClient.getUserList(repository: ITwitterUserRepository)
+        = repository.getUserList(this, getUser(repository))
+
+fun TwitterClient.reloadUserList(repository: ITwitterUserRepository)
+        = repository.reloadUserList(this, getUser(repository))

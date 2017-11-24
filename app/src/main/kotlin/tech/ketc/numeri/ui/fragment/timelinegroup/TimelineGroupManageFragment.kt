@@ -182,8 +182,9 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
 
     override fun onAddFabClick() = showGroupCreateDialog()
 
-    class GroupCreateDialogFragment : DialogFragment() {
+    class GroupCreateDialogFragment : DialogFragment(), TextWatcher {
         private val parent by lazy { parentFragment as TimelineGroupManageFragment }
+        private lateinit var editText: EditText
 
         companion object {
             private val LIMIT_NAME_SIZE = 15
@@ -196,7 +197,7 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
                         id = R.id.text_input
                         inputType = InputType.TYPE_CLASS_TEXT
                         singleLine = true
-                        hint = context.getString(R.string.hint_input_timline_group_name)
+                        hint = context.getString(R.string.hint_input_timeline_group_name)
                         gravity = Gravity.TOP or Gravity.START
                     }.textInputlparams(matchParent, wrapContent)
                 }.lparams(matchParent, wrapContent) {
@@ -206,7 +207,7 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
                     marginBottom = dimen(R.dimen.margin_medium)
                 }
             }
-            val editText: EditText = view.findViewById(R.id.text_input)
+            editText = view.findViewById(R.id.text_input)
 
             val dialog = AlertDialog.Builder(act)
                     .setMessage(R.string.dialog_message_add_timeline_group)
@@ -216,32 +217,37 @@ class TimelineGroupManageFragment : Fragment(), AutoInject,
                         val name = editText.text.toString()
                         parent.onPositiveClick(name)
                     }.create()
-            editText.addTextChangedListener(object : TextWatcher {
-                override fun afterTextChanged(text: Editable) {
-                }
-
-                override fun beforeTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
-                }
-
-                override fun onTextChanged(text: CharSequence, p1: Int, p2: Int, p3: Int) {
-                    val button = dialog.getButton(AlertDialog.BUTTON_POSITIVE)
-                    when {
-                        text.length > 15 -> {
-                            editText.error = "$LIMIT_NAME_SIZE${getString(R.string.error_enter_in_range_up_to)}"
-                            button.isEnabled = false
-                        }
-                        !parent.check(text.toString()) -> {
-                            editText.error = getString(R.string.error_group_name_must_be_unique)
-                            button.isEnabled = false
-                        }
-                        else -> {
-                            editText.error = null
-                            button.isEnabled = true
-                        }
-                    }
-                }
-            })
+            editText.addTextChangedListener(this)
             return dialog
+        }
+
+        override fun onResume() {
+            super.onResume()
+            onTextChanged(editText.text, 0, 0, 0)
+        }
+
+        override fun afterTextChanged(text: Editable) {
+        }
+
+        override fun beforeTextChanged(text: CharSequence?, p1: Int, p2: Int, p3: Int) {
+        }
+
+        override fun onTextChanged(text: CharSequence, p1: Int, p2: Int, p3: Int) {
+            val button = (dialog as AlertDialog).getButton(AlertDialog.BUTTON_POSITIVE)
+            when {
+                text.length > 15 || text.isEmpty() -> {
+                    editText.error = "1 ~ $LIMIT_NAME_SIZE${getString(R.string.error_enter_in_range_up_to)}"
+                    button.isEnabled = false
+                }
+                !parent.check(text.toString()) -> {
+                    editText.error = getString(R.string.error_group_name_must_be_unique)
+                    button.isEnabled = false
+                }
+                else -> {
+                    editText.error = null
+                    button.isEnabled = true
+                }
+            }
         }
     }
 }

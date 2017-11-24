@@ -53,18 +53,30 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         tab.setupWithViewPager(pager)
         pager.adapter = mPagerAdapter
         tab.addOnTabSelectedListener(this)
-        if (savedInstanceState == null)
-            bindLaunch {
-                val clientRes = mModel.clients().await()
-                val clients = clientRes.orError {
-                    toast(R.string.message_failed_user_info)
-                } ?: return@bindLaunch
-                val usersRes = mModel.getClientUsers(clients).await()
-                val users = usersRes.orError {
-                    toast(R.string.message_failed_user_info)
-                } ?: return@bindLaunch
+        bindLaunch {
+            val clientRes = mModel.clients().await()
+            val clients = clientRes.orError {
+                toast(R.string.message_failed_user_info)
+            } ?: return@bindLaunch
+            val usersRes = mModel.getClientUsers(clients).await()
+            val users = usersRes.orError {
+                toast(R.string.message_failed_user_info)
+            } ?: return@bindLaunch
+            if (savedInstanceState == null) {
+                val infoListRes = mModel.loadTimelineInfoList(mGroupName).await()
+                val infoList = infoListRes.nullable() ?: return@bindLaunch
+                val namesRes = mModel.createNameList(users, infoList).await()
+                val names = namesRes.nullable() ?: return@bindLaunch
+                val contents = infoList.mapIndexed { i, info ->
+                    ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
+                            TimelineFragment.create(info), names[i])
+                }
+                mPagerAdapter.setContents(contents)
+            }
+            mModel.timelineChange(this@MainFragment) {
                 initializeTimeline(users)
             }
+        }
     }
 
     private fun initializeTimeline(clientUsers: List<Pair<TwitterClient, TwitterUser>>) {

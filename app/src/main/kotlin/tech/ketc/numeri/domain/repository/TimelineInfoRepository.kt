@@ -53,20 +53,32 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
     override fun joinToGroup(group: TimelineGroup, info: TimelineInfo) {
         initialize()
         mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "group[${group.name}]")
-        val count = mInfoDao.countInfoByGroup(group.name)
+        val count = mInfoDao.countInfoByGroupName(group.name)
+        Logger.v(logTag, "join to ${group.name} position $count")
         mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
         mGroupToInfoListMap[group.name]!!.add(info)
     }
 
+    override fun removeFromGroup(group: TimelineGroup, info: TimelineInfo) {
+        initialize()
+        val list = mGroupToInfoListMap[group.name]
+        list ?: throw NotExistsException("TimelineGroup", "group[${group.name}]")
+        val order = mInfoDao.checkOrder(group.name, info.id) ?: throw NotExistsException("TimelineInfo", "group[${group.name}] info[${info.id}]")
+        Logger.v(logTag, "delete from ${group.name} position $order")
+        mInfoDao.selectByGroupGreaterThan(group.name, order).forEachIndexed { i, value ->
+            Logger.v(logTag, "delete from ${group.name} modify position ${order + i}")
+            mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, value.id, order + i))
+        }
+        mInfoDao.deleteRelationByGroupName(info.id, group.name)
+        list.removeAt(list.indexOfFirst { it.id == info.id })
+    }
+
     override fun selectByGroup(group: TimelineGroup): List<TimelineInfo> {
         initialize()
-        return mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")
+        return (mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")).unmodifiableList()
     }
 
     override fun getInfo(type: TlType, accountId: Long, foreignId: Long): TimelineInfo {
-        mInfoDao.selectAll().forEach {
-            Logger.v(javaClass.name, "${it.id} ${it.type.name} ${it.accountId} ${it.foreignId}")
-        }
         fun insert(): TimelineInfo {
             mInfoDao.insert(TimelineInfo(type = type,
                     accountId = accountId,
@@ -87,6 +99,11 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
                     mGroupList.find { it.name == g.name }
                             ?: throw NotExistsException("TimelineGroup", "group[${g.name}]")
                 }
+        list.forEach { g ->
+            mGroupToInfoListMap[g.name]!!.forEach { info ->
+                mInfoDao.deleteRelationByGroupName(info.id, g.name)
+            }
+        }
         mGroupDao.deleteAll(*list.toTypedArray())
         list.forEach {
             mGroupList.remove(it)
@@ -96,6 +113,38 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     override fun notifyDataChanged() {
         mEmptyLiveData.postValue(Any())
+    }
+
+    override fun replace(group: TimelineGroup, from: TimelineInfo, to: TimelineInfo) {
+        initialize()
+        val groupName = group.name
+        val list = mGroupToInfoListMap[groupName] ?: throw NotExistsException("TimelineGroup", "group[$groupName]")
+        val fromId = from.id
+        val fromOrder = mInfoDao.checkOrder(groupName, fromId)
+                ?: throw NotExistsException("TimelineInfo", "group[$groupName] fromInfo[$fromId]")
+        val toId = to.id
+        val toOrder = mInfoDao.checkOrder(groupName, toId)
+                ?: throw NotExistsException("TimelineInfo", "group[$groupName] toInfo[$toId]")
+        mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(groupName, fromId, toOrder))
+        mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(groupName, toId, fromOrder))
+        list[toOrder] = from
+        list[fromOrder] = to
+    }
+
+    override fun insert(group: TimelineGroup, info: TimelineInfo, order: Int) {
+        initialize()
+        val groupName = group.name
+        val list = mGroupToInfoListMap[groupName] ?: throw NotExistsException("TimelineGroup", "group[$groupName]")
+        Logger.v(logTag, "insert to  ${group.name}  position $order")
+        mInfoDao.selectByGroupGreaterThan(group.name, order).forEachIndexed { i, value ->
+            Logger.v(logTag, "insert to  ${group.name}  modify position ${order + i + 1}")
+            mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, value.id, order + i + 1))
+        }
+        mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(groupName, info.id, order))
+        list.indexOfFirst { it.id == info.id }.takeIf { it != -1 }?.let {
+            list.removeAt(it)
+        }
+        list.add(order, info)
     }
 
     override fun observe(owner: LifecycleOwner, handle: () -> Unit) {

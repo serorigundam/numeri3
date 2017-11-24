@@ -13,6 +13,8 @@ interface ITimelineInfoRepository {
 
     fun joinToGroup(group: TimelineGroup, info: TimelineInfo)
 
+    fun removeFromGroup(group: TimelineGroup, info: TimelineInfo)
+
     fun selectByGroup(group: TimelineGroup): List<TimelineInfo>
 
     fun getInfo(type: TlType, accountId: Long, foreignId: Long = -1): TimelineInfo
@@ -22,4 +24,8 @@ interface ITimelineInfoRepository {
     fun deleteGroup(vararg group: TimelineGroup)
 
     fun notifyDataChanged()
+
+    fun replace(group: TimelineGroup, from: TimelineInfo, to: TimelineInfo)
+
+    fun insert(group: TimelineGroup, info: TimelineInfo, order: Int)
 }

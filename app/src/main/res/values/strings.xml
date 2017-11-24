@@ -10,7 +10,7 @@
     <string name="destroy_retweet">RTを解除</string>
     <string name="create_retweet">RTを行う</string>
     <string name="timeline_manage">タイムライン管理</string>
-    <string name="hint_input_timline_group_name">タイムラインのグループ名</string>
+    <string name="hint_input_timeline_group_name">タイムラインのグループ名</string>
     <string name="label_create_column_group">グループ作成</string>
     <string name="changing_column_group">カラムグループ切替</string>
     <string name="select_column_group">表示するカラムグループを選択</string>
@@ -76,4 +76,13 @@
     <string name="confirm_pre_delete">削除前に確認</string>
     <string name="error_not_get_timeline_name_info">タイムライン名の特定に必要な情報が得られませんでした。</string>
     <string name="deleted_list">削除済みのリスト</string>
+    <string name="message_create_timeline_info">タイムラインを作成</string>
+    <string name="error_generate_timeline_failure">タイムラインの生成に失敗</string>
+    <string name="error_need_to_select_timeline_type">タイムラインのタイプを選択する必要があります</string>
+    <string name="error_need_to_select_user_list">userListを選択する必要があります</string>
+    <string name="error_already_exist">すでに登録されています。</string>
+    <string name="error_delete_failure">削除に失敗しました</string>
+    <string name="message_delete">削除しました。</string>
+    <string name="undo">取消</string>
+    <string name="error_regenerate_failure">復元に失敗しました。</string>
 </resources>

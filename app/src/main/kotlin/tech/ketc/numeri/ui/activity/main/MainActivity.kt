@@ -61,6 +61,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private val mGroupNameToViewId = ArrayMap<String, Int>()
     private var mShowingGroupName: String? = null
     private var mCurrentGroupList: List<TimelineGroup>? = null
+    private var mInitialized = false
 
 
     companion object {
@@ -83,12 +84,12 @@ class MainActivity : AppCompatActivity(), AutoInject,
         super.onCreate(savedInstanceState)
         setContentView(this)
         initializeUI()
-//        initializeUIBehavior()
-//        savedInstanceState?.let {
-//            restoreInstanceState(it)
-//        }
-//        initialize(savedInstanceState)
-//        observeTimelineChange()
+        initializeUIBehavior()
+        savedInstanceState?.let {
+            restoreInstanceState(it)
+        }
+        initialize(savedInstanceState)
+        observeTimelineChange()
     }
 
     private fun initializeUI() {
@@ -125,10 +126,12 @@ class MainActivity : AppCompatActivity(), AutoInject,
             val clients = clientsRes.orError {
                 toast(R.string.message_failed_user_info)
             } ?: return@bindLaunch
-            if (clients.isEmpty()) showAddAccountDialog()
+            mInitialized = clients.isEmpty()
+            if (mInitialized) showAddAccountDialog()
             else initializeAccountListComponent(clients)
             if (savedInstanceState == null)
                 initializeTimelineGroup()
+            else mInitialized = true
         }
     }
 
@@ -145,7 +148,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
             val groupList = mModel.loadGroupList().await().result
             if (groupList.isEmpty()) return@bindLaunch
             mCurrentGroupList = groupList
+            groupList.forEach { addTimelineGroupView(it.name) }
             showFirstTimelineGroup(groupList)
+            mInitialized = true
         }
     }
 
