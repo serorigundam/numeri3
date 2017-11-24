@@ -4,13 +4,15 @@ import android.content.Context
 import android.text.TextUtils
 import android.view.Gravity
 import android.widget.ImageView
+import android.widget.RelativeLayout
 import android.widget.TextView
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.getResourceId
 
 class AccountUIComponent : IAccountUIComponent {
-
+    override lateinit var componentRoot: RelativeLayout
+        private set
     override lateinit var screenNameText: TextView
         private set
     override lateinit var userNameText: TextView
@@ -19,6 +21,7 @@ class AccountUIComponent : IAccountUIComponent {
         private set
 
     override fun createView(ctx: Context) = ctx.relativeLayout {
+        componentRoot = this
         lparams(matchParent, wrapContent) {
             padding = dimen(R.dimen.margin_medium)
             gravity = Gravity.CENTER_VERTICAL

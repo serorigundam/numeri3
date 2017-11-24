@@ -23,7 +23,6 @@ import org.jetbrains.anko.design.navigationView
 import org.jetbrains.anko.support.v4.drawerLayout
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.getResourceId
-import tech.ketc.numeri.util.anko.UIComponent
 import tech.ketc.numeri.util.anko.component
 import tech.ketc.numeri.util.anko.create
 import tech.ketc.numeri.util.anko.startOf
@@ -92,7 +91,9 @@ class MainUI : IMainUI {
     }
 
 
-    class NavigationHeaderUIComponent : IMainUI.INavigationHeaderUI, UIComponent<RelativeLayout> {
+    class NavigationHeaderUIComponent : IMainUI.INavigationHeaderUI {
+        override lateinit var componentRoot: RelativeLayout
+            private set
         override lateinit var navigationStateIndicator: ImageView
             private set
         override lateinit var toggleNavigationStateButton: RelativeLayout
@@ -100,6 +101,7 @@ class MainUI : IMainUI {
 
 
         override fun createView(ctx: Context) = ctx.relativeLayout {
+            componentRoot = this
             lparams(matchParent, dip(160))
             backgroundColor = Color.parseColor("#10505050")
             imageView {
@@ -147,8 +149,8 @@ class MainUI : IMainUI {
         }
     }
 
-    class AccountListUIComponent : IMainUI.IAccountListUI, UIComponent<RelativeLayout> {
-        override lateinit var container: RelativeLayout
+    class AccountListUIComponent : IMainUI.IAccountListUI {
+        override lateinit var componentRoot: RelativeLayout
             private set
         override lateinit var accountList: ViewGroup
             private set
@@ -157,7 +159,7 @@ class MainUI : IMainUI {
 
         override fun createView(ctx: Context) = ctx.relativeLayout {
             lparams(matchParent, matchParent)
-            container = this
+            componentRoot = this
             visibility = View.GONE
             topPadding = dip(168)
             relativeLayout {

@@ -10,6 +10,7 @@ import android.view.ViewGroup
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import org.jetbrains.anko.AnkoComponent
+import tech.ketc.numeri.util.anko.UIComponent
 
 interface IMainUI : AnkoComponent<MainActivity> {
     val toolbar: Toolbar
@@ -20,13 +21,12 @@ interface IMainUI : AnkoComponent<MainActivity> {
     val accountListUI: IAccountListUI
     val navigationHeaderUI: INavigationHeaderUI
 
-    interface IAccountListUI {
-        val container: RelativeLayout
+    interface IAccountListUI : UIComponent<RelativeLayout> {
         val accountList: ViewGroup
         val addAccountButton: View
     }
 
-    interface INavigationHeaderUI {
+    interface INavigationHeaderUI : UIComponent<RelativeLayout> {
         val navigationStateIndicator: ImageView
         val toggleNavigationStateButton: View
     }

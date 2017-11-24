@@ -3,6 +3,7 @@ package tech.ketc.numeri.ui.components
 import android.content.Context
 import android.text.TextUtils
 import android.view.View
+import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
 import android.widget.TextView
@@ -13,7 +14,8 @@ import tech.ketc.numeri.util.anko.startOf
 import tech.ketc.numeri.util.unmodifiableList
 
 class TweetUIComponent : ITweetUIComponent {
-
+    override lateinit var componentRoot: FrameLayout
+        private set
     override lateinit var iconImage: ImageView
         private set
     override lateinit var subInfoIcon: ImageView
@@ -39,6 +41,7 @@ class TweetUIComponent : ITweetUIComponent {
     private val mThumbnails = ArrayList<ImageView>()
 
     override fun createView(ctx: Context) = ctx.frameLayout {
+        componentRoot = this
         lparams(matchParent, wrapContent)
         relativeLayout {
             overlayRelative = this

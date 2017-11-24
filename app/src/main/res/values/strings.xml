@@ -12,8 +12,8 @@
     <string name="timeline_manage">タイムライン管理</string>
     <string name="hint_input_timeline_group_name">タイムラインのグループ名</string>
     <string name="label_create_column_group">グループ作成</string>
-    <string name="changing_column_group">カラムグループ切替</string>
-    <string name="select_column_group">表示するカラムグループを選択</string>
+    <string name="change_timeline_group">タイムライングループ切替</string>
+    <string name="select_timeline_group">表示するタイムライングループを選択</string>
     <string name="yes">はい</string>
     <string name="label_column_group_manage">カラムグループ管理</string>
     <string name="follow_conversation">会話を辿る</string>
@@ -85,4 +85,6 @@
     <string name="message_delete">削除しました。</string>
     <string name="undo">取消</string>
     <string name="error_regenerate_failure">復元に失敗しました。</string>
+    <string name="message_group_not_exist">グループが存在しません</string>
+    <string name="message_initialization_not_completed">初期化が完了していません</string>
 </resources>

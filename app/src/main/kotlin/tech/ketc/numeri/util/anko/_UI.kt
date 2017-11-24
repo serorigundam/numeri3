@@ -8,6 +8,7 @@ import org.jetbrains.anko.AnkoContext
 import org.jetbrains.anko.AnkoException
 
 interface UIComponent<out Root : View> {
+    val componentRoot: Root
     fun createView(ctx: Context): Root
 }
 

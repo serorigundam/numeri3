@@ -3,6 +3,7 @@ package tech.ketc.numeri.ui.components
 import android.content.Context
 import android.support.design.widget.TabLayout
 import android.support.v4.view.ViewPager
+import android.widget.RelativeLayout
 import org.jetbrains.anko.below
 import org.jetbrains.anko.design.tabLayout
 import org.jetbrains.anko.dip
@@ -12,12 +13,15 @@ import org.jetbrains.anko.support.v4.viewPager
 import tech.ketc.numeri.R
 
 class ScrollableTabPagerUIComponent : IScrollableTabPagerUIComponent {
+    override lateinit var componentRoot: RelativeLayout
+        private set
     override lateinit var tab: TabLayout
         private set
     override lateinit var pager: ViewPager
         private set
 
     override fun createView(ctx: Context) = ctx.relativeLayout {
+        componentRoot = this
         lparams(matchParent, matchParent)
         tabLayout {
             tab = this

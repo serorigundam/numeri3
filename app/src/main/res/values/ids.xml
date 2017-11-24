@@ -33,5 +33,7 @@
     <item name="user_list_text" type="id" />
     <item name="user_list_spinner" type="id" />
     <item name="radio_content" type="id" />
+    <item name="message_text" type="id" />
+    <item name="content" type="id" />
     <!--/view id-->
 </resources>

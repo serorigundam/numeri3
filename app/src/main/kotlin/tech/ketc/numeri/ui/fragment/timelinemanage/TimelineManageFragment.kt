@@ -85,7 +85,7 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
 
     private fun showProgress() {
         childFragmentManager.beginTransaction()
-                .replace(root.id, ProgressFragment(), TAG_PROGRESS)
+                .replace(componentRoot.id, ProgressFragment(), TAG_PROGRESS)
                 .commit()
     }
 
@@ -196,6 +196,8 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
     }
 
     private class InfoCrateUIComponent : IInfoCreateUIComponent {
+        override lateinit var componentRoot: RelativeLayout
+            private set
         override lateinit var radioGroup: RadioGroup
             private set
         override lateinit var accountSpinner: Spinner
@@ -211,6 +213,7 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
 
         @SuppressLint("SetTextI18n")
         override fun createView(ctx: Context) = ctx.relativeLayout {
+            componentRoot = this
             lparams(wrapContent, matchParent) {
                 setPadding(dimen(R.dimen.margin_large),
                         dimen(R.dimen.margin_medium),

@@ -9,11 +9,11 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.ui.recycler.simpleInit
 
 class RecyclerUIComponent : IRecyclerUIComponent {
-    override lateinit var root: FrameLayout
+    override lateinit var componentRoot: FrameLayout
         private set
     override lateinit var recycler: RecyclerView
     override fun createView(ctx: Context) = ctx.frameLayout {
-        root = this
+        componentRoot = this
         id = R.id.root
         lparams(matchParent, matchParent)
         recyclerView {
