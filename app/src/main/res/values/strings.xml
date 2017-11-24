@@ -1,4 +1,17 @@
 <resources>
+    <!-- General settings -->
+    <string name="pref_header_behavior">動作</string>
+
+    <string name="pref_title_is_stream_enabled">ユーザーストリーム</string>
+    <string name="pref_desc_is_stream_enabled">タイムラインの自動更新(ホームとメンションのみ)</string>
+    <string name="pref_key_is_stream_enabled">pref_id_stream</string>
+
+    <string name="pref_title_auto_scroll">オートスクロール</string>
+    <string name="pref_desc_auto_scroll">ユーザーストリーム時の自動スクロール\n(リストの一番上を見ているときのみ)</string>
+    <string name="pref_key_auto_scroll">pref_id_auto_scroll</string>
+
+    <!--resources-->
+
     <string name="app_name">numetter</string>
     <string name="add_account">アカウント追加</string>
     <string name="authentication_failure">認証失敗</string>
@@ -55,17 +68,6 @@
     <string name="message_failure_acquire_tweet">ツイートの取得に失敗しました</string>
     <string name="message_need_to_add_an_account">アカウントを追加する必要があります</string>
     <string name="title_activity_settings">設定</string>
-
-    <!-- General settings -->
-    <string name="pref_header_behavior">動作</string>
-
-    <string name="pref_title_is_stream_enabled">ユーザーストリーム</string>
-    <string name="pref_desc_is_stream_enabled">タイムラインの自動更新(ホームとメンションのみ)</string>
-    <string name="pref_key_is_stream_enabled">pref_id_stream</string>
-
-    <string name="pref_title_auto_scroll">オートスクロール</string>
-    <string name="pref_desc_auto_scroll">ユーザーストリーム時の自動スクロール\n(リストの一番上を見ているときのみ)</string>
-    <string name="pref_key_auto_scroll">pref_id_auto_scroll</string>
     <string name="dialog_message_add_timeline_group">タイムライングループを追加</string>
     <string name="add">追加</string>
     <string name="error_enter_in_range_up_to">文字までの範囲で入力</string>

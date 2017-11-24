@@ -1,7 +1,6 @@
 package tech.ketc.numeri.ui.activity.setting
 
 import android.content.Context
-import android.content.Intent
 import android.content.res.Configuration
 import android.os.Bundle
 import android.preference.ListPreference
@@ -45,7 +44,7 @@ class SettingsActivity : AppCompatPreferenceActivity() {
 
         override fun onOptionsItemSelected(item: MenuItem): Boolean {
             when (item.itemId) {
-                android.R.id.home -> startActivity(Intent(activity, SettingsActivity::class.java))
+                android.R.id.home -> fragmentManager.popBackStack()
                 else -> return super.onOptionsItemSelected(item)
             }
             return true
