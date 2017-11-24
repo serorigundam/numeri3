@@ -40,6 +40,7 @@ import tech.ketc.numeri.ui.fragment.main.MainFragment
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.*
+import tech.ketc.numeri.util.android.ui.gesture.SimpleDoubleClickHelper
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
@@ -68,8 +69,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private var mShowingGroupName: String? = null
     private var mCurrentGroupList: MutableList<TimelineGroup> = ArrayList()
     private var mInitialized = false
-
     private var mIsFabMenuShowing = false
+
 
     companion object {
         val INTENT_OAUTH = "INTENT_OAUTH"
@@ -116,8 +117,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
         accountListUI
                 .addAccountButton
                 .setOnClickListener { startAuthorization() }
-        tweetFab.setOnClickListener { onClickTweetFab() }
-        tweetFab.setOnLongClickListener { onLongClickTweetFab() }
+        SimpleDoubleClickHelper(onDoubleClick = { onDoubleClickTweetFab() },
+                onClick = { onClickTweetFab() }).attachTo(tweetFab)
         groupChangeFab.setOnClickListener { onClickGroupChangeFab() }
     }
 
@@ -429,7 +430,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
     }
 
-    private fun onLongClickTweetFab(): Boolean {
+    private fun onDoubleClickTweetFab(): Boolean {
         if (!mIsFabMenuShowing) {
             showFabMenu()
         }
