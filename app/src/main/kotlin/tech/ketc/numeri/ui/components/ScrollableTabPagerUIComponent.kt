@@ -11,7 +11,7 @@ import org.jetbrains.anko.relativeLayout
 import org.jetbrains.anko.support.v4.viewPager
 import tech.ketc.numeri.R
 
-class ScrollableTabPagerComponent : IScrollableTabPagerComponent {
+class ScrollableTabPagerUIComponent : IScrollableTabPagerUIComponent {
     override lateinit var tab: TabLayout
         private set
     override lateinit var pager: ViewPager

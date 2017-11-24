@@ -5,7 +5,7 @@ import android.support.v7.widget.RecyclerView
 import android.widget.RelativeLayout
 import tech.ketc.numeri.util.anko.UIComponent
 
-interface ISwipeRefreshRecyclerComponent : UIComponent<RelativeLayout> {
+interface ISwipeRefreshRecyclerUIComponent : UIComponent<RelativeLayout> {
     val swipeRefresh: SwipeRefreshLayout
     val recycler: RecyclerView
 }

@@ -11,8 +11,8 @@ import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
-import tech.ketc.numeri.ui.components.IScrollableTabPagerComponent
-import tech.ketc.numeri.ui.components.ScrollableTabPagerComponent
+import tech.ketc.numeri.ui.components.IScrollableTabPagerUIComponent
+import tech.ketc.numeri.ui.components.ScrollableTabPagerUIComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
@@ -27,7 +27,7 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 
 class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
-        IScrollableTabPagerComponent by ScrollableTabPagerComponent() {
+        IScrollableTabPagerUIComponent by ScrollableTabPagerUIComponent() {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: MainViewModel by commonViewModel { mViewModelFactory }

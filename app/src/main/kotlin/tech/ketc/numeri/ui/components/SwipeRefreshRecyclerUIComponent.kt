@@ -10,7 +10,7 @@ import org.jetbrains.anko.support.v4.swipeRefreshLayout
 import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.ui.recycler.simpleInit
 
-class SwipeRefreshRecyclerComponent : ISwipeRefreshRecyclerComponent {
+class SwipeRefreshRecyclerUIComponent : ISwipeRefreshRecyclerUIComponent {
     override lateinit var swipeRefresh: SwipeRefreshLayout
         private set
     override lateinit var recycler: RecyclerView

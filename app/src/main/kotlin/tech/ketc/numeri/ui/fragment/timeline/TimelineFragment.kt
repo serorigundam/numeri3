@@ -11,8 +11,8 @@ import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.infra.entity.TimelineInfo
-import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerComponent
-import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerComponent
+import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
+import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.model.TimeLineViewModel
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSourceAdapter
 import tech.ketc.numeri.ui.view.recycler.timeline.TweetViewHolder
@@ -27,7 +27,7 @@ import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
 
-class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerComponent by SwipeRefreshRecyclerComponent() {
+class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent() {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: TimeLineViewModel by viewModel { mViewModelFactory }
