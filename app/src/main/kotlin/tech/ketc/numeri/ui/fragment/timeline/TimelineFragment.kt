@@ -124,8 +124,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             swipeRefresh.isEnabled = !mIsStreamEnabled
             Logger.v(logTag, "swipeRefresh isEnabled:${!mIsStreamEnabled}")
         } else {
-            swipeRefresh.isEnabled = false
-            Logger.v(logTag, "swipeRefresh isEnabled:false")
+            swipeRefresh.isEnabled = true
+            Logger.v(logTag, "swipeRefresh isEnabled:true")
         }
     }
 
