@@ -9,6 +9,12 @@ import org.jetbrains.anko.AnkoException
 
 interface UIComponent<out Root : View> {
     val componentRoot: Root
+    val componentId: Int
+        get() {
+            if (componentRoot.id == View.NO_ID) componentRoot.id = View.generateViewId()
+            return componentRoot.id
+        }
+
     fun createView(ctx: Context): Root
 }
 

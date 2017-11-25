@@ -1,6 +1,5 @@
 package tech.ketc.numeri.ui.activity.main
 
-import android.app.Activity
 import android.app.Dialog
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Intent
@@ -442,15 +441,10 @@ class MainActivity : AppCompatActivity(), AutoInject,
         hideFabMenu()
     }
 
-    private inline fun <reified T : Activity> startLeftOut(params: List<Pair<String, Any>> = emptyList()) {
-        startActivity<T>(*params.toTypedArray())
-        overridePendingTransition(R.anim.right_in, R.anim.left_out)
-    }
-
     //interface impl
     override fun onNavigationItemSelected(item: MenuItem): Boolean {
         when (item.itemId) {
-            R.id.timeline_manage -> startLeftOut<TimelineManageActivity>()
+            R.id.timeline_manage -> TimelineManageActivity.start(this)
             R.id.changing_column_group -> showTimelineGroupSelectDialog()
             R.id.setting -> startLeftOut<SettingsActivity>()
             else -> return super.onOptionsItemSelected(item)

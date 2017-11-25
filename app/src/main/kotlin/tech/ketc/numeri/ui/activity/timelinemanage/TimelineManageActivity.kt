@@ -1,5 +1,6 @@
 package tech.ketc.numeri.ui.activity.timelinemanage
 
+import android.app.Activity
 import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.support.v4.app.Fragment
@@ -18,6 +19,7 @@ import tech.ketc.numeri.ui.fragment.timelinemanage.TimelineManageFragment
 import tech.ketc.numeri.ui.model.TimelineManageViewModel
 import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
 import tech.ketc.numeri.util.android.setUpSupportActionbar
+import tech.ketc.numeri.util.android.startLeftOut
 import tech.ketc.numeri.util.android.supportActBar
 import tech.ketc.numeri.util.android.ui.SnackbarMaker
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
@@ -34,10 +36,14 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
     private var mOnAddFabClickListener: OnAddFabClickListener? = null
     private val mAdapter by lazy { ModifiablePagerAdapter<String, Fragment>(supportFragmentManager) }
     private val mMainContent by lazy { createMainContent() }
-
+    private val mGroupName: String by lazy { intent.extras.getString(EXTRA_GROUP_NAME) }
 
     companion object {
         private val TAG_FRAGMENT_GROUP_MANAGER = "TAG_FRAGMENT_GROUP_MANAGER"
+        private val EXTRA_GROUP_NAME = "EXTRA_GROUP_NAME"
+        fun start(act: Activity, groupName: String = "") {
+            act.startLeftOut<TimelineManageActivity>(EXTRA_GROUP_NAME to groupName)
+        }
     }
 
     override fun onCreate(savedInstanceState: Bundle?) {
@@ -67,6 +73,9 @@ class TimelineManageActivity : AppCompatActivity(), HasSupportFragmentInjector, 
         pager.addOnPageChangeListener(this)
         if (savedInstanceState == null)
             mAdapter.setContents(arrayListOf(mMainContent))
+        mGroupName.takeIf { it.isNotEmpty() }?.let {
+            onGroupSelected(TimelineGroup(it))
+        }
     }
 
     private fun createMainContent(): ModifiablePagerAdapter.Content<String, Fragment> {

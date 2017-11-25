@@ -4,13 +4,20 @@ import android.arch.lifecycle.ViewModelProvider
 import android.os.Bundle
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
+import android.text.SpannableString
+import android.text.Spanned
+import android.text.method.LinkMovementMethod
+import android.text.style.ClickableSpan
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import org.jetbrains.anko.*
+import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
+import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.components.IScrollableTabPagerUIComponent
 import tech.ketc.numeri.ui.components.ScrollableTabPagerUIComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
@@ -37,6 +44,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     companion object {
         private val EXTRA_TIMELINE_GROUP = "EXTRA_TIMELINE_GROUP"
+        private val TAG_NO_CONTENT = "TAG_NO_CONTENT"
         fun create(groupName: String) = MainFragment().apply {
             arguments = Bundle().apply {
                 putString(EXTRA_TIMELINE_GROUP, groupName)
@@ -73,6 +81,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
                             TimelineFragment.create(info), names[i])
                 }
                 mPagerAdapter.setContents(contents)
+                checkHasContent()
             }
             if (mPagerAdapter.count > 0) tab.visibility = View.VISIBLE
             mModel.timelineChange(this@MainFragment) {
@@ -92,8 +101,30 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
                         TimelineFragment.create(info), names[i])
             }
             mPagerAdapter.setContents(contents)
-            if (mPagerAdapter.count > 0) tab.visibility = View.VISIBLE
-            else tab.visibility = View.INVISIBLE
+            checkHasContent()
+        }
+    }
+
+    private fun showNoContentFragment() {
+        val fragment = childFragmentManager.findFragmentByTag(TAG_NO_CONTENT)
+                ?: NoContentFragment.create(mGroupName).also {
+            childFragmentManager.beginTransaction().add(componentId, it, TAG_NO_CONTENT).commit()
+        }
+        childFragmentManager.beginTransaction().show(fragment).commit()
+    }
+
+    private fun hideNoContentFragment() {
+        val fragment = childFragmentManager.findFragmentByTag(TAG_NO_CONTENT) ?: return
+        childFragmentManager.beginTransaction().hide(fragment).commit()
+    }
+
+    private fun checkHasContent() {
+        if (mPagerAdapter.count > 0) {
+            tab.visibility = View.VISIBLE
+            hideNoContentFragment()
+        } else {
+            tab.visibility = View.INVISIBLE
+            showNoContentFragment()
         }
     }
 
@@ -108,5 +139,36 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     override fun onTabSelected(tab: TabLayout.Tab) {
         //do nothing
+    }
+
+    class NoContentFragment : Fragment() {
+        private val mGroupName by lazy { arg.getString(EXTRA_GROUP_NAME) }
+
+        companion object {
+            private val EXTRA_GROUP_NAME = "EXTRA_GROUP_NAME"
+
+            fun create(groupName: String) = NoContentFragment().apply {
+                arguments = Bundle().apply {
+                    putString(EXTRA_GROUP_NAME, groupName)
+                }
+            }
+        }
+
+        override fun onCreateView(inflater: LayoutInflater, container: ViewGroup?, savedInstanceState: Bundle?) = ctx.relativeLayout {
+            lparams(matchParent, matchParent)
+            textView {
+                val str = "add Timeline"
+                text = SpannableString(str).apply {
+                    setSpan(object : ClickableSpan() {
+                        override fun onClick(p0: View?) {
+                            TimelineManageActivity.start(act, mGroupName)
+                        }
+                    }, 0, str.length, Spanned.SPAN_INCLUSIVE_INCLUSIVE)
+                }
+                movementMethod = LinkMovementMethod.getInstance()
+            }.lparams(wrapContent, wrapContent) {
+                centerInParent()
+            }
+        }
     }
 }
