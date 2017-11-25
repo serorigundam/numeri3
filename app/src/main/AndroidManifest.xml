@@ -48,9 +48,13 @@
 
         <activity
             android:name=".ui.activity.timelinemanage.TimelineManageActivity"
-            android:label="タイムライン管理"
+            android:label="@string/timeline_manage"
             android:theme="@style/AppTheme" />
-        <activity android:name=".ui.activity.tweet.TweetActivity" />
+        <activity
+            android:name=".ui.activity.tweet.TweetActivity"
+            android:label="@string/label_tweet"
+            android:theme="@style/AppTheme"
+            android:windowSoftInputMode="adjustResize" />
         <!-- /activity -->
 
         <meta-data
