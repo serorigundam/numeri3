@@ -427,6 +427,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             toast(R.string.message_initialization_not_completed)
             return
         }
+        toast("Unimplemented")
     }
 
     private fun onDoubleClickTweetFab(): Boolean {
