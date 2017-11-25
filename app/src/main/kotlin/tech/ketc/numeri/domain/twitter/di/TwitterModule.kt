@@ -23,9 +23,13 @@ class TwitterModule {
 
     @Provides
     @Singleton
-    fun provideTweetFactory(): ITweetFactory = TweetFactory()
+    fun provideTweetFactory(stateFactory: ITweetStateFactory): ITweetFactory = TweetFactory(stateFactory)
 
     @Provides
     @Singleton
-    fun provideTwitterStreanFactory(app: App): ITwitterStreamFactory = TwitterStreamFactory(app)
+    fun provideTwitterStreamFactory(app: App): ITwitterStreamFactory = TwitterStreamFactory(app)
+
+    @Provides
+    @Singleton
+    fun provideTweetStateFactory(): ITweetStateFactory = TweetStateFactory()
 }

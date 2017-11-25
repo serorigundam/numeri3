@@ -2,27 +2,48 @@ package tech.ketc.numeri.domain.twitter
 
 import android.os.Build
 import android.text.Html
+import android.util.ArrayMap
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.util.unmodifiableList
 import twitter4j.Status
 import java.text.SimpleDateFormat
 import java.util.*
-import java.util.concurrent.locks.ReentrantReadWriteLock
-import kotlin.concurrent.read
-import kotlin.concurrent.write
+import java.util.concurrent.locks.ReentrantLock
+import javax.inject.Inject
+import kotlin.concurrent.withLock
 
-class TweetFactory : ITweetFactory {
+class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFactory) : ITweetFactory {
 
     private val mMap = LinkedHashMap<Long, TweetInternal>()
     private val mUpdateListeners = ArrayList<TweetUpdateListener>()
     private val mDeleteListeners = ArrayList<TweetUpdateListener>()
 
-    private val mLock = ReentrantReadWriteLock()
+    private val tweetLock = ArrayMap<Long, ReentrantLock>()
 
-    override fun createOrGet(userFactory: ITwitterUserFactory, status: Status): Tweet {
-        val tweet = mLock.read { mMap[status.id] }
+    private fun tweetLock(id: Long) = tweetLock.getOrPut(id) { ReentrantLock() }
+    private fun unlock(id: Long) = tweetLock.remove(id)
+
+    override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
+        val tweet = mMap[status.id]
+        mStateFactory.getOrPutState(client, status)
         return tweet?.also { it.updateAndCallback(status) }
-                ?: mLock.write { TweetInternal(this, userFactory, status).also { mMap.put(it.id, it) } }
+                ?: tweetLock(status.id).withLock {
+            TweetInternal(client, this, userFactory, status).also { mMap.put(it.id, it);unlock(status.id) }
+        }
+    }
+
+    private fun innerStatusCreateOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
+        val tweet = mMap[status.id]
+        return tweet?.also { it.updateAndCallback(status) } ?: tweetLock(status.id).withLock {
+            TweetInternal(client, this, userFactory, status).also {
+                if (mStateFactory.get(client, status) == null) client.twitter.showStatus(status.id).also {
+                    mStateFactory.getOrPutState(client, it)
+                }
+                mMap.put(it.id, it)
+                unlock(status.id)
+            }
+        }
     }
 
     private fun TweetInternal.updateAndCallback(status: Status) {
@@ -38,15 +59,15 @@ class TweetFactory : ITweetFactory {
     }
 
     override fun delete(tweet: Tweet) {
-        mLock.read { mMap[tweet.id] } ?: return
+        mMap[tweet.id] ?: return
         mDeleteListeners.forEach { it(tweet) }
-        mLock.write { mMap.remove(tweet.id) }
+        tweetLock(tweet.id).withLock { mMap.remove(tweet.id);unlock(tweet.id) }
     }
 
     override fun deleteByUser(user: TwitterUser) {
-        mLock.read { mMap.filter { it.value.user.id == user.id } }.forEach { (key, value) ->
+        mMap.filter { it.value.user.id == user.id }.forEach { (key, value) ->
             mDeleteListeners.forEach { it(value) }
-            mLock.write { mMap.remove(key) }
+            tweetLock(key).withLock { mMap.remove(key);unlock(key) }
         }
     }
 
@@ -58,14 +79,14 @@ class TweetFactory : ITweetFactory {
         mDeleteListeners.remove(listener)
     }
 
-    private class TweetInternal(tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {
+    private class TweetInternal(client: TwitterClient, tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {
 
         override val id: Long = status.id
         override val user: TwitterUser = userFactory.createOrGet(status.user)
         override val createdAt: String = status.createdAt.format()
         override val text: String = status.text
-        override val quotedTweet: Tweet? = status.quotedStatus?.run { tweetFactory.createOrGet(userFactory, this) }
-        override val retweetedTweet: Tweet? = status.retweetedStatus?.run { tweetFactory.createOrGet(userFactory, this) }
+        override val quotedTweet: Tweet? = status.quotedStatus?.run { tweetFactory.innerStatusCreateOrGet(client, userFactory, this) }
+        override val retweetedTweet: Tweet? = status.retweetedStatus?.run { tweetFactory.innerStatusCreateOrGet(client, userFactory, this) }
         override val source: String = status.source?.let { fromHtml(it).toString() } ?: ""
         override val favoriteCount: Int
             get() = mFavoriteCount

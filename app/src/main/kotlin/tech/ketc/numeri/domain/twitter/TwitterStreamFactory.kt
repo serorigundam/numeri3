@@ -29,7 +29,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
 
 
     private class TwitterStreamInternal(app: App,
-                                        client: TwitterClient,
+                                        private val client: TwitterClient,
                                         private val tweetRepository: ITweetRepository,
                                         private val userRepository: ITwitterUserRepository)
         : TwitterStream, UserStreamListener {
@@ -62,7 +62,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
 
         private fun User.toTwitterUser() = toTwitterUser(userRepository)
 
-        private fun Status.toTweet() = toTweet(tweetRepository)
+        private fun Status.toTweet() = toTweet(client, tweetRepository)
 
         override fun onUserListMemberAddition(addedMember: User, listOwner: User, list: UserList) {
         }

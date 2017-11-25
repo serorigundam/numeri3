@@ -70,19 +70,19 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: Acco
     companion object {
 
         private val home: TwitterClient.(Paging, ITweetRepository) -> MutableList<Tweet> = { paging, repo ->
-            twitter.getHomeTimeline(paging).map { repo.createOrUpdate(it) }.toMutableList()
+            twitter.getHomeTimeline(paging).map { repo.createOrUpdate(this, it) }.toMutableList()
         }
         private val mentions: TwitterClient.(Paging, ITweetRepository) -> MutableList<Tweet> = { paging, repo ->
-            twitter.getMentionsTimeline(paging).map { repo.createOrUpdate(it) }.toMutableList()
+            twitter.getMentionsTimeline(paging).map { repo.createOrUpdate(this, it) }.toMutableList()
         }
         private val userList: TwitterClient.(Paging, ITweetRepository, Long) -> MutableList<Tweet> = { paging, repo, listId ->
-            twitter.getUserListStatuses(listId, paging).map { repo.createOrUpdate(it) }.toMutableList()
+            twitter.getUserListStatuses(listId, paging).map { repo.createOrUpdate(this, it) }.toMutableList()
         }
         private val public: TwitterClient.(Paging, ITweetRepository, Long) -> MutableList<Tweet> = { paging, repo, userId ->
-            twitter.getUserTimeline(userId, paging).map { repo.createOrUpdate(it) }.toMutableList()
+            twitter.getUserTimeline(userId, paging).map { repo.createOrUpdate(this, it) }.toMutableList()
         }
         private val favorite: TwitterClient.(Paging, ITweetRepository, Long) -> MutableList<Tweet> = { paging, repo, userId ->
-            twitter.getFavorites(userId, paging).map { repo.createOrUpdate(it) }.toMutableList()
+            twitter.getFavorites(userId, paging).map { repo.createOrUpdate(this, it) }.toMutableList()
         }
 
         private fun createDataSourceDelegate(repository: ITweetRepository, foreignId: Long, type: TlType,

@@ -10,8 +10,8 @@ import twitter4j.User
 fun User.toTwitterUser(repository: ITwitterUserRepository)
         = repository.createOrGet(this)
 
-fun Status.toTweet(tweetRepository: ITweetRepository)
-        = tweetRepository.createOrUpdate(this)
+fun Status.toTweet(client: TwitterClient, tweetRepository: ITweetRepository)
+        = tweetRepository.createOrUpdate(client, this)
 
 infix fun Tweet.isMention(client: TwitterClient) = userMentionEntities.any { it.id == client.id }
         && retweetedTweet == null

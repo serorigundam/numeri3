@@ -3,6 +3,7 @@ package tech.ketc.numeri.domain.repository
 import android.arch.lifecycle.LiveData
 import android.arch.lifecycle.MutableLiveData
 import tech.ketc.numeri.domain.twitter.*
+import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.Tweet
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.util.arch.livedata.map
@@ -35,8 +36,8 @@ class TweetRepository @Inject constructor(private val mTweetFactory: ITweetFacto
     override val latestDeletedUser: LiveData<Tweet>
         get() = mLatestDeletedTweet.map { it }
 
-    override fun createOrUpdate(status: Status): Tweet {
-        return mTweetFactory.createOrGet(mUserFactory, status)
+    override fun createOrUpdate(client: TwitterClient, status: Status): Tweet {
+        return mTweetFactory.createOrGet(client, mUserFactory, status)
     }
 
     override fun delete(tweet: Tweet) {
