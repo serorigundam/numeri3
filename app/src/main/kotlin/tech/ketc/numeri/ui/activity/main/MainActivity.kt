@@ -12,19 +12,15 @@ import android.support.design.widget.BottomSheetDialogFragment
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
 import android.support.v7.app.ActionBarDrawerToggle
-import android.text.TextUtils
 import android.util.ArrayMap
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
-import android.view.ViewGroup
-import android.widget.LinearLayout
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
 import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.ctx
-import org.jetbrains.anko.support.v4.nestedScrollView
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
@@ -32,6 +28,7 @@ import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.setting.SettingsActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.components.AccountUIComponent
+import tech.ketc.numeri.ui.components.createBottomSheetUIComponent
 import tech.ketc.numeri.ui.components.createMenuItemUIComponent
 import tech.ketc.numeri.ui.fragment.dialog.MessageDialogFragment
 import tech.ketc.numeri.ui.fragment.dialog.OnDialogItemSelectedListener
@@ -481,39 +478,18 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val dialog = super.onCreateDialog(savedInstanceState)
-            dialog.setContentView(ctx.relativeLayout {
-                lparams(matchParent, wrapContent)
-
-                backgroundColor = ctx.getColor(R.color.colorPrimaryDark)
-
-                textView {
-                    id = R.id.message_text
-                    maxLines = 2
-                    ellipsize = TextUtils.TruncateAt.END
-                    textSizeDimen = R.dimen.text_size_medium
-                    text = ctx.getString(R.string.select_timeline_group)
-                }.lparams(matchParent, wrapContent) {
-                    margin = dimen(R.dimen.margin_medium)
+            fun createMenu(name: String) = createMenuItemUIComponent(ctx, R.drawable.ic_view_carousel_white_24dp, name).let { component ->
+                component.componentRoot.also { view ->
+                    view.setOnClickListener {
+                        (act as MainActivity).showTimelineGroup(name)
+                        dismiss()
+                    }
                 }
-
-                nestedScrollView {
-                    linearLayout {
-                        id = R.id.content
-                        orientation = LinearLayout.VERTICAL
-                    }.lparams(matchParent, wrapContent)
-                }.lparams(matchParent, wrapContent) {
-                    below(R.id.message_text)
-                }
-            })
-            val group = dialog.findViewById<ViewGroup>(R.id.content)
-            mGroupNames.forEach { groupName ->
-                val view = createMenuItemUIComponent(ctx, R.drawable.ic_view_carousel_white_24dp, groupName).componentRoot
-                view.setOnClickListener {
-                    (act as MainActivity).showTimelineGroup(groupName)
-                    dismiss()
-                }
-                group.addView(view)
             }
+
+            val menus = mGroupNames.map(::createMenu).toTypedArray()
+            val component = createBottomSheetUIComponent(act, R.string.select_timeline_group, *menus)
+            dialog.setContentView(component.componentRoot)
             return dialog
         }
     }
