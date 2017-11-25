@@ -52,6 +52,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         tab.setupWithViewPager(pager)
         pager.adapter = mPagerAdapter
+        tab.visibility = View.INVISIBLE
         tab.addOnTabSelectedListener(this)
         bindLaunch {
             val clientRes = mModel.clients().await()
@@ -73,6 +74,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
                 }
                 mPagerAdapter.setContents(contents)
             }
+            if (mPagerAdapter.count > 0) tab.visibility = View.VISIBLE
             mModel.timelineChange(this@MainFragment) {
                 initializeTimeline(users)
             }
@@ -90,6 +92,8 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
                         TimelineFragment.create(info), names[i])
             }
             mPagerAdapter.setContents(contents)
+            if (mPagerAdapter.count > 0) tab.visibility = View.VISIBLE
+            else tab.visibility = View.INVISIBLE
         }
     }
 
