@@ -120,9 +120,10 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
         val groupName = group.name
         val list = mGroupToInfoListMap[groupName] ?: throw NotExistsException("TimelineGroup", "group[$groupName]")
         val fromId = from.id
+        val toId = to.id
+        if (fromId == toId) return
         val fromOrder = mInfoDao.checkOrder(groupName, fromId)
                 ?: throw NotExistsException("TimelineInfo", "group[$groupName] fromInfo[$fromId]")
-        val toId = to.id
         val toOrder = mInfoDao.checkOrder(groupName, toId)
                 ?: throw NotExistsException("TimelineInfo", "group[$groupName] toInfo[$toId]")
         mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(groupName, fromId, toOrder))
@@ -135,6 +136,7 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
         initialize()
         val groupName = group.name
         val list = mGroupToInfoListMap[groupName] ?: throw NotExistsException("TimelineGroup", "group[$groupName]")
+        if (list.any { it.id == info.id }) throw AlreadyExistsException("TimelineInfo", "group[$groupName] info[${info.id}]")
         Logger.v(logTag, "insert to  ${group.name}  position $order")
         mInfoDao.selectByGroupGreaterThan(group.name, order).forEachIndexed { i, value ->
             Logger.v(logTag, "insert to  ${group.name}  modify position ${order + i + 1}")

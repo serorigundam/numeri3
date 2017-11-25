@@ -51,6 +51,7 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
         onItemClick(it)
     })
     private var mInitialized = false
+    private var mReplacing = false
 
     companion object {
         private val EXTRA_GROUP_NAME = "EXTRA_GROUP_NAME"
@@ -97,7 +98,7 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
     }
 
 
-    fun initialize() {
+    private fun initialize() {
         bindLaunch {
             val infoList = mModel.loadTimelineInfoList(mGroupName).await().result
             recycler.adapter = mAdapter.apply { values.addAll(infoList) }
@@ -124,14 +125,19 @@ class TimelineManageFragment : Fragment(), AutoInject, OnAddFabClickListener,
             val values = mAdapter.values
             val targetPosition = targetHolder.adapterPosition
             val fromPosition = fromHolder.adapterPosition
-            if (targetPosition > values.lastIndex || fromPosition > values.lastIndex)
+            if (targetPosition > values.lastIndex
+                    || fromPosition > values.lastIndex
+                    || targetPosition == fromPosition
+                    || mReplacing)
                 return@SimpleItemTouchHelper false
+            mReplacing = true
             bindLaunch {
                 mModel.replace(mGroupName, values[fromPosition], values[targetPosition]).await()
                 val temp = values[fromPosition]
                 values[fromPosition] = values[targetPosition]
                 values[targetPosition] = temp
                 mAdapter.notifyItemMoved(fromPosition, targetPosition)
+                mReplacing = false
             }
             true
         }).attachToRecyclerView(recycler)
