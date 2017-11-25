@@ -5,6 +5,8 @@ import android.text.Html
 import android.util.ArrayMap
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
+import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.logTag
 import tech.ketc.numeri.util.unmodifiableList
 import twitter4j.Status
 import java.text.SimpleDateFormat
@@ -34,14 +36,19 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
     }
 
     private fun innerStatusCreateOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
-        val tweet = mMap[status.id]
-        return tweet?.also { it.updateAndCallback(status) } ?: tweetLock(status.id).withLock {
+        val statusId = status.id
+        val tweet = mMap[statusId]
+        Logger.v(logTag, "innerStatusCreateOrGet id$statusId cached ${tweet != null}")
+        return tweet?.also { it.updateAndCallback(status) } ?: tweetLock(statusId).withLock {
+            Logger.v(logTag, "innerStatusCreateOrGet locking $statusId")
             TweetInternal(client, this, userFactory, status).also {
-                if (mStateFactory.get(client, status) == null) client.twitter.showStatus(status.id).also {
+                if (mStateFactory.get(client, status) == null) client.twitter.showStatus(statusId).also {
+                    Logger.v(logTag, "innerStatusCreateOrGet show $statusId")
                     mStateFactory.getOrPutState(client, it)
                 }
                 mMap.put(it.id, it)
-                unlock(status.id)
+                unlock(statusId)
+                Logger.v(logTag, "innerStatusCreateOrGet unlock $statusId")
             }
         }
     }
