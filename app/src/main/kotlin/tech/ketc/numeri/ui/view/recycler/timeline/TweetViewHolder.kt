@@ -26,6 +26,7 @@ class TweetViewHolder(ctx: Context,
                       private val mClient: TwitterClient,
                       private val mOwner: LifecycleOwner,
                       imageLoadable: IImageLoadable,
+                      private val mOnClick: (Tweet) -> Unit,
                       tweetUIComponent: ITweetUIComponent = TweetUIComponent())
     : RecyclerView.ViewHolder(tweetUIComponent.createView(ctx)),
         ITweetUIComponent by tweetUIComponent
@@ -40,6 +41,7 @@ class TweetViewHolder(ctx: Context,
     fun bind(tweet: Tweet) {
         mImageLoadTasks.forEach(Job::dispose)
         mImageLoadTasks.clear()
+        itemView.setOnClickListener { mOnClick(tweet) }
         val displayTweet = tweet.retweetedTweet ?: tweet
         setColor(tweet)
         setSubInfo(tweet)

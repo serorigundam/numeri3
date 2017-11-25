@@ -10,6 +10,7 @@ import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
+import tech.ketc.numeri.domain.twitter.model.Tweet
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
@@ -69,8 +70,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     }
 
     private fun initialize(client: TwitterClient) {
-        val adapter = TimeLineDataSourceAdapter(this,
-                mModel.dataSource, { TweetViewHolder(ctx, client, this, mModel) })
+        fun create() = TweetViewHolder(ctx, client, this, mModel, this::onTweetItemClick)
+        val adapter = TimeLineDataSourceAdapter(this, mModel.dataSource, ::create)
         mAdapter = adapter
         adapter.pageSize = DEFAULT_PAGE_SIZE
         recycler.adapter = adapter
@@ -166,6 +167,10 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             val childAt = recycler.getChildAt(0)
             recycler.getChildAdapterPosition(childAt)
         } else null
+    }
+
+    private fun onTweetItemClick(tweet: Tweet) {
+        toast("$tweet")
     }
 
 
