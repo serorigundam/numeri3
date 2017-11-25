@@ -36,5 +36,13 @@
     <item name="message_text" type="id" />
     <item name="content" type="id" />
     <item name="protected_indicator" type="id" />
+    <item name="appbar" type="id" />
+    <item name="bottom_content" type="id" />
+    <item name="user_select_button" type="id" />
+    <item name="remaining_text" type="id" />
+    <item name="tweet_send_button" type="id" />
+    <item name="background_stream_text" type="id" />
+    <item name="thumbnails_frame" type="id" />
+    <item name="camera_button" type="id" />
     <!--/view id-->
 </resources>

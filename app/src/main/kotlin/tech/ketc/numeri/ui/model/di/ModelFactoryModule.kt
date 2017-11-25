@@ -5,6 +5,7 @@ import dagger.Module
 import dagger.Provides
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityComponent
+import tech.ketc.numeri.ui.activity.tweet.TweetActivityComponent
 import tech.ketc.numeri.ui.fragment.main.MainFragmentComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimeLineFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragmentComponent
@@ -19,6 +20,7 @@ import javax.inject.Singleton
         TimeLineFragmentComponent::class,
         TimelineManageActivityComponent::class,
         TimelineGroupManageFragmentComponent::class,
+        TweetActivityComponent::class,
         TimelineManageFragmentComponent::class))
 class ModelFactoryModule {
 

@@ -10,6 +10,8 @@ import dagger.Module
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityComponent
+import tech.ketc.numeri.ui.activity.tweet.TweetActivity
+import tech.ketc.numeri.ui.activity.tweet.TweetActivityComponent
 
 
 @Module
@@ -19,6 +21,11 @@ abstract class ActivityModule {
     @IntoMap
     @ActivityKey(MainActivity::class)
     internal abstract fun bindInjectorFactoryForMain(builder: MainActivityComponent.Builder): AndroidInjector.Factory<out Activity>
+
+    @Binds
+    @IntoMap
+    @ActivityKey(TweetActivity::class)
+    internal abstract fun bindInjectorFactoryForTweetActivity(builder: TweetActivityComponent.Builder): AndroidInjector.Factory<out Activity>
 
     @Binds
     @IntoMap

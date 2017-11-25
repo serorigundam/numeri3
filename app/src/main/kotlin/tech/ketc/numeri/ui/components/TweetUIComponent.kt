@@ -9,8 +9,6 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
-import tech.ketc.numeri.util.anko.endOf
-import tech.ketc.numeri.util.anko.startOf
 import tech.ketc.numeri.util.unmodifiableList
 
 class TweetUIComponent : ITweetUIComponent {

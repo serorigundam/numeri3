@@ -26,9 +26,6 @@ fun <T : android.view.View> T.textInputlparams(width: kotlin.Int = matchParent, 
     return this
 }
 
-fun RelativeLayout.LayoutParams.startOf(id: Int) = leftOf(id)
-
-fun RelativeLayout.LayoutParams.endOf(id: Int) = rightOf(id)
 
 fun AnkoContext<*>.drawable(@DrawableRes id: Int): Drawable = ctx.getDrawable(id)
 fun AnkoContext<*>.color(@ColorRes id: Int): Int = ctx.getColor(id)

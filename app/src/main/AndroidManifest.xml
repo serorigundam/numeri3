@@ -50,6 +50,7 @@
             android:name=".ui.activity.timelinemanage.TimelineManageActivity"
             android:label="タイムライン管理"
             android:theme="@style/AppTheme" />
+        <activity android:name=".ui.activity.tweet.TweetActivity" />
         <!-- /activity -->
 
         <meta-data

@@ -27,6 +27,7 @@ import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.setting.SettingsActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
+import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.components.createBottomSheetUIComponent
 import tech.ketc.numeri.ui.components.createMenuItemUIComponent
@@ -424,7 +425,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             toast(R.string.message_initialization_not_completed)
             return
         }
-        toast("Unimplemented")
+        TweetActivity.start(ctx)
     }
 
     private fun onDoubleClickTweetFab(): Boolean {

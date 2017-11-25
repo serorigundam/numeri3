@@ -25,7 +25,6 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.util.android.getResourceId
 import tech.ketc.numeri.util.anko.component
 import tech.ketc.numeri.util.anko.create
-import tech.ketc.numeri.util.anko.startOf
 
 class MainUI : IMainUI {
     override lateinit var drawer: DrawerLayout
