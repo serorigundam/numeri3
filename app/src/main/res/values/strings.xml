@@ -54,6 +54,7 @@
     <string name="label_tweet">ツイート</string>
     <string name="select_tweet_user">ツイートを行うユーザーの選択</string>
     <string name="reply">リプライ</string>
+    <string name="reply_all">全員にリプライ</string>
     <string name="tweet_sending">ツイートの送信を実行中です</string>
     <string name="send_failure">送信失敗</string>
     <string name="send_success">送信成功</string>
