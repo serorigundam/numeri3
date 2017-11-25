@@ -1,5 +1,6 @@
 package tech.ketc.numeri.ui.components
 
+import android.view.View
 import android.widget.FrameLayout
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -17,4 +18,5 @@ interface ITweetUIComponent : UIComponent<FrameLayout> {
     val thumbnails: List<ImageView>
     val sourceText: TextView
     val overlayRelative: RelativeLayout
+    val protectedIndicator: View
 }

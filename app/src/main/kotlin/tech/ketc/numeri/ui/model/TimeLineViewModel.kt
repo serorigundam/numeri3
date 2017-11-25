@@ -13,10 +13,11 @@ import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSource
 import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
 import tech.ketc.numeri.util.arch.coroutine.asyncResponse
+import tech.ketc.numeri.util.arch.livedata.observeNonnullOnly
 import twitter4j.Paging
 import javax.inject.Inject
 
-class TimeLineViewModel @Inject constructor(private val mAccountRepository: AccountRepository,
+class TimeLineViewModel @Inject constructor(private val mAccountRepository: IAccountRepository,
                                             userRepository: ITwitterUserRepository,
                                             imageRepository: IImageRepository,
                                             streamRepository: ITwitterStreamRepository,
@@ -66,6 +67,35 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: Acco
         }
         return true
     }
+
+    fun deleteObserve(owner: LifecycleOwner, handle: (Tweet) -> Unit) {
+        mTweetRepository.latestDeletedTweet.observeNonnullOnly(owner, handle)
+    }
+
+    fun favorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
+        val status = client.twitter.createFavorite(tweet.id)
+        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
+    }
+
+    fun unfavorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
+        val status = client.twitter.destroyFavorite(tweet.id)
+        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
+    }
+
+    fun retweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
+        val state = mTweetRepository.getState(client, tweet)
+        client.twitter.retweetStatus(tweet.id)
+        mTweetRepository.updateState(client, tweet.id, state.isFavorited, true)
+    }
+
+    fun unretweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
+        val destroyId = mTweetRepository.getRetweetedId(client, tweet) ?: throw IllegalStateException()
+        val state = mTweetRepository.getState(client, tweet)
+        client.twitter.destroyStatus(destroyId)
+        mTweetRepository.updateState(client, tweet.id, state.isFavorited, false)
+    }
+
+    fun getState(client: TwitterClient, tweet: Tweet) = mTweetRepository.getState(client, tweet)
 
     companion object {
 

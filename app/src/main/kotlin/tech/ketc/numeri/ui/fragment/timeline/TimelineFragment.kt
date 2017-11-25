@@ -10,14 +10,12 @@ import android.support.v4.app.Fragment
 import android.view.LayoutInflater
 import android.view.View
 import android.view.ViewGroup
+import org.jetbrains.anko.image
 import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
-import tech.ketc.numeri.domain.twitter.model.MediaEntity
-import tech.ketc.numeri.domain.twitter.model.Tweet
-import tech.ketc.numeri.domain.twitter.model.UrlEntity
-import tech.ketc.numeri.domain.twitter.model.link
+import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
@@ -36,6 +34,7 @@ import tech.ketc.numeri.util.android.pref
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
+import tech.ketc.numeri.util.twitter4j.showTwitterError
 import java.util.ArrayList
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent() {
@@ -50,6 +49,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     private var mIsStreamEnabled = true
     private var mIsEnableAutoScroll = true
     private var mIsStreamStart = false
+    private lateinit var mClient: TwitterClient
 
     companion object {
         private val EXTRA_TIMELINE_INFO = "EXTRA_TIMELINE_INFO"
@@ -81,6 +81,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     }
 
     private fun initialize(client: TwitterClient) {
+        mClient = client
         fun create() = TweetViewHolder(ctx, client, this, mModel, this::onTweetItemClick)
         val adapter = TimeLineDataSourceAdapter(this, mModel.dataSource, ::create)
         mAdapter = adapter
@@ -99,6 +100,10 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         } else {
             Logger.v(javaClass.name, "simpleInit adapter")
             initializeAdapter()
+        }
+
+        mModel.deleteObserve(this) {
+            adapter.delete(it)
         }
     }
 
@@ -181,7 +186,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     }
 
     private fun onTweetItemClick(tweet: Tweet) {
-        OperationTweetDialogFragment.create(tweet).show(childFragmentManager, TAG_OPERATION_TWEET)
+        OperationTweetDialogFragment.create(mClient, tweet).show(childFragmentManager, TAG_OPERATION_TWEET)
     }
 
 
@@ -198,15 +203,22 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     class OperationTweetDialogFragment : BottomSheetDialogFragment() {
         private val mTweet by lazy { arg.getSerializable(EXTRA_TWEET) as Tweet }
         private val tlFragment by lazy { parentFragment as TimelineFragment }
-        private val mClientId by lazy { tlFragment.mTlInfo.accountId }
+        private val mClient by lazy { arg.getSerializable(EXTRA_CLIENT) as TwitterClient }
         private val mModel by lazy { tlFragment.mModel }
+
+        private val stateHandleTweet: Tweet
+            get() = mTweet.retweetedTweet ?: mTweet
+        private val state: TweetState
+            get() = mModel.getState(mClient, stateHandleTweet)
 
 
         companion object {
             private val EXTRA_TWEET = "EXTRA_TWEET"
+            private val EXTRA_CLIENT = "EXTRA_CLIENT"
 
-            fun create(tweet: Tweet) = OperationTweetDialogFragment().apply {
+            fun create(client: TwitterClient, tweet: Tweet) = OperationTweetDialogFragment().apply {
                 arguments = Bundle().apply {
+                    putSerializable(EXTRA_CLIENT, client)
                     putSerializable(EXTRA_TWEET, tweet)
                 }
             }
@@ -215,8 +227,9 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         override fun onCreateDialog(savedInstanceState: Bundle?): Dialog {
             val dialog = super.onCreateDialog(savedInstanceState)
             val menus = ArrayList<View>()
+            val handleTweetOwnerIsProtected = stateHandleTweet.user.isProtected
             menus.add(createFavoriteMenu())
-            menus.add(createRetweetMenu())
+            if (!handleTweetOwnerIsProtected) menus.add(createRetweetMenu())
             menus.add(createReplyMenu())
             createReplyAllMenu()?.let { menus.add(it) }
             createUserInfoOpenMenu().forEach { menus.add(it) }
@@ -231,17 +244,82 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         }
 
         private fun createFavoriteMenu(): View {
+            var isFav = state.isFavorited
             val nonFavIconRes = R.drawable.ic_star_border_white_24dp
             val favIconRes = R.drawable.ic_star_white_24dp
-            val component = createMenuItemUIComponent(ctx, nonFavIconRes, R.string.create_favorite)
-            return component.componentRoot
+            val favMessage = R.string.destroy_favorite
+            val nonFavMessage = R.string.create_favorite
+            fun icon(isFav: Boolean) = if (isFav) favIconRes else nonFavIconRes
+            fun message(isFav: Boolean) = if (isFav) favMessage else nonFavMessage
+
+            val component = createMenuItemUIComponent(ctx, icon(isFav), message(isFav))
+            fun set(isFav: Boolean) {
+                component.imageView.image = ctx.getDrawable(icon(isFav))
+                component.textView.text = ctx.getString(message(isFav))
+                component.componentRoot.isClickable = true
+            }
+
+            val view = component.componentRoot
+            view.setOnClickListener {
+                view.isClickable = false
+                bindLaunch {
+                    isFav = if (isFav) {
+                        mModel.unfavorite(mClient, stateHandleTweet).await().orError {
+                            showTwitterError(it)
+                        } ?: return@bindLaunch set(isFav)
+                        false
+                    } else {
+                        mModel.favorite(mClient, stateHandleTweet).await().orError {
+                            showTwitterError(it)
+                        } ?: return@bindLaunch set(isFav)
+                        true
+                    }
+                    set(isFav)
+                }
+            }
+            return view
         }
 
         private fun createRetweetMenu(): View {
+            var isRt = state.isRetweeted
             val nonRtIconRes = R.drawable.ic_autorenew_white_24dp
             val rtIconRes = R.drawable.ic_check_white_24dp
-            val component = createMenuItemUIComponent(ctx, nonRtIconRes, R.string.create_retweet)
-            return component.componentRoot
+            val rtMessage = R.string.destroy_retweet
+            val nonRtMessage = R.string.create_retweet
+            fun icon(isFav: Boolean) = if (isFav) rtIconRes else nonRtIconRes
+            fun message(isFav: Boolean) = if (isFav) rtMessage else nonRtMessage
+
+            val component = createMenuItemUIComponent(ctx, icon(isRt), message(isRt))
+            fun set(isFav: Boolean) {
+                component.imageView.image = ctx.getDrawable(icon(isFav))
+                component.textView.text = ctx.getString(message(isFav))
+                component.componentRoot.isClickable = true
+            }
+
+            val view = component.componentRoot
+            view.setOnClickListener {
+                view.isClickable = false
+                bindLaunch {
+                    isRt = if (isRt) {
+                        mModel.unretweet(mClient, stateHandleTweet).await().orError {
+                            Logger.printStackTrace(this@OperationTweetDialogFragment.logTag, it)
+                            (it as? IllegalStateException)?.let {
+                                toast(R.string.failed_find_retweeted_id)
+                            }
+                            showTwitterError(it)
+                        } ?: return@bindLaunch set(isRt)
+                        false
+                    } else {
+                        mModel.retweet(mClient, stateHandleTweet).await().orError {
+                            Logger.printStackTrace(this@OperationTweetDialogFragment.logTag, it)
+                            showTwitterError(it)
+                        } ?: return@bindLaunch set(isRt)
+                        true
+                    }
+                    set(isRt)
+                }
+            }
+            return view
         }
 
         private fun createUrlOpenMenus(): List<View> {

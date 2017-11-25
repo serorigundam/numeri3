@@ -34,6 +34,8 @@ class TweetUIComponent : ITweetUIComponent {
         private set
     override lateinit var overlayRelative: RelativeLayout
         private set
+    override lateinit var protectedIndicator: View
+        private set
 
     override val thumbnails: List<ImageView>
         get() = mThumbnails.unmodifiableList()
@@ -90,6 +92,17 @@ class TweetUIComponent : ITweetUIComponent {
                 alignParentEnd()
                 bottomMargin = dimen(R.dimen.margin_text_small)
             }
+
+            imageView {
+                protectedIndicator = this
+                id = R.id.protected_indicator
+                image = ctx.getDrawable(R.drawable.ic_lock_outline_white_24dp)
+            }.lparams(dip(16), dip(16)) {
+                alignParentTop()
+                startOf(R.id.twitter_bird_image)
+                marginEnd = dimen(R.dimen.margin_small)
+            }
+
 
             textView {
                 userNameText = this

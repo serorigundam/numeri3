@@ -10,13 +10,26 @@
     <string name="pref_desc_auto_scroll">ユーザーストリーム時の自動スクロール\n(リストの一番上を見ているときのみ)</string>
     <string name="pref_key_auto_scroll">pref_id_auto_scroll</string>
 
-    <!--resources-->
+    <!--twitter errors-->
+    <string name="twitter_error_32">あなたを認証できませんでした</string>
+    <string name="twitter_error_34">そのページは存在しません</string>
+    <string name="twitter_error_36">そのIDにはスパムコールできません</string>
+    <string name="twitter_error_50">ユーザーが見つかりません</string>
+    <string name="twitter_error_63">ユーザーは停止されています</string>
+    <string name="twitter_error_64">アカウントは一時停止中です</string>
+    <string name="twitter_error_88">レート制限を超えましたしばらく時間をおいてください</string>
+    <string name="twitter_error_130">Twitterは一時的にダウンしています</string>
+    <string name="twitter_error_144">要求されたツイートは見つかりません</string>
+    <string name="twitter_error_179">このツイートを参照する権限がありません</string>
+    <string name="twitter_error_185">一日にツイートできる回数を超過しています</string>
+    <string name="twitter_error_187">重複したツイートです</string>
 
+    <!--resources-->
     <string name="app_name">numetter</string>
     <string name="add_account">アカウント追加</string>
     <string name="authentication_failure">認証失敗</string>
     <string name="failed_generate_authentication_url">認証用URLの生成に失敗</string>
-    <string name="lock_tweet_cquisition">30秒間最新ツイートの取得をロックします。</string>
+    <string name="lock_tweet_cquisition">30秒間最新ツイートの取得をロックします</string>
     <string name="read_more">更に読み込む</string>
     <string name="destroy_favorite">お気に入りから解除</string>
     <string name="create_favorite">お気に入りに登録</string>
@@ -44,7 +57,7 @@
     <string name="tab_follow">フォロー</string>
     <string name="tab_follower">フォロワー</string>
     <string name="edit_profile">編集する</string>
-    <string name="following_you">あなたをフォローしています。</string>
+    <string name="following_you">あなたをフォローしています</string>
     <string name="blocking">ブロック中</string>
     <string name="myself">自分自身</string>
     <string name="friends">フォロー</string>
@@ -61,7 +74,7 @@
     <string name="sending">送信中</string>
     <string name="exclude_selected_images">選択した画像を投稿予定から除外しますか？</string>
     <string name="cancel">キャンセル</string>
-    <string name="message_not_granted_permission">許可が得られなかったため処理を中断します。</string>
+    <string name="message_not_granted_permission">許可が得られなかったため処理を中断します</string>
     <string name="channel_send_tweet">ツイート送信</string>
     <string name="all_hashtag_tweet">全てのハッシュタグでツイート</string>
     <string name="message_failed_user_info">ユーザー情報の取得に失敗</string>
@@ -72,22 +85,24 @@
     <string name="dialog_message_add_timeline_group">タイムライングループを追加</string>
     <string name="add">追加</string>
     <string name="error_enter_in_range_up_to">文字までの範囲で入力</string>
-    <string name="error_group_name_must_be_unique">グループ名は一意である必要があります。</string>
+    <string name="error_group_name_must_be_unique">グループ名は一意である必要があります</string>
     <string name="retry">やり直す</string>
     <string name="message_confirm_group_delete">グループを削除します</string>
     <string name="delete">削除</string>
     <string name="confirm_pre_delete">削除前に確認</string>
-    <string name="error_not_get_timeline_name_info">タイムライン名の特定に必要な情報が得られませんでした。</string>
+    <string name="error_not_get_timeline_name_info">タイムライン名の特定に必要な情報が得られませんでした</string>
     <string name="deleted_list">削除済みのリスト</string>
     <string name="message_create_timeline_info">タイムラインを作成</string>
     <string name="error_generate_timeline_failure">タイムラインの生成に失敗</string>
     <string name="error_need_to_select_timeline_type">タイムラインのタイプを選択する必要があります</string>
     <string name="error_need_to_select_user_list">userListを選択する必要があります</string>
-    <string name="error_already_exist">すでに登録されています。</string>
+    <string name="error_already_exist">すでに登録されています</string>
     <string name="error_delete_failure">削除に失敗しました</string>
-    <string name="message_delete">削除しました。</string>
+    <string name="message_delete">削除しました</string>
     <string name="undo">取消</string>
-    <string name="error_regenerate_failure">復元に失敗しました。</string>
+    <string name="error_regenerate_failure">復元に失敗しました</string>
     <string name="message_group_not_exist">グループが存在しません</string>
     <string name="message_initialization_not_completed">初期化が完了していません</string>
+    <string name="twitter_error_unknown">不明なエラー</string>
+    <string name="failed_find_retweeted_id">自身のリツイートの検索に失敗しました</string>
 </resources>

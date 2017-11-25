@@ -27,6 +27,7 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
     private fun unlock(id: Long) = tweetLock.remove(id)
 
     override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
+        Logger.v(logTag, "createOrGet ${status.text}")
         val tweet = mMap[status.id]
         mStateFactory.getOrPutState(client, status)
         return tweet?.also { it.updateAndCallback(status) }
@@ -67,6 +68,12 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
 
     override fun delete(tweet: Tweet) {
         mMap[tweet.id] ?: return
+        mDeleteListeners.forEach { it(tweet) }
+        tweetLock(tweet.id).withLock { mMap.remove(tweet.id);unlock(tweet.id) }
+    }
+
+    override fun deleteById(id: Long) {
+        val tweet = mMap[id] ?: return
         mDeleteListeners.forEach { it(tweet) }
         tweetLock(tweet.id).withLock { mMap.remove(tweet.id);unlock(tweet.id) }
     }

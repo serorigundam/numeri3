@@ -10,7 +10,7 @@ import tech.ketc.numeri.infra.ImageDatabase
 import tech.ketc.numeri.ui.model.di.ViewModelComponent
 import javax.inject.Singleton
 
-@Module(subcomponents = arrayOf(ViewModelComponent::class, RepositoryComponent::class))
+@Module(subcomponents = arrayOf(ViewModelComponent::class))
 class RepositoryModule {
 
     @Singleton
@@ -25,8 +25,9 @@ class RepositoryModule {
     @Singleton
     @Provides
     fun provideTweetRepository(tweetFactory: ITweetFactory,
+                               stateFactory: ITweetStateFactory,
                                userFactory: ITwitterUserFactory): ITweetRepository
-            = TweetRepository(tweetFactory, userFactory)
+            = TweetRepository(tweetFactory, stateFactory, userFactory)
 
     @Singleton
     @Provides

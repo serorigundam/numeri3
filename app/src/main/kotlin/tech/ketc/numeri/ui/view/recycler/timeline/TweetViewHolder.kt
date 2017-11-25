@@ -78,6 +78,11 @@ class TweetViewHolder(ctx: Context,
         //iconImage.setOnClickListener { UserInfoActivity.start(ctx, mClient.id, displayTweet.user.id) }
         contentText.text = displayTweet.text
         sourceText.text = displayTweet.source
+        if (displayTweet.user.isProtected) {
+            protectedIndicator.visibility = View.VISIBLE
+        } else {
+            protectedIndicator.visibility = View.GONE
+        }
     }
 
     private fun setThumbs(displayTweet: Tweet) {

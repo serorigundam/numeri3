@@ -15,6 +15,8 @@ interface ITweetFactory {
 
     fun delete(tweet: Tweet)
 
+    fun deleteById(id:Long)
+
     fun deleteByUser(user: TwitterUser)
 
     fun addDeleteListener(listener: TweetDeleteListener)

@@ -29,6 +29,10 @@ object Logger {
     fun wtf(tag: String, message: String) {
         if (debug) Log.wtf(tag(tag), message)
     }
+
+    fun printStackTrace(tag: String, throwable: Throwable) {
+        if (debug) Log.e(tag, "ex", throwable)
+    }
 }
 
 inline val <T : Any> T.logTag: String

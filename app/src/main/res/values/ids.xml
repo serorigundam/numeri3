@@ -35,5 +35,6 @@
     <item name="radio_content" type="id" />
     <item name="message_text" type="id" />
     <item name="content" type="id" />
+    <item name="protected_indicator" type="id" />
     <!--/view id-->
 </resources>

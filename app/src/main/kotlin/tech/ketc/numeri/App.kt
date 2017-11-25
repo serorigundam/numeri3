@@ -1,5 +1,6 @@
 package tech.ketc.numeri
 
+import android.annotation.SuppressLint
 import android.util.Log
 import com.crashlytics.android.Crashlytics
 import dagger.android.AndroidInjector
@@ -13,6 +14,7 @@ import tech.ketc.numeri.util.logTag
 
 class App : DaggerApplication() {
 
+    @SuppressLint("CheckResult")
     override fun onCreate() {
         val debug = resources.getBoolean(R.bool.debug)
         if (debug) {

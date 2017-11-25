@@ -35,4 +35,12 @@ class TimeLineDataSourceAdapter(owner: LifecycleOwner,
         items.addAll(0, filtered)
         notifyItemRangeInserted(0, filtered.size)
     }
+
+    fun delete(tweet: Tweet) {
+        val items = items()
+        items.indexOfFirst { it.id == tweet.id }.takeIf { it != -1 }?.let { index ->
+            items.removeAt(index)
+            notifyItemRemoved(index)
+        }
+    }
 }

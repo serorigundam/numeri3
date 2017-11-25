@@ -1,5 +1,6 @@
 package tech.ketc.numeri.util.di
 
+import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Application
 import android.os.Bundle
@@ -14,6 +15,7 @@ import tech.ketc.numeri.util.logTag
 
 fun Application.applyAutoInject()
         = registerActivityLifecycleCallbacks(object : Application.ActivityLifecycleCallbacks {
+    @SuppressLint("CheckResult")
     override fun onActivityCreated(activity: Activity, p1: Bundle?) {
         Logger.v(activity.logTag, "onCrate() isRestore:${p1 != null}")
         if (activity is AutoInject || activity is HasSupportFragmentInjector) {

@@ -1,5 +1,6 @@
 package tech.ketc.numeri.domain.twitter
 
+import android.os.Handler
 import tech.ketc.numeri.App
 import tech.ketc.numeri.domain.repository.ITweetRepository
 import tech.ketc.numeri.domain.repository.ITwitterUserRepository
@@ -60,9 +61,10 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         override val latestBlockNotice = mLatestBlockNotice.stream()
         override val latestUnBlockNotice = mLatestUnBlockNotice.stream()
 
-        private fun User.toTwitterUser() = toTwitterUser(userRepository)
+        private val loggerHandler = Handler()
 
-        private fun Status.toTweet() = toTweet(client, tweetRepository)
+        private fun User.toTwitterUser() = userRepository.createOrGet(this)
+        private fun Status.toTweet() = tweetRepository.createOrUpdate(client, this)
 
         override fun onUserListMemberAddition(addedMember: User, listOwner: User, list: UserList) {
         }
@@ -90,12 +92,16 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onException(ex: Exception) {
+            loggerHandler.post {
+                ex.printStackTrace()
+            }
         }
 
         override fun onDeletionNotice(directMessageId: Long, userId: Long) {
         }
 
         override fun onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
+            tweetRepository.deleteById(statusDeletionNotice.statusId)
             mLatestTweetDeletionNotice.post(statusDeletionNotice)
         }
 

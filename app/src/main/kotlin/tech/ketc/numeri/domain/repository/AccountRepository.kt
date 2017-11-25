@@ -9,6 +9,8 @@ import tech.ketc.numeri.domain.twitter.twitterCallbackUrl
 import tech.ketc.numeri.infra.AccountDatabase
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.AccountToken
+import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.logTag
 import tech.ketc.numeri.util.unmodifiableSet
 import twitter4j.auth.OAuthSupport
 import java.util.concurrent.locks.ReentrantReadWriteLock
@@ -26,6 +28,10 @@ class AccountRepository @Inject constructor(private val mApp: App,
     private var mClients: MutableSet<TwitterClient>? = null
     private val mDao = mDatabase.accountDao()
     private val mLock = ReentrantReadWriteLock()
+
+    init {
+        Logger.v(logTag,"new instance")
+    }
 
     override fun createAuthorizationURL(): String {
         val oAuthSupport = mOAuthSupportFactory.create()
