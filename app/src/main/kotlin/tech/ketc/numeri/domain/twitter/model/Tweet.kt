@@ -1,6 +1,8 @@
 package tech.ketc.numeri.domain.twitter.model
 
-interface Tweet {
+import java.io.Serializable
+
+interface Tweet : Serializable {
     val id: Long
     val user: TwitterUser
     val createdAt: String
