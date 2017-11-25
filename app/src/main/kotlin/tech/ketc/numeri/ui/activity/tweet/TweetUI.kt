@@ -20,7 +20,7 @@ class TweetUI : ITweetUI {
         private set
     override lateinit var editText: EditText
         private set
-    override lateinit var sendTweetButton: Button
+    override lateinit var tweetSendButton: Button
         private set
     override lateinit var cameraButton: ImageButton
         private set
@@ -70,7 +70,7 @@ class TweetUI : ITweetUI {
                         id = R.id.text_input
                         editText {
                             this@TweetUI.editText = this
-                            inputType = InputType.TYPE_TEXT_FLAG_MULTI_LINE
+                            inputType = InputType.TYPE_TEXT_FLAG_IME_MULTI_LINE
                             singleLine = false
                             hint = context.getString(R.string.tweet_input)
                             gravity = Gravity.TOP or Gravity.START
@@ -193,7 +193,7 @@ class TweetUI : ITweetUI {
 
                     button {
                         id = R.id.tweet_send_button
-                        sendTweetButton = this
+                        tweetSendButton = this
                         isEnabled = false
                         background = drawable(R.drawable.ripple_button_background)
                         text = string(R.string.label_tweet)

@@ -7,7 +7,7 @@ import org.jetbrains.anko.AnkoComponent
 interface ITweetUI : AnkoComponent<TweetActivity> {
     val toolbar: Toolbar
     val editText: EditText
-    val sendTweetButton: Button
+    val tweetSendButton: Button
     val cameraButton: ImageButton
     val selectMediaButton: ImageButton
     val remainingText: TextView

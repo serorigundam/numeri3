@@ -4,6 +4,7 @@ import dagger.Subcomponent
 import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.ui.model.TimeLineViewModel
 import tech.ketc.numeri.ui.model.TimelineManageViewModel
+import tech.ketc.numeri.ui.model.TweetViewModel
 
 @Subcomponent
 interface ViewModelComponent {
@@ -18,4 +19,6 @@ interface ViewModelComponent {
     fun timeLineViewModel(): TimeLineViewModel
 
     fun timelineManageViewModel(): TimelineManageViewModel
+
+    fun tweetViewModel(): TweetViewModel
 }
