@@ -124,10 +124,12 @@ class MainActivity : AppCompatActivity(), AutoInject,
             accountListUI.addAccountButton.isClickable = false
             val res = mModel.createAuthorizationURL().await()
             val url = res.orError {
+                accountListUI.addAccountButton.isClickable = true
                 toast(getString(R.string.failed_generate_authentication_url))
             } ?: return@bindLaunch
             val uri = Uri.parse(url)
             startActivity(Intent(Intent.ACTION_VIEW, uri))
+            accountListUI.addAccountButton.isClickable = true
         }
     }
 
