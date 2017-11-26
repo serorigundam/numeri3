@@ -43,6 +43,7 @@ class TweetUI : ITweetUI {
 
     override fun createView(ui: AnkoContext<TweetActivity>) = ui.create {
         relativeLayout {
+            isFocusableInTouchMode = true
             appBarLayout {
                 id = R.id.appbar
                 toolbar {

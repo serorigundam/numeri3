@@ -76,6 +76,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
     private var mReservedRemovePosition = -1
     private var mIsPossiblySensitive = false
+    private var mCurrentText = ""
 
 
     companion object {
@@ -85,6 +86,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         private val EXTRA_RESERVED_REMOVE_POSITION = "EXTRA_RESERVED_REMOVE_POSITION"
         private val EXTRA_MEDIA_FILES = "EXTRA_MEDIA_FILES"
         private val EXTRA_POSSIBLY_SENSITIVE = "EXTRA_POSSIBLY_SENSITIVE"
+        private val EXTRA_CURRENT_TEXT = "EXTRA_CURRENT_TEXT"
         private val REQUEST_REMOVE_THUMB = 100
         private val REQUEST_CODE_SELECT_IMAGE = 200
         private val REQUEST_CODE_READ_STORAGE = 300
@@ -96,11 +98,11 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
         setContentView(this)
+        initializeUI()
+        initializeUIBehavior()
         savedInstanceState?.let {
             restoreInstanceState(it)
         }
-        initializeUI()
-        initializeUIBehavior()
         initialize()
     }
 
@@ -136,6 +138,9 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         mReservedRemovePosition = outState.getInt(EXTRA_RESERVED_REMOVE_POSITION)
         outState.getStringArrayList(EXTRA_MEDIA_FILES).forEach { addThumb(File(it)) }
         mIsPossiblySensitive = outState.getBoolean(EXTRA_POSSIBLY_SENSITIVE)
+        mCurrentText = outState.getString(EXTRA_CURRENT_TEXT)
+        editText.setText(mCurrentText)
+        editText.setSelection(mCurrentText.length)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -143,6 +148,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         outState.putStringArrayList(EXTRA_MEDIA_FILES,
                 arrayListOf(*mMediaFiles.map { it.path }.toTypedArray()))
         outState.putBoolean(EXTRA_POSSIBLY_SENSITIVE, mIsPossiblySensitive)
+        outState.putString(EXTRA_CURRENT_TEXT, mCurrentText)
         super.onSaveInstanceState(outState)
     }
 
@@ -205,6 +211,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     private fun addThumb(file: File) {
         if (mMediaFiles.isEmpty()) thumbnailsFrame.visibility = View.VISIBLE
         if (mMediaFiles.size == 4) return
+        setTweetSendable(editText.text.toString())
         mMediaFiles.add(file)
         val bitmap = BitmapFactory.decodeFile(file.path)
         val position = mMediaFiles.lastIndex
@@ -276,6 +283,15 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         }
     }
 
+    private fun setTweetSendable(text: String) {
+        val remaining = MAX - text.length
+        if (remaining == 0) {
+            tweetSendButton.isEnabled = mMediaFiles.isNotEmpty()
+        } else {
+            tweetSendButton.isEnabled = remaining in 1..MAX
+        }
+    }
+
     override fun onDestroy() {
         unbindService(connection)
         super.onDestroy()
@@ -288,9 +304,9 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
 
     override fun onTextChanged(text: CharSequence, p1: Int, p2: Int, p3: Int) {
-        val remaining = MAX - text.length
-        tweetSendButton.isEnabled = remaining != 0 && remaining <= MAX && serviceStarted
-        remainingText.text = "$remaining"
+        setTweetSendable(text.toString())
+        mCurrentText = text.toString()
+        remainingText.text = "${MAX - text.length}"
     }
 
     override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
