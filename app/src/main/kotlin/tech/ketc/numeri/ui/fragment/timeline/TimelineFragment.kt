@@ -101,6 +101,12 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             Logger.v(javaClass.name, "simpleInit adapter")
             initializeAdapter()
         }
+        swipeRefresh.setOnRefreshListener {
+            swipeRefresh.isRefreshing = true
+            adapter.loadAfter {
+                swipeRefresh.isRefreshing = false
+            }
+        }
 
         mModel.deleteObserve(this) {
             adapter.delete(it)
@@ -115,12 +121,6 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             swipeRefresh.isRefreshing = false
             swipeRefresh.isEnabled = true
             startStream()
-        }
-        swipeRefresh.setOnRefreshListener {
-            swipeRefresh.isRefreshing = true
-            adapter.loadAfter {
-                swipeRefresh.isRefreshing = false
-            }
         }
     }
 
