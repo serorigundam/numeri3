@@ -105,4 +105,7 @@
     <string name="message_initialization_not_completed">初期化が完了していません</string>
     <string name="twitter_error_unknown">不明なエラー</string>
     <string name="failed_find_retweeted_id">自身のリツイートの検索に失敗しました</string>
+    <string name="failed_get_image">画像の取得に失敗</string>
+    <string name="exclude">除外</string>
+    <string name="possibly_sensitive">不適切なコンテンツ</string>
 </resources>

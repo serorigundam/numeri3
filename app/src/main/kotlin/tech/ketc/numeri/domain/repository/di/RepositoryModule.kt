@@ -37,8 +37,8 @@ class RepositoryModule {
 
     @Singleton
     @Provides
-    fun provideImageRepository(app: App, db: ImageDatabase): IImageRepository
-            = ImageRepository(app, db)
+    fun provideImageRepository(db: ImageDatabase): IImageRepository
+            = ImageRepository(db)
 
     @Singleton
     @Provides

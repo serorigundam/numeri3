@@ -24,7 +24,7 @@ class TweetUI : ITweetUI {
         private set
     override lateinit var cameraButton: ImageButton
         private set
-    override lateinit var selectMediaButton: ImageButton
+    override lateinit var mediaSelectButton: ImageButton
         private set
     override lateinit var remainingText: TextView
         private set
@@ -157,10 +157,12 @@ class TweetUI : ITweetUI {
                             }
 
                             imageButton {
-                                selectMediaButton = this
+                                mediaSelectButton = this
+                                id = R.id.image_select_button
                                 image = drawable(R.drawable.ic_image_white_24dp)
                                 background = drawable(R.drawable.ripple_corner_transparent)
                             }.lparams(dip(40), wrapContent) {
+                                marginEnd = dimen(R.dimen.margin_small)
                                 endOf(R.id.camera_button)
                                 centerVertically()
                             }

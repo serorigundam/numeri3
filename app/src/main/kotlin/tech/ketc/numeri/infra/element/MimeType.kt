@@ -4,8 +4,8 @@ import android.arch.persistence.room.TypeConverter
 import java.io.Serializable
 
 
-enum class MimeType(val typeStr: String) : Serializable {
-    JPEG("image/png"), PNG("image/jpeg");
+enum class MimeType(private val typeStr: String) : Serializable {
+    JPEG("image/jpeg"), PNG("image/png");
 
     override fun toString(): String {
         return typeStr

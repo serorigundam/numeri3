@@ -1,12 +1,7 @@
 package tech.ketc.numeri.domain.repository
 
-import android.content.ContentValues
-import android.graphics.Bitmap
 import android.graphics.BitmapFactory
-import android.os.Environment
-import android.provider.MediaStore
 import android.util.LruCache
-import android.webkit.MimeTypeMap
 import tech.ketc.numeri.App
 import tech.ketc.numeri.infra.ImageDatabase
 import tech.ketc.numeri.infra.entity.Image
@@ -17,7 +12,8 @@ import kotlinx.coroutines.experimental.CommonPool
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
 import tech.ketc.numeri.domain.model.BitmapContent
-import tech.ketc.numeri.infra.element.MimeType
+import tech.ketc.numeri.infra.element.mimeType
+import tech.ketc.numeri.infra.element.toFormat
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.logTag
 import java.io.*
@@ -25,7 +21,7 @@ import java.util.concurrent.locks.ReentrantLock
 import kotlin.concurrent.withLock
 
 
-class ImageRepository @Inject constructor(private val mApp: App, private val mDatabase: ImageDatabase) : IImageRepository {
+class ImageRepository @Inject constructor(private val mDatabase: ImageDatabase) : IImageRepository {
 
     companion object {
         private val MAX = 5 * 1024 * 1024
@@ -120,18 +116,6 @@ class ImageRepository @Inject constructor(private val mApp: App, private val mDa
         }
     }
 
-    private fun MimeType.toFormat() = when (this) {
-        MimeType.PNG -> Bitmap.CompressFormat.PNG
-        MimeType.JPEG -> Bitmap.CompressFormat.JPEG
-    }
-
-    private fun mimeType(str: String) = when (str) {
-        MimeType.JPEG.toString() -> MimeType.JPEG
-        MimeType.PNG.toString() -> MimeType.PNG
-        else -> MimeType.PNG
-    }
-
-
     private fun saveLocalDatabase(urlStr: String, content: BitmapContent) {
         cache(urlStr, content)
         launch {
@@ -147,27 +131,5 @@ class ImageRepository @Inject constructor(private val mApp: App, private val mDa
             mDao.insert(Image(urlStr, byteArray, content.mimeType))
             mDatabaseLock.remove(urlStr)
         }
-    }
-
-
-    override fun save(bitmap: Bitmap, mimeType: MimeType, directory: String, fileName: String, quality: Int): File {
-        val file = File("${Environment.getExternalStorageDirectory().absolutePath}/$directory")
-        if (!file.exists() && !file.mkdir()) throw IOException("directory creation failure")
-
-        val mimeTypeStr = mimeType.toString()
-        val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeTypeStr)
-        val path = "${file.absolutePath}/$fileName.$extension"
-        FileOutputStream(path).use { stream ->
-            bitmap.compress(mimeType.toFormat(), quality, stream)
-        }
-        val values = ContentValues().apply {
-            put(MediaStore.Images.Media.TITLE, fileName)
-            put(MediaStore.Images.Media.DISPLAY_NAME, fileName)
-            put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
-            put(MediaStore.Images.Media.MIME_TYPE, mimeTypeStr)
-            put(MediaStore.Images.Media.DATA, path)
-        }
-        mApp.contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, values)
-        return File(path)
     }
 }

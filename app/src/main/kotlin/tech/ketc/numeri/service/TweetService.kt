@@ -10,14 +10,17 @@ import android.support.v4.app.NotificationCompat
 import kotlinx.coroutines.experimental.Job
 import kotlinx.coroutines.experimental.async
 import kotlinx.coroutines.experimental.launch
+import org.jetbrains.anko.ctx
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.ui.activity.tweet.TweetActivity
+import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.response.response
 import tech.ketc.numeri.util.coroutine.dispose
-import tech.ketc.numeri.util.twitter4j.sendTweet
+import tech.ketc.numeri.util.logTag
+import tech.ketc.numeri.util.twitter4j.createSender
 import java.io.File
 
 class TweetService : Service(), ITweetService {
@@ -38,11 +41,12 @@ class TweetService : Service(), ITweetService {
                            mediaList: List<File>?,
                            isPossiblySensitive: Boolean) {
 
-        fun createNotification(subText: String): Notification {
+        fun createNotification(subText: String, progress: Int = 0): Notification {
             return NotificationCompat.Builder(applicationContext, CHANNEL_ID)
                     .setSmallIcon(R.drawable.ic_launcher)
                     .setContentText("${clientUser.screenName} : $text")
                     .setSubText(subText)
+                    .setProgress(100, progress, false)
                     .setColor(getColor(R.color.colorPrimary))
                     .build()
         }
@@ -76,15 +80,22 @@ class TweetService : Service(), ITweetService {
                 stopForeground(true)
                 sending = false
             }
-            notificationManager.notify(TAG, currentCount, createNotification(text))
+            notificationManager.notify(TAG, currentCount, createNotification(text, 100))
+        }
+
+
+        val sender = client.createSender(text, inReplyToStatusId, mediaList, isPossiblySensitive)
+        sender.onProgress = {
+            notificationManager.notify(TAG, currentCount, createNotification(getString(R.string.sending), it))
         }
 
         val job = launch {
             async {
                 response {
-                    client.sendTweet(text, inReplyToStatusId, mediaList, isPossiblySensitive)
+                    sender.send(ctx)
                 }
             }.await().orError {
+                Logger.printStackTrace(logTag, it)
                 finish(getString(R.string.send_failure))
             } ?: return@launch
             finish(getString(R.string.send_success))

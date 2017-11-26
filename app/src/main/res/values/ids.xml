@@ -44,5 +44,8 @@
     <item name="background_stream_text" type="id" />
     <item name="thumbnails_frame" type="id" />
     <item name="camera_button" type="id" />
+    <item name="possibly_sensitive_check" type="id" />
+    <item name="image_select_button" type="id" />
+    <item name="possibly_sensitive_image" type="id" />
     <!--/view id-->
 </resources>

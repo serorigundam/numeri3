@@ -9,7 +9,7 @@ interface ITweetUI : AnkoComponent<TweetActivity> {
     val editText: EditText
     val tweetSendButton: Button
     val cameraButton: ImageButton
-    val selectMediaButton: ImageButton
+    val mediaSelectButton: ImageButton
     val remainingText: TextView
     val replyInfoText: TextView
     val backgroundStreamText: TextView
