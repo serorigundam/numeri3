@@ -96,7 +96,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         savedInstanceState?.let {
             restoreInstanceState(it)
         }
-        initialize(savedInstanceState)
+        initialize()
         observeTimelineChange()
     }
 
@@ -131,7 +131,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
     }
 
-    private fun initialize(savedInstanceState: Bundle?) {
+    private fun initialize() {
         bindLaunch {
             val clientsRes = mModel.clients().await()
             val clients = clientsRes.orError {
@@ -140,9 +140,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
             mInitialized = clients.isEmpty()
             if (mInitialized) showAddAccountDialog()
             else initializeAccountListComponent(clients)
-            if (savedInstanceState == null)
-                initializeTimelineGroup()
-            else mInitialized = true
+            initializeTimelineGroup()
+            mInitialized = true
         }
     }
 
@@ -155,16 +154,10 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun initializeTimelineGroup() {
+        Logger.v(logTag, "initializeTimelineGroup")
         bindLaunch {
-            val groupList = mModel.loadGroupList().await().result
-            if (groupList.isEmpty()) {
-                mInitialized = true
-                return@bindLaunch
-            }
-            mCurrentGroupList.addAll(groupList)
-            groupList.forEach { createOrGetTimelineGroupView(it.name) }
-            showFirstTimelineGroup()
-            mInitialized = true
+            val groupList = mModel.loadGroupListBlocking().await().result
+            apply(groupList)
         }
     }
 
@@ -257,20 +250,21 @@ class MainActivity : AppCompatActivity(), AutoInject,
         else supportActBar.subtitle = ""
     }
 
-    private fun observeTimelineChange() {
-        fun apply(newGroupList: List<TimelineGroup>) {
-            val previousList = mCurrentGroupList.copy()
-            mCurrentGroupList.clear()
-            mCurrentGroupList.addAll(newGroupList)
-            newGroupList.forEach { createOrGetTimelineGroupView(it.name) }
-            if (previousList.isEmpty()) {
-                showFirstTimelineGroup()
-            } else {
-                previousList.filter { group -> !newGroupList.any { group.name == it.name } }
-                        .also { Logger.v(logTag, "tlChange apply deletions ${it.joinToString(",") { it.name }}") }
-                        .forEach { removeTimelineGroup(it.name) }
-            }
+    private fun apply(newGroupList: List<TimelineGroup>) {
+        val previousList = mCurrentGroupList.copy()
+        mCurrentGroupList.clear()
+        mCurrentGroupList.addAll(newGroupList)
+        newGroupList.forEach { createOrGetTimelineGroupView(it.name) }
+        if (previousList.isEmpty()) {
+            showFirstTimelineGroup()
+        } else {
+            previousList.filter { group -> !newGroupList.any { group.name == it.name } }
+                    .also { Logger.v(logTag, "tlChange apply deletions ${it.joinToString(",") { it.name }}") }
+                    .forEach { removeTimelineGroup(it.name) }
         }
+    }
+
+    private fun observeTimelineChange() {
         mModel.timelineChange(this) {
             Logger.v(javaClass.name, "timelineChange")
             bindLaunch {

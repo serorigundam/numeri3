@@ -15,7 +15,9 @@ import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.model.delegate.*
 import tech.ketc.numeri.util.arch.coroutine.ResponseDeferred
 import tech.ketc.numeri.util.arch.coroutine.asyncResponse
+import java.util.concurrent.locks.ReentrantLock
 import javax.inject.Inject
+import kotlin.concurrent.withLock
 
 @SuppressLint("StaticFieldLeak")
 class MainViewModel @Inject constructor(private val mApp: App,
@@ -31,6 +33,8 @@ class MainViewModel @Inject constructor(private val mApp: App,
         IUserHandler by UserHandler(mUserRepository),
         ITimelineChangeObserver by TimelineChangeObserver(mTimelineRepository),
         ITimelineInfoReader by TimelineInfoReader(mApp, mTimelineRepository) {
+
+    private val mGroupLock = ReentrantLock()
 
     fun createAuthorizationURL() = asyncResponse { mAccountRepository.createAuthorizationURL() }
 
@@ -53,5 +57,9 @@ class MainViewModel @Inject constructor(private val mApp: App,
             }
             infoList.map { toName(it, clientUsers, map) }
         }
+    }
+
+    fun loadGroupListBlocking() = asyncResponse {
+        mGroupLock.withLock { mTimelineRepository.getGroupList() }
     }
 }
