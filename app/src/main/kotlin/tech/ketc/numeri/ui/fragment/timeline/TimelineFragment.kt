@@ -17,6 +17,7 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.infra.entity.TimelineInfo
+import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.createBottomSheetUIComponent
@@ -395,10 +396,9 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
 
         private fun createReplyMenu(): View {
             val replyIcon = R.drawable.ic_reply_white_24dp
-            val t = mTweet.retweetedTweet ?: mTweet
             val view = createMenuItemUIComponent(ctx, replyIcon, R.string.reply).componentRoot
             view.setOnClickListener {
-                toast("Unimplemented")//todo Unimplemented
+                TweetActivity.start(ctx, client = mClient, tweet = mTweet)
                 dismiss()
             }
             return view
@@ -410,7 +410,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 val replyAllIcon = R.drawable.ic_reply_all_white_24px
                 val view = createMenuItemUIComponent(ctx, replyAllIcon, R.string.reply_all).componentRoot
                 view.setOnClickListener {
-                    toast("Unimplemented")//todo Unimplemented
+                    TweetActivity.start(ctx, client = mClient, tweet = mTweet, replyAll = true)
                     dismiss()
                 }
                 return view
