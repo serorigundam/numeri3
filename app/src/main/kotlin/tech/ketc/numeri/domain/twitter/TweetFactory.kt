@@ -29,7 +29,7 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
     override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
         Logger.v(logTag, "createOrGet ${status.text}")
         val tweet = mMap[status.id]
-        mStateFactory.getOrPutState(client, status)
+        mStateFactory.getAndUpdateState(client, status)
         return tweet?.also { it.updateAndCallback(status) }
                 ?: tweetLock(status.id).withLock {
             TweetInternal(client, this, userFactory, status).also { mMap.put(it.id, it);unlock(status.id) }
@@ -45,7 +45,7 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
             TweetInternal(client, this, userFactory, status).also {
                 if (mStateFactory.get(client, status) == null) client.twitter.showStatus(statusId).also {
                     Logger.v(logTag, "innerStatusCreateOrGet show $statusId")
-                    mStateFactory.getOrPutState(client, it)
+                    mStateFactory.getAndUpdateState(client, it)
                 }
                 mMap.put(it.id, it)
                 unlock(statusId)

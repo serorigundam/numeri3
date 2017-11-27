@@ -23,16 +23,18 @@ class TweetStateFactory : ITweetStateFactory {
     }
 
 
-    override fun getOrPutState(client: TwitterClient, status: Status): TweetState {
+    override fun getAndUpdateState(client: TwitterClient, status: Status): TweetState {
         if (status.user.id == client.id && status.isRetweet) {
-            Logger.v(logTag, "getOrPutState put retweetedId")
+            Logger.v(logTag, "getAndUpdateState put retweetedId")
             rtIdMap(client).put(status.retweetedStatus.id, status.id)
         }
         status.currentUserRetweetId.takeIf { it != -1L }?.let {
             rtIdMap(client).put(status.id, it)
-            Logger.v(logTag, "getOrPutState currentUserRetweetId")
+            Logger.v(logTag, "getAndUpdateState currentUserRetweetId")
         }
-        return stateMap(client).getOrPut(status.id) { TweetState(status.isFavorited, status.isRetweeted) }
+        val tweetState = TweetState(status.isFavorited, status.isRetweeted)
+        stateMap(client).put(status.id, tweetState)
+        return tweetState
     }
 
 
