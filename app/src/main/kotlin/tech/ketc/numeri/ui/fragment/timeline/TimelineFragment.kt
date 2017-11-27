@@ -235,7 +235,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             createReplyAllMenu()?.let { menus.add(it) }
             createUserInfoOpenMenu().forEach { menus.add(it) }
             createMediaOpenMenu()?.let { menus.add(it) }
-            createHashtagMenus().forEach { menus.add(it) }
+            createAllHashtagTweetMenu()?.let { menus.add(it) }
+            createHashtagTweetMenus().forEach { menus.add(it) }
             createUrlOpenMenus().forEach { menus.add(it) }
             menus.add(createLinkOpenMenu())
 
@@ -337,17 +338,31 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             return mTweet.urlEntities.map(::create)
         }
 
-        private fun createHashtagMenus(): List<View> {
+        private fun createHashtagTweetMenus(): List<View> {
             val editIconRes = R.drawable.ic_mode_edit_white_24dp
             fun create(hashtag: String): View {
-                val view = createMenuItemUIComponent(ctx, editIconRes, "#$hashtag").componentRoot
+                val text = "#$hashtag"
+                val view = createMenuItemUIComponent(ctx, editIconRes, text).componentRoot
                 view.setOnClickListener {
-                    toast("Unimplemented")//todo Unimplemented
+                    TweetActivity.start(ctx, text = "$text ", client = mClient)
                     dismiss()
                 }
                 return view
             }
             return mTweet.hashtags.map(::create)
+        }
+
+        private fun createAllHashtagTweetMenu(): View? {
+            val editIconRes = R.drawable.ic_mode_edit_white_24dp
+            return mTweet.hashtags.takeIf { it.size >= 2 }?.let { hashtags ->
+                createMenuItemUIComponent(ctx, editIconRes, R.string.all_hashtag_tweet)
+                        .componentRoot.also {
+                    it.setOnClickListener {
+                        val text = hashtags.joinToString(" ") { "#$it" }
+                        TweetActivity.start(ctx, text = "$text ")
+                    }
+                }
+            }
         }
 
         private fun createMediaOpenMenu(): View? {

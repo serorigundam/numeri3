@@ -138,7 +138,6 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
-
         bindLaunch {
             val clients = mModel.clients().await().orError {
                 toast(R.string.authentication_failure)
@@ -149,7 +148,11 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
             val service = Intent(this@TweetActivity, TweetService::class.java)
             startService(service)
             bindService(service, connection, Service.BIND_AUTO_CREATE)
-            setTweetUser(clientUsers.first())
+            if (mCurrentClientId != -1L) {
+                setTweetUser(clientUsers.find { it.first.id == mCurrentClientId }!!)
+            } else {
+                setTweetUser(clientUsers.first())
+            }
             setUserSelectEvent(clientUsers)
             tweetSendButton.setOnClickListener { onClickTweetButton() }
 
@@ -162,10 +165,10 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
 
                 fun mentions(): List<String> {
                     if (!mReplyAll) return emptyList()
-                    var list = tweet.userMentionEntities.map { it.screenName }
-                    if (clientUser != null) list = list.filterNot { it == clientUser.second.screenName }
-                    return list
-
+                    return tweet.userMentionEntities.map { it.screenName }.run {
+                        if (clientUser != null) filterNot { it == clientUser.second.screenName }
+                        else this
+                    }
                 }
 
                 val targetOwner = tweet.user.screenName
@@ -194,6 +197,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         mPath = savedState.getString(EXTRA_LATEST_CAPTCHA_PATH)
         mReplyInfo = savedState.getString(EXTRA_REPLY_INFO)
         replyInfoText.text = mReplyInfo
+        mCurrentClientId = savedState.getLong(EXTRA_CURRENT_CLIENT_ID)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -204,6 +208,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         outState.putString(EXTRA_CURRENT_TEXT, mCurrentText)
         outState.putString(EXTRA_LATEST_CAPTCHA_PATH, mPath)
         outState.putString(EXTRA_REPLY_INFO, mReplyInfo)
+        outState.putLong(EXTRA_CURRENT_CLIENT_ID, mCurrentClientId)
         super.onSaveInstanceState(outState)
     }
 
@@ -216,6 +221,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     private fun setTweetUser(clientUser: Pair<TwitterClient, TwitterUser>) {
         if (mClientUser != null && clientUser().first.id == clientUser.first.id) return
         mClientUser = clientUser
+        mCurrentClientId = clientUser.first.id
         val user = clientUser.second
         bindLaunch {
             val content = mModel.loadImage(user.iconUrl).await().nullable() ?: return@bindLaunch
