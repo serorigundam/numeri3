@@ -1,15 +1,12 @@
 package tech.ketc.numeri.ui.activity.tweet
 
-import android.Manifest
+import android.Manifest.permission.READ_EXTERNAL_STORAGE
 import android.annotation.SuppressLint
 import android.app.Activity
 import android.app.Dialog
 import android.app.Service
 import android.arch.lifecycle.ViewModelProvider
-import android.content.ComponentName
-import android.content.Context
-import android.content.Intent
-import android.content.ServiceConnection
+import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
@@ -34,6 +31,7 @@ import org.jetbrains.anko.support.v4.nestedScrollView
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
+import tech.ketc.numeri.infra.element.MimeType
 import tech.ketc.numeri.service.ITweetService
 import tech.ketc.numeri.service.TweetService
 import tech.ketc.numeri.ui.components.AccountUIComponent
@@ -52,6 +50,7 @@ import tech.ketc.numeri.util.logTag
 import java.io.File
 import java.io.IOException
 import java.io.Serializable
+import java.util.*
 import javax.inject.Inject
 
 class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), TextWatcher, OnDialogItemSelectedListener {
@@ -77,6 +76,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     private var mReservedRemovePosition = -1
     private var mIsPossiblySensitive = false
     private var mCurrentText = ""
+    private var mPath = ""
 
 
     companion object {
@@ -87,9 +87,12 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         private val EXTRA_MEDIA_FILES = "EXTRA_MEDIA_FILES"
         private val EXTRA_POSSIBLY_SENSITIVE = "EXTRA_POSSIBLY_SENSITIVE"
         private val EXTRA_CURRENT_TEXT = "EXTRA_CURRENT_TEXT"
+        private val EXTRA_LATEST_CAPTCHA_PATH = "EXTRA_LATEST_CAPTCHA_PATH"
         private val REQUEST_REMOVE_THUMB = 100
         private val REQUEST_CODE_SELECT_IMAGE = 200
-        private val REQUEST_CODE_READ_STORAGE = 300
+        private val REQUEST_CODE_MEDIA_READ_STORAGE = 300
+        private val REQUEST_CODE_IMAGE_CAPTCHA = 400
+        private val REQUEST_CODE_CAMERA_READ_STORAGE = 500
         fun start(ctx: Context) {
             ctx.startActivity<TweetActivity>()
         }
@@ -115,6 +118,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         toolbar.setFinishWithNavigationClick(this)
         editText.addTextChangedListener(this)
         mediaSelectButton.setOnClickListener { onClickImageSelectButton() }
+        cameraButton.setOnClickListener { onClickCameraButton() }
     }
 
     private fun initialize() {
@@ -134,13 +138,14 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         }
     }
 
-    private fun restoreInstanceState(outState: Bundle) {
-        mReservedRemovePosition = outState.getInt(EXTRA_RESERVED_REMOVE_POSITION)
-        outState.getStringArrayList(EXTRA_MEDIA_FILES).forEach { addThumb(File(it)) }
-        mIsPossiblySensitive = outState.getBoolean(EXTRA_POSSIBLY_SENSITIVE)
-        mCurrentText = outState.getString(EXTRA_CURRENT_TEXT)
+    private fun restoreInstanceState(savedState: Bundle) {
+        mReservedRemovePosition = savedState.getInt(EXTRA_RESERVED_REMOVE_POSITION)
+        savedState.getStringArrayList(EXTRA_MEDIA_FILES).forEach { addThumb(File(it)) }
+        mIsPossiblySensitive = savedState.getBoolean(EXTRA_POSSIBLY_SENSITIVE)
+        mCurrentText = savedState.getString(EXTRA_CURRENT_TEXT)
         editText.setText(mCurrentText)
         editText.setSelection(mCurrentText.length)
+        mPath = savedState.getString(EXTRA_LATEST_CAPTCHA_PATH)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
@@ -149,6 +154,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
                 arrayListOf(*mMediaFiles.map { it.path }.toTypedArray()))
         outState.putBoolean(EXTRA_POSSIBLY_SENSITIVE, mIsPossiblySensitive)
         outState.putString(EXTRA_CURRENT_TEXT, mCurrentText)
+        outState.putString(EXTRA_LATEST_CAPTCHA_PATH, mPath)
         super.onSaveInstanceState(outState)
     }
 
@@ -200,11 +206,22 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
 
     private fun onClickImageSelectButton() {
-        checkPermissions(Manifest.permission.READ_EXTERNAL_STORAGE, REQUEST_CODE_READ_STORAGE) {
+        checkPermissions(READ_EXTERNAL_STORAGE, REQUEST_CODE_MEDIA_READ_STORAGE) {
             val intent = Intent(Intent.ACTION_OPEN_DOCUMENT)
             intent.addCategory(Intent.CATEGORY_OPENABLE)
             intent.type = "image/*"
             startActivityForResult(intent, REQUEST_CODE_SELECT_IMAGE)
+        }
+    }
+
+    private fun onClickCameraButton() {
+        checkPermissions(READ_EXTERNAL_STORAGE, REQUEST_CODE_CAMERA_READ_STORAGE) {
+            val (uri, path) = reserveContentUri(ctx, "numetter/captcha", Date().time.toString(), MimeType.JPEG)
+            mPath = path
+            val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
+                putExtra(MediaStore.EXTRA_OUTPUT, uri)
+            }
+            startActivityForResult(intent, REQUEST_CODE_IMAGE_CAPTCHA)
         }
     }
 
@@ -268,9 +285,12 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     override fun onActivityResult(requestCode: Int, resultCode: Int, data: Intent?) {
         super.onActivityResult(requestCode, resultCode, data)
         if (resultCode != Activity.RESULT_OK) return
-        if (data == null) return
         when (requestCode) {
-            REQUEST_CODE_SELECT_IMAGE -> addMedia(data)
+            REQUEST_CODE_SELECT_IMAGE -> {
+                if (data == null) return
+                addMedia(data)
+            }
+            REQUEST_CODE_IMAGE_CAPTCHA -> addThumb(File(mPath))
         }
     }
 
@@ -279,7 +299,8 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         if (grantResults.size != 1) return
         if (grantResults[0] != PackageManager.PERMISSION_GRANTED) return
         when (requestCode) {
-            REQUEST_CODE_READ_STORAGE -> onClickImageSelectButton()
+            REQUEST_CODE_MEDIA_READ_STORAGE -> onClickImageSelectButton()
+            REQUEST_CODE_CAMERA_READ_STORAGE -> onClickCameraButton()
         }
     }
 
