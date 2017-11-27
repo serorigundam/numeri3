@@ -9,6 +9,7 @@ import android.widget.TextView
 import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.nestedScrollView
 import tech.ketc.numeri.R
+import tech.ketc.numeri.util.android.getResourceId
 
 class BottomSheetUIComponent : IBottomSheetUIComponent {
     override lateinit var componentRoot: RelativeLayout
@@ -25,6 +26,7 @@ class BottomSheetUIComponent : IBottomSheetUIComponent {
             maxLines = 2
             ellipsize = TextUtils.TruncateAt.END
             textSizeDimen = R.dimen.text_size_medium
+            textColor = ctx.getColor(ctx.getResourceId(android.R.attr.textColorPrimary))
             text = ctx.getString(R.string.select_timeline_group)
         }.lparams(matchParent, wrapContent) {
             margin = dimen(R.dimen.margin_medium)

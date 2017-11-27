@@ -32,6 +32,7 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.pref
+import tech.ketc.numeri.util.android.ui.gesture.SimpleDoubleClickHelper
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
@@ -239,6 +240,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             createHashtagTweetMenus().forEach { menus.add(it) }
             createUrlOpenMenus().forEach { menus.add(it) }
             menus.add(createLinkOpenMenu())
+            createDeleteTweetMenu()?.let { menus.add(it) }
 
             val component = createBottomSheetUIComponent(ctx, mTweet.text, *menus.toTypedArray())
             dialog.setContentView(component.componentRoot)
@@ -432,6 +434,24 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             }
             return t.userMentionEntities.takeIf { it.isNotEmpty() }?.let {
                 create()
+            }
+        }
+
+        private fun createDeleteTweetMenu(): View? {
+            return stateHandleTweet.takeIf { it.user.id == mClient.id }?.let { tweet ->
+                val deleteIcon = R.drawable.ic_delete_forever_white_24px
+                val component = createMenuItemUIComponent(ctx, deleteIcon, R.string.delete_tweet)
+                component.componentRoot.apply {
+                    SimpleDoubleClickHelper {
+                        bindLaunch {
+                            mModel.delete(mClient, tweet).await().orError {
+                                toast(R.string.failed_tweet_delete)
+                            } ?: return@bindLaunch
+                            toast(R.string.tweet_deleted)
+                        }
+                    }.attachTo(this)
+                    dismiss()
+                }
             }
         }
     }

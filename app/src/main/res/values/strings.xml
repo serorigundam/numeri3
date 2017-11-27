@@ -108,4 +108,8 @@
     <string name="failed_get_image">画像の取得に失敗</string>
     <string name="exclude">除外</string>
     <string name="possibly_sensitive">不適切なコンテンツ</string>
+    <string name="delete_tweet">このツイートを削除 (ダブルタップで実行)</string>
+    <string name="tap_again_to_delete">もう一度タップで削除します</string>
+    <string name="failed_tweet_delete">ツイートの削除に失敗しました</string>
+    <string name="tweet_deleted">ツイートを削除しました</string>
 </resources>

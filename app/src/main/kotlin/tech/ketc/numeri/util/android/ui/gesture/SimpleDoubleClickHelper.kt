@@ -3,7 +3,7 @@ package tech.ketc.numeri.util.android.ui.gesture
 import android.os.Handler
 import android.view.View
 
-class SimpleDoubleClickHelper(private val mWaitMills: Long = 250L, onDoubleClick: () -> Unit = {}, onClick: () -> Unit) {
+class SimpleDoubleClickHelper(private val mWaitMills: Long = 250L, onClick: () -> Unit = {}, onDoubleClick: () -> Unit = {}) {
     private var mDouble = false
     private var mSingle = false
     private val mHandler = Handler()

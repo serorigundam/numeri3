@@ -95,6 +95,12 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: IAcc
         mTweetRepository.updateState(client, tweet.id, state.isFavorited, false)
     }
 
+    fun delete(client: TwitterClient, tweet: Tweet) = asyncResponse {
+        if (client.id != tweet.user.id) throw IllegalArgumentException()
+        client.twitter.destroyStatus(tweet.id)
+        mTweetRepository.delete(tweet)
+    }
+
     fun getState(client: TwitterClient, tweet: Tweet) = mTweetRepository.getState(client, tweet)
 
     companion object {
