@@ -10,10 +10,28 @@ import tech.ketc.numeri.infra.element.MimeType
 import java.io.File
 import java.io.IOException
 
+private fun replace(str: String): String {
+    var s = str
+    if (s.matches(" *\\. *".toRegex())) {
+        s = "_"
+    }
+    s = s.replace("<".toRegex(), "_")
+    s = s.replace(">".toRegex(), "_")
+    s = s.replace(":".toRegex(), "_")
+    s = s.replace("\\*".toRegex(), "_")
+    s = s.replace("\\?".toRegex(), "_")
+    s = s.replace("\"".toRegex(), "_")
+    s = s.replace("\\\\".toRegex(), "_")
+    s = s.replace("/".toRegex(), "_")
+    s = s.replace("\\|".toRegex(), "_")
+    return s
+}
+
 fun reserveContentUri(ctx: Context, directory: String, fileName: String, mimeType: MimeType): Pair<Uri, String> {
     val extension = MimeTypeMap.getSingleton().getExtensionFromMimeType(mimeType.toString())
-    val name = fileName + ".$extension"
-    val directoryNames = directory.split("/")
+    val name = replace(fileName) + ".$extension"
+    var directoryNames = directory.split("/")
+    directoryNames = directoryNames.map(::replace)
     var directoryPath = Environment.getExternalStorageDirectory().absolutePath
     directoryNames.forEach { directoryName ->
         directoryPath += "/$directoryName"
