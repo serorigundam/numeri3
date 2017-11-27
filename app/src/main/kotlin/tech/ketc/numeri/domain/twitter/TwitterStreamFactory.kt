@@ -7,7 +7,9 @@ import tech.ketc.numeri.domain.repository.ITwitterUserRepository
 import tech.ketc.numeri.domain.twitter.client.*
 import tech.ketc.numeri.domain.twitter.client.TwitterStream
 import tech.ketc.numeri.domain.twitter.model.Tweet
+import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.arch.StreamSource
+import tech.ketc.numeri.util.logTag
 import twitter4j.*
 import twitter4j.TwitterStreamFactory
 import java.lang.Exception
@@ -70,9 +72,14 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onFavorite(source: User, target: User, favoritedStatus: Status) {
+            val tweet = favoritedStatus.toTweet()
             mLatestFavoriteNotice.post(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
-                    favoritedStatus.toTweet()))
+                    tweet))
+            if (source.id == client.id) {
+                val retweeted = tweetRepository.getState(client, tweet).isRetweeted
+                tweetRepository.updateState(client, favoritedStatus.id, true, retweeted)
+            }
         }
 
         override fun onBlock(source: User, blockedUser: User) {
@@ -101,6 +108,15 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onDeletionNotice(statusDeletionNotice: StatusDeletionNotice) {
+            tweetRepository.get(statusDeletionNotice.statusId)
+                    ?.takeIf { it.user.id == client.id }
+                    ?.takeIf { it.retweetedTweet != null }
+                    ?.let { tweet ->
+                        Logger.v(logTag, "unretweet $tweet")
+                        val retweetedTweet = tweet.retweetedTweet!!
+                        val favorited = tweetRepository.getState(client, retweetedTweet).isFavorited
+                        tweetRepository.updateState(client, retweetedTweet.id, favorited, false)
+                    }
             tweetRepository.deleteById(statusDeletionNotice.statusId)
             mLatestTweetDeletionNotice.post(statusDeletionNotice)
         }
@@ -145,9 +161,14 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onUnfavorite(source: User, target: User, unfavoritedStatus: Status) {
+            val tweet = unfavoritedStatus.toTweet()
             mLatestUnFavoriteNotice.post(StatusNotice(source.toTwitterUser(),
                     target.toTwitterUser(),
-                    unfavoritedStatus.toTweet()))
+                    tweet))
+            if (source.id == client.id) {
+                val retweeted = tweetRepository.getState(client, tweet).isRetweeted
+                tweetRepository.updateState(client, unfavoritedStatus.id, false, retweeted)
+            }
         }
 
         override fun onUserDeletion(deletedUser: Long) {
@@ -161,7 +182,13 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
         }
 
         override fun onStatus(status: Status) {
-            mLatestTweet.post(status.toTweet())
+            val tweet = status.toTweet()
+            mLatestTweet.post(tweet)
+            if (status.user.id == client.id && status.isRetweet) {
+                val favorited = tweetRepository.getState(client, tweet).isFavorited
+                tweetRepository.updateState(client, status.retweetedStatus.id, favorited, true)
+            }
+
         }
 
         override fun onUserSuspension(suspendedUser: Long) {

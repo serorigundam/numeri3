@@ -12,9 +12,10 @@ interface ITweetRepository {
     val latestDeletedTweet: LiveData<Tweet>
     fun createOrUpdate(client: TwitterClient, status: Status): Tweet
     fun delete(tweet: Tweet)
-    fun deleteById(id:Long)
+    fun deleteById(id: Long)
     fun deleteByUser(user: TwitterUser)
-    fun getState(client: TwitterClient, tweet: Tweet):TweetState
+    fun getState(client: TwitterClient, tweet: Tweet): TweetState
     fun updateState(client: TwitterClient, id: Long, isFav: Boolean, isRt: Boolean): TweetState
     fun getRetweetedId(client: TwitterClient, tweet: Tweet): Long?
+    fun get(id: Long): Tweet?
 }

@@ -65,4 +65,6 @@ class TweetRepository @Inject constructor(private val mTweetFactory: ITweetFacto
     override fun getRetweetedId(client: TwitterClient, tweet: Tweet): Long? {
         return mStateFactory.getRetweetedId(client, tweet)
     }
+
+    override fun get(id: Long) = mTweetFactory.get(id)
 }

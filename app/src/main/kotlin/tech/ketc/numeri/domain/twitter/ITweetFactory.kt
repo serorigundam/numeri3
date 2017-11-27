@@ -22,4 +22,6 @@ interface ITweetFactory {
     fun addDeleteListener(listener: TweetDeleteListener)
 
     fun removeListener(listener: TweetDeleteListener)
+
+    fun get(id: Long):Tweet?
 }
