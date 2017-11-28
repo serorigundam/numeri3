@@ -67,6 +67,7 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
 
     private fun initializeUI() {
         setUpSupportActionbar(toolbar)
+        toolbar.setFinishWithNavigationClick(this)
         supportActBar.title = mInfo.screenName
     }
 
