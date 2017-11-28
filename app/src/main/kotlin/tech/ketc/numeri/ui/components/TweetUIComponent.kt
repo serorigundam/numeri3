@@ -9,6 +9,7 @@ import android.widget.RelativeLayout
 import android.widget.TextView
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
+import tech.ketc.numeri.util.android.getResourceId
 import tech.ketc.numeri.util.unmodifiableList
 
 class TweetUIComponent : ITweetUIComponent {
@@ -137,6 +138,7 @@ class TweetUIComponent : ITweetUIComponent {
             textView {
                 this@TweetUIComponent.contentText = this
                 id = R.id.content_text
+                textColor = ctx.getColor(ctx.getResourceId(android.R.attr.textColorPrimary))
             }.lparams(wrapContent, wrapContent) {
                 below(R.id.icon_image)
                 endOf(R.id.icon_image)
