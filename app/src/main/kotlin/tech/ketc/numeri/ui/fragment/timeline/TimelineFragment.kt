@@ -17,6 +17,7 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.infra.entity.TimelineInfo
+import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
@@ -337,7 +338,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 }
                 return view
             }
-            return mTweet.urlEntities.map(::create)
+            return stateHandleTweet.urlEntities.map(::create)
         }
 
         private fun createHashtagTweetMenus(): List<View> {
@@ -372,12 +373,19 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 val imageIconRes = R.drawable.ic_image_white_24dp
                 val view = createMenuItemUIComponent(ctx, imageIconRes, R.string.open_media).componentRoot
                 view.setOnClickListener {
-                    toast("Unimplemented")//todo Unimplemented
+                    val entity = entities.singleOrNull()
+                    if (entity != null && (entity.type == MediaType.VIDEO
+                            || entity.type == MediaType.ANIMATED_GIF)) {
+                        val variant = entity.variants.maxBy { it.bitrate }!!
+                        ctx.startActivity(variant.toIntent())
+                    } else {
+                        MediaActivity.start(ctx, entities, stateHandleTweet.user.screenName)
+                    }
                     dismiss()
                 }
                 return view
             }
-            return mTweet.mediaEntities.takeIf { it.isNotEmpty() }?.let {
+            return stateHandleTweet.mediaEntities.takeIf { it.isNotEmpty() }?.let {
                 create(it)
             }
         }

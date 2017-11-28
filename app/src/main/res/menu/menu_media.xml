@@ -2,10 +2,8 @@
 <menu xmlns:android="http://schemas.android.com/apk/res/android">
 
     <item
-        android:id="@+id/action_open_link"
-        android:title="@string/open_link" />
-
-    <item
-        android:id="@+id/action_save"
-        android:title="@string/save" />
+        android:id="@+id/is_save_for_each_user"
+        android:checkable="true"
+        android:checked="false"
+        android:title="@string/save_for_each_user" />
 </menu>

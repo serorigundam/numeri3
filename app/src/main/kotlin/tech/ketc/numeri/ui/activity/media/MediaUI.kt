@@ -9,6 +9,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.appcompat.v7.toolbar
 import org.jetbrains.anko.design.appBarLayout
 import tech.ketc.numeri.R
+import tech.ketc.numeri.ui.view.media.mediaViewPager
 import tech.ketc.numeri.util.anko.color
 import tech.ketc.numeri.util.anko.create
 import tech.ketc.numeri.util.anko.marginTop
@@ -27,7 +28,6 @@ class MediaUI : IMediaUI {
         relativeLayout {
             lparams(matchParent, matchParent)
             componentRoot = this
-            backgroundColor = Color.GRAY
             appBarLayout {
                 appBar = this
                 backgroundColor = color(R.color.app_bar_transparent)
@@ -38,9 +38,11 @@ class MediaUI : IMediaUI {
                     marginTop = dimen(R.dimen.status_bar_height)
                 }
             }.lparams(matchParent, wrapContent)
-            textView("うんち").lparams {
-                centerInParent()
-            }
+            mediaViewPager {
+                pager = this
+                id = R.id.pager
+                offscreenPageLimit = 4
+            }.lparams(matchParent, matchParent)
         }
     }
 }

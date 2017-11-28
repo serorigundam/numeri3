@@ -3,7 +3,9 @@ package tech.ketc.numeri.ui.view.recycler.timeline
 import android.annotation.SuppressLint
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
+import android.content.Intent
 import android.graphics.Color
+import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
@@ -13,7 +15,10 @@ import org.jetbrains.anko.image
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.isMention
+import tech.ketc.numeri.domain.twitter.model.MediaType
 import tech.ketc.numeri.domain.twitter.model.Tweet
+import tech.ketc.numeri.domain.twitter.model.toIntent
+import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.components.ITweetUIComponent
 import tech.ketc.numeri.ui.components.TweetUIComponent
 import tech.ketc.numeri.ui.model.delegate.IImageLoadable
@@ -86,13 +91,22 @@ class TweetViewHolder(ctx: Context,
     }
 
     private fun setThumbs(displayTweet: Tweet) {
-        val thumbs = displayTweet.mediaEntities.map { it.url + ":thumb" }
+        val entities = displayTweet.mediaEntities
+        val thumbs = entities.map { it.url + ":thumb" }
         (0..thumbnails.lastIndex).map { thumbs.getOrElse(it) { "" } }.forEachIndexed { i, url ->
             if (url.isNotEmpty()) {
                 thumbnails[i].visibility = View.VISIBLE
                 val imageView = thumbnails[i]
                 imageView.setImageUrl(url, false)
-                //imageView.setOnClickListener { MediaActivity.start(ctx, displayTweet.mediaEntities, i) }
+                imageView.setOnClickListener {
+                    val entity = entities[i]
+                    if (entity.type == MediaType.ANIMATED_GIF || entity.type == MediaType.VIDEO) {
+                        val variant = entity.variants.maxBy { it.bitrate }!!
+                        mContext.startActivity(variant.toIntent())
+                    } else {
+                        MediaActivity.start(mContext, entities, displayTweet.user.screenName, i)
+                    }
+                }
             } else {
                 thumbnails[i].setImageDrawable(null)
                 thumbnails[i].visibility = View.GONE

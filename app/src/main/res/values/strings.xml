@@ -50,6 +50,7 @@
     <string name="save_complete">保存完了</string>
     <string name="save_failure">保存失敗</string>
     <string name="save">保存</string>
+    <string name="message_image_save">この画像を保存しますか</string>
     <string name="open_link">リンクを開く</string>
     <string name="tab_tweet">ツイート</string>
     <string name="tab_favorite">お気に入り</string>
@@ -112,4 +113,5 @@
     <string name="tap_again_to_delete">もう一度タップで削除します</string>
     <string name="failed_tweet_delete">ツイートの削除に失敗しました</string>
     <string name="tweet_deleted">ツイートを削除しました</string>
+    <string name="save_for_each_user">投稿ユーザー毎に画像を保存</string>
 </resources>
