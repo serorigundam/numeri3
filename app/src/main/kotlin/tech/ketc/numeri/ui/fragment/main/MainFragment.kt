@@ -68,6 +68,8 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
             if (savedInstanceState == null) {
                 initializeTimeline()
             }
+            if (mPagerAdapter.count > 0)
+                tab.visibility = View.VISIBLE
             mModel.timelineChange(this@MainFragment) {
                 bindLaunch {
                     initializeTimeline()
