@@ -47,16 +47,20 @@
             android:label="@string/title_activity_settings"
             android:theme="@style/AppTheme.ActionBar" />
 
-
         <activity
             android:name=".ui.activity.timelinemanage.TimelineManageActivity"
             android:label="@string/timeline_manage"
             android:theme="@style/AppTheme" />
+
         <activity
             android:name=".ui.activity.tweet.TweetActivity"
             android:label="@string/label_tweet"
             android:theme="@style/AppTheme"
             android:windowSoftInputMode="adjustResize" />
+
+        <activity
+            android:name=".ui.activity.media.MediaActivity"
+            android:theme="@style/AppTheme.FullScreen" />
         <!-- /activity -->
 
         <meta-data
