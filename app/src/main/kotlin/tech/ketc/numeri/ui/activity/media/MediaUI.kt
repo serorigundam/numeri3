@@ -27,6 +27,7 @@ class MediaUI : IMediaUI {
     override fun createView(ui: AnkoContext<MediaActivity>) = ui.create {
         relativeLayout {
             lparams(matchParent, matchParent)
+            backgroundColor = color(R.color.transparent)
             componentRoot = this
             appBarLayout {
                 appBar = this

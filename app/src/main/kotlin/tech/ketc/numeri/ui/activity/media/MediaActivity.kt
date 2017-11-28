@@ -95,7 +95,7 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
         })
     }
 
-    private fun setSubtitle(position:Int){
+    private fun setSubtitle(position: Int) {
         supportActBar.subtitle = "${position + 1} / ${mInfo.entities.size}"
     }
 
@@ -238,6 +238,18 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
                     photoView.setOnLongClickListener {
                         MessageDialogFragment.create(REQUEST_SAVE, getString(R.string.message_image_save),
                                 positiveId = R.string.save).show(childFragmentManager, TAG_SAVE)
+                        true
+                    }
+                    photoView.setOnSingleFlingListener { _, _, _, velocityY ->
+                        if (velocityY !in -5000..5000) {
+                            mParentActivity.executeHideSystemUI()
+                            mParentActivity.finish()
+                            if (velocityY > 0) {
+                                mParentActivity.overridePendingTransition(R.anim.fade_in, R.anim.bottom_out)
+                            } else {
+                                mParentActivity.overridePendingTransition(R.anim.fade_in, R.anim.top_out)
+                            }
+                        }
                         true
                     }
                 }
