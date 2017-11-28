@@ -86,12 +86,17 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
         mIsSaveForEachUser = pref.getBoolean(PREF_SAVE_FOR_EACH_USER, false)
         pager.adapter = mAdapter
         pager.currentItem = mCurrentPosition
+        setSubtitle(mCurrentPosition)
         pager.addOnPageChangeListener(object : ViewPager.SimpleOnPageChangeListener() {
             override fun onPageSelected(position: Int) {
-                supportActBar.subtitle = "${position + 1} / ${mInfo.entities.size}"
+                setSubtitle(position)
                 mCurrentPosition = position
             }
         })
+    }
+
+    private fun setSubtitle(position:Int){
+        supportActBar.subtitle = "${position + 1} / ${mInfo.entities.size}"
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
