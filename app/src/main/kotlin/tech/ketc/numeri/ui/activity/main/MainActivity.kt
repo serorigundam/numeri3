@@ -413,10 +413,6 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun onClickTweetFab() {
-        if (mIsFabMenuShowing) {
-            hideFabMenu()
-            return
-        }
         if (!mInitialized) {
             toast(R.string.message_initialization_not_completed)
             return
@@ -425,7 +421,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun onDoubleClickTweetFab(): Boolean {
-        if (!mIsFabMenuShowing) {
+        if (mIsFabMenuShowing) {
+            hideFabMenu()
+        } else {
             showFabMenu()
         }
         return true
