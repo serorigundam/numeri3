@@ -14,8 +14,8 @@ import javax.inject.Singleton
 
 
 @Singleton
-@Component(modules = arrayOf(AndroidSupportInjectionModule::class, ActivityModule::class, FragmentModule::class,
-        ModelFactoryModule::class, RepositoryModule::class, InfraModule::class, TwitterModule::class))
+@Component(modules = [AndroidSupportInjectionModule::class, ActivityModule::class, FragmentModule::class,
+ModelFactoryModule::class, RepositoryModule::class, InfraModule::class, TwitterModule::class])
 interface AppComponent : AndroidInjector<App> {
 
     @Component.Builder

@@ -15,15 +15,16 @@ import tech.ketc.numeri.ui.model.factory.ViewModelFactory
 import javax.inject.Singleton
 
 
-@Module(subcomponents = arrayOf(
-        MainActivityComponent::class,
-        MainFragmentComponent::class,
-        TimeLineFragmentComponent::class,
-        TimelineManageActivityComponent::class,
-        TimelineGroupManageFragmentComponent::class,
-        TweetActivityComponent::class,
-        MediaActivityComponent::class,
-        TimelineManageFragmentComponent::class))
+@Module(subcomponents = [
+MainActivityComponent::class,
+MainFragmentComponent::class,
+TimeLineFragmentComponent::class,
+TimelineManageActivityComponent::class,
+TimelineGroupManageFragmentComponent::class,
+TweetActivityComponent::class,
+MediaActivityComponent::class,
+TimelineManageFragmentComponent::class
+])
 class ModelFactoryModule {
 
     @Singleton

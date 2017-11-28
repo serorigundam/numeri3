@@ -10,7 +10,7 @@ import tech.ketc.numeri.infra.ImageDatabase
 import tech.ketc.numeri.ui.model.di.ViewModelComponent
 import javax.inject.Singleton
 
-@Module(subcomponents = arrayOf(ViewModelComponent::class))
+@Module(subcomponents = [ViewModelComponent::class])
 class RepositoryModule {
 
     @Singleton
