@@ -15,8 +15,4 @@ class TweetViewModel @Inject constructor(accountRepository: IAccountRepository,
                                          imageRepository: IImageRepository)
     : ViewModel(),
         IClientHandler by ClientHandler(accountRepository, userRepository),
-        IImageLoadable by ImageLoadable(imageRepository) {
-
-
-
-}
+        IImageLoadable by ImageLoadable(imageRepository)
