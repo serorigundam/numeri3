@@ -24,7 +24,8 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: IAcc
                                             private val mTweetRepository: ITweetRepository)
     : ViewModel(),
         IClientHandler by ClientHandler(mAccountRepository, userRepository),
-        IImageLoadable by ImageLoadable(imageRepository) {
+        IImageLoadable by ImageLoadable(imageRepository),
+        ITweetOperator by TweetOperator(mTweetRepository) {
 
     private var mClient: TwitterClient? = null
         get() {
@@ -71,37 +72,6 @@ class TimeLineViewModel @Inject constructor(private val mAccountRepository: IAcc
     fun deleteObserve(owner: LifecycleOwner, handle: (Tweet) -> Unit) {
         mTweetRepository.latestDeletedTweet.observeNonnullOnly(owner, handle)
     }
-
-    fun favorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val status = client.twitter.createFavorite(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
-    }
-
-    fun unfavorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val status = client.twitter.destroyFavorite(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
-    }
-
-    fun retweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val state = mTweetRepository.getState(client, tweet)
-        client.twitter.retweetStatus(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, state.isFavorited, true)
-    }
-
-    fun unretweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val destroyId = mTweetRepository.getRetweetedId(client, tweet) ?: throw IllegalStateException()
-        val state = mTweetRepository.getState(client, tweet)
-        client.twitter.destroyStatus(destroyId)
-        mTweetRepository.updateState(client, tweet.id, state.isFavorited, false)
-    }
-
-    fun delete(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        if (client.id != tweet.user.id) throw IllegalArgumentException()
-        client.twitter.destroyStatus(tweet.id)
-        mTweetRepository.delete(tweet)
-    }
-
-    fun getState(client: TwitterClient, tweet: Tweet) = mTweetRepository.getState(client, tweet)
 
     companion object {
 

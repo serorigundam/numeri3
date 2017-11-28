@@ -93,7 +93,7 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
         mDeleteListeners.remove(listener)
     }
 
-    override fun get(id: Long) = mMap[id] as Tweet
+    override fun get(id: Long): Tweet? = mMap[id]
 
     private class TweetInternal(client: TwitterClient, tweetFactory: TweetFactory, userFactory: ITwitterUserFactory, status: Status) : Tweet {
 

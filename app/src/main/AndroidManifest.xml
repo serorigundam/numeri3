@@ -61,6 +61,11 @@
         <activity
             android:name=".ui.activity.media.MediaActivity"
             android:theme="@style/AppTheme.FullScreen" />
+
+        <activity
+            android:name=".ui.activity.conversation.ConversationActivity"
+            android:label="@string/label_conversation"
+            android:theme="@style/AppTheme" />
         <!-- /activity -->
 
         <meta-data

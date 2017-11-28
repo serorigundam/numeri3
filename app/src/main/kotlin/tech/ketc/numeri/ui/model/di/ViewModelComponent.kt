@@ -19,5 +19,7 @@ interface ViewModelComponent {
 
     fun tweetViewModel(): TweetViewModel
 
-    fun mediaViewModel():MediaViewModel
+    fun mediaViewModel(): MediaViewModel
+
+    fun convesationViewModel(): ConversationViewModel
 }

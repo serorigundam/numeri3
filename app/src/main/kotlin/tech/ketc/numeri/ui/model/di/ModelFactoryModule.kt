@@ -3,6 +3,7 @@ package tech.ketc.numeri.ui.model.di
 import android.arch.lifecycle.ViewModelProvider
 import dagger.Module
 import dagger.Provides
+import tech.ketc.numeri.ui.activity.conversation.ConversationActivityComponent
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
 import tech.ketc.numeri.ui.activity.media.MediaActivityComponent
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityComponent
@@ -23,7 +24,8 @@ TimelineManageActivityComponent::class,
 TimelineGroupManageFragmentComponent::class,
 TweetActivityComponent::class,
 MediaActivityComponent::class,
-TimelineManageFragmentComponent::class
+TimelineManageFragmentComponent::class,
+ConversationActivityComponent::class
 ])
 class ModelFactoryModule {
 

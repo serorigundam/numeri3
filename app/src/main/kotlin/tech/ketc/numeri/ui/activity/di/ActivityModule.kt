@@ -7,6 +7,8 @@ import dagger.android.ActivityKey
 import dagger.multibindings.IntoMap
 import dagger.Binds
 import dagger.Module
+import tech.ketc.numeri.ui.activity.conversation.ConversationActivity
+import tech.ketc.numeri.ui.activity.conversation.ConversationActivityComponent
 import tech.ketc.numeri.ui.activity.main.MainActivityComponent
 import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.activity.media.MediaActivityComponent
@@ -38,4 +40,9 @@ abstract class ActivityModule {
     @IntoMap
     @ActivityKey(MediaActivity::class)
     internal abstract fun bindInjectorFactoryForMediaActivity(builder: MediaActivityComponent.Builder): AndroidInjector.Factory<out Activity>
+
+    @Binds
+    @IntoMap
+    @ActivityKey(ConversationActivity::class)
+    internal abstract fun bindInjectorFactoryForConversationActivity(builder: ConversationActivityComponent.Builder): AndroidInjector.Factory<out Activity>
 }
