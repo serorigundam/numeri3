@@ -8,7 +8,7 @@ import java.io.Serializable
         foreignKeys = [ForeignKey(entity = AccountToken::class,
                 parentColumns = ["id"],
                 childColumns = ["account_id"])],
-        indices = [Index("type", "account_id", "foreign_id", unique = true), Index(value = "account_id", name = "account_id_index")])
+        indices = [Index(*["type", "account_id", "foreign_id"], unique = true), Index("account_id", name = "account_id_index")])
 class TimelineInfo(@PrimaryKey(autoGenerate = true)
                    @ColumnInfo(name = "id")
                    val id: Int = 0,
