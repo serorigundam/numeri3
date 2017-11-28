@@ -15,8 +15,6 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
-import tech.ketc.numeri.domain.twitter.client.TwitterClient
-import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.components.IScrollableTabPagerUIComponent
 import tech.ketc.numeri.ui.components.ScrollableTabPagerUIComponent
@@ -26,6 +24,8 @@ import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.act
 import tech.ketc.numeri.util.android.arg
+import tech.ketc.numeri.util.arch.lifecycle.IOnActiveRunner
+import tech.ketc.numeri.util.arch.lifecycle.OnActiveRunner
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.nullable
 import tech.ketc.numeri.util.arch.response.orError
@@ -34,7 +34,8 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 
 class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
-        IScrollableTabPagerUIComponent by ScrollableTabPagerUIComponent() {
+        IScrollableTabPagerUIComponent by ScrollableTabPagerUIComponent(),
+        IOnActiveRunner by OnActiveRunner() {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: MainViewModel by commonViewModel { mViewModelFactory }
@@ -57,49 +58,42 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        setOwner(this)
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         tab.setupWithViewPager(pager)
         pager.adapter = mPagerAdapter
         tab.visibility = View.INVISIBLE
         tab.addOnTabSelectedListener(this)
         bindLaunch {
-            val clientRes = mModel.clients().await()
-            val clients = clientRes.orError {
-                toast(R.string.message_failed_user_info)
-            } ?: return@bindLaunch
-            val usersRes = mModel.getClientUsers(clients).await()
-            val users = usersRes.orError {
-                toast(R.string.message_failed_user_info)
-            } ?: return@bindLaunch
             if (savedInstanceState == null) {
-                val infoListRes = mModel.loadTimelineInfoList(mGroupName).await()
-                val infoList = infoListRes.nullable() ?: return@bindLaunch
-                val namesRes = mModel.createNameList(users, infoList).await()
-                val names = namesRes.nullable() ?: return@bindLaunch
-                val contents = infoList.mapIndexed { i, info ->
-                    ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
-                            TimelineFragment.create(info), names[i])
-                }
-                mPagerAdapter.setContents(contents)
-                checkHasContent()
+                initializeTimeline()
             }
-            if (mPagerAdapter.count > 0) tab.visibility = View.VISIBLE
             mModel.timelineChange(this@MainFragment) {
-                initializeTimeline(users)
+                bindLaunch {
+                    initializeTimeline()
+                }
             }
         }
     }
 
-    private fun initializeTimeline(clientUsers: List<Pair<TwitterClient, TwitterUser>>) {
-        bindLaunch {
-            val infoListRes = mModel.loadTimelineInfoList(mGroupName).await()
-            val infoList = infoListRes.nullable() ?: return@bindLaunch
-            val namesRes = mModel.createNameList(clientUsers, infoList).await()
-            val names = namesRes.nullable() ?: return@bindLaunch
-            val contents = infoList.mapIndexed { i, info ->
-                ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
-                        TimelineFragment.create(info), names[i])
-            }
+    private suspend fun initializeTimeline() {
+        val clientRes = mModel.clients().await()
+        val clients = clientRes.orError {
+            toast(R.string.message_failed_user_info)
+        } ?: return
+        val usersRes = mModel.getClientUsers(clients).await()
+        val users = usersRes.orError {
+            toast(R.string.message_failed_user_info)
+        } ?: return
+        val infoListRes = mModel.loadTimelineInfoList(mGroupName).await()
+        val infoList = infoListRes.nullable() ?: return
+        val namesRes = mModel.createNameList(users, infoList).await()
+        val names = namesRes.nullable() ?: return
+        val contents = infoList.mapIndexed { i, info ->
+            ModifiablePagerAdapter.Content("${info.type.name}_${info.id}",
+                    TimelineFragment.create(info), names[i])
+        }
+        runOnActive {
             mPagerAdapter.setContents(contents)
             checkHasContent()
         }

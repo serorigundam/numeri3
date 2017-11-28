@@ -352,12 +352,12 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 }
                 return view
             }
-            return mTweet.hashtags.map(::create)
+            return stateHandleTweet.hashtags.map(::create)
         }
 
         private fun createAllHashtagTweetMenu(): View? {
             val editIconRes = R.drawable.ic_mode_edit_white_24dp
-            return mTweet.hashtags.takeIf { it.size >= 2 }?.let { hashtags ->
+            return stateHandleTweet.hashtags.takeIf { it.size >= 2 }?.let { hashtags ->
                 createMenuItemUIComponent(ctx, editIconRes, R.string.all_hashtag_tweet)
                         .componentRoot.also {
                     it.setOnClickListener {
@@ -413,7 +413,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             val openIconRes = R.drawable.ic_open_in_browser_white_24dp
             val view = createMenuItemUIComponent(ctx, openIconRes, R.string.open_tweet_link).componentRoot
             view.setOnClickListener {
-                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(mTweet.link)))
+                startActivity(Intent(Intent.ACTION_VIEW, Uri.parse(stateHandleTweet.link)))
                 dismiss()
             }
             return view
@@ -430,7 +430,6 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         }
 
         private fun createReplyAllMenu(): View? {
-            val t = mTweet.retweetedTweet ?: mTweet
             fun create(): View {
                 val replyAllIcon = R.drawable.ic_reply_all_white_24px
                 val view = createMenuItemUIComponent(ctx, replyAllIcon, R.string.reply_all).componentRoot
@@ -440,7 +439,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 }
                 return view
             }
-            return t.userMentionEntities.takeIf { it.isNotEmpty() }?.let {
+            return stateHandleTweet.userMentionEntities.takeIf { it.isNotEmpty() }?.let {
                 create()
             }
         }
@@ -457,8 +456,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                             } ?: return@bindLaunch
                             toast(R.string.tweet_deleted)
                         }
+                        dismiss()
                     }.attachTo(this)
-                    dismiss()
                 }
             }
         }

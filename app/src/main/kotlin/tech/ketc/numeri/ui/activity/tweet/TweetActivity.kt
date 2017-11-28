@@ -369,7 +369,8 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
 
     override fun onDestroy() {
-        unbindService(connection)
+        if (serviceStarted)
+            unbindService(connection)
         super.onDestroy()
     }
 
