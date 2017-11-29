@@ -11,7 +11,6 @@ import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.di.applyAutoInject
 import tech.ketc.numeri.util.logTag
 
-
 class App : DaggerApplication() {
 
     @SuppressLint("CheckResult")
@@ -27,13 +26,17 @@ class App : DaggerApplication() {
     }
 
     private fun debugMode() {
-        Logger.debug = true
         Log.v(javaClass.name, "mode:debug")
-        val defaultUncaughtExceptionHandler = Thread.getDefaultUncaughtExceptionHandler()
-        Thread.setDefaultUncaughtExceptionHandler { thread, throwable ->
+        var isCrashed = false
+        Logger.debug = true
+        val default = Thread.getDefaultUncaughtExceptionHandler()
+        fun uncaughtExceptionHandle(thread: Thread, throwable: Throwable) {
+            if (isCrashed) return
             Log.v(logTag, "Uncaught", throwable)
-            defaultUncaughtExceptionHandler.uncaughtException(thread, throwable)
+            isCrashed = true
+            default.uncaughtException(thread, throwable)
         }
+        Thread.setDefaultUncaughtExceptionHandler(::uncaughtExceptionHandle)
     }
 
 
