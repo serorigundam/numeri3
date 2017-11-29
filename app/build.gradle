@@ -60,6 +60,7 @@ android {
 
         debug {
             applicationIdSuffix = ".debug"
+            versionNameSuffix = "-debug"
             signingConfig signingConfigs.debug
         }
     }

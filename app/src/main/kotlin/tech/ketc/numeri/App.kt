@@ -18,9 +18,8 @@ class App : DaggerApplication() {
         val debug = resources.getBoolean(R.bool.debug)
         if (debug) {
             debugMode()
-        } else {
-            Fabric.with(this, Crashlytics())
         }
+        Fabric.with(this, Crashlytics())
         applyAutoInject()
         super.onCreate()
     }
