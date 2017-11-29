@@ -21,5 +21,5 @@ interface ViewModelComponent {
 
     fun mediaViewModel(): MediaViewModel
 
-    fun convesationViewModel(): ConversationViewModel
+    fun conversationViewModel(): ConversationViewModel
 }
