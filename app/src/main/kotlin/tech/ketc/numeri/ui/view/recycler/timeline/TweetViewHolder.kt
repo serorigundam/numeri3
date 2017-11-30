@@ -3,9 +3,7 @@ package tech.ketc.numeri.ui.view.recycler.timeline
 import android.annotation.SuppressLint
 import android.arch.lifecycle.LifecycleOwner
 import android.content.Context
-import android.content.Intent
 import android.graphics.Color
-import android.net.Uri
 import android.support.v7.widget.RecyclerView
 import android.view.View
 import android.widget.ImageView
@@ -19,6 +17,7 @@ import tech.ketc.numeri.domain.twitter.model.MediaType
 import tech.ketc.numeri.domain.twitter.model.Tweet
 import tech.ketc.numeri.domain.twitter.model.toIntent
 import tech.ketc.numeri.ui.activity.media.MediaActivity
+import tech.ketc.numeri.ui.activity.user.UserInfoActivity
 import tech.ketc.numeri.ui.components.ITweetUIComponent
 import tech.ketc.numeri.ui.components.TweetUIComponent
 import tech.ketc.numeri.ui.model.delegate.IImageLoadable
@@ -80,7 +79,7 @@ class TweetViewHolder(ctx: Context,
         screenNameText.text = displayTweet.user.screenName
         userNameText.text = displayTweet.user.name
         iconImage.setImageUrl(displayTweet.user.iconUrl)
-        //iconImage.setOnClickListener { UserInfoActivity.start(ctx, mClient.id, displayTweet.user.id) }
+        iconImage.setOnClickListener { UserInfoActivity.start(mContext, mClient, displayTweet.user) }
         contentText.text = displayTweet.text
         sourceText.text = displayTweet.source
         if (displayTweet.user.isProtected) {

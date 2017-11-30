@@ -47,5 +47,12 @@
     <item name="possibly_sensitive_check" type="id" />
     <item name="image_select_button" type="id" />
     <item name="possibly_sensitive_image" type="id" />
+    <item name="dummy_header" type="id" />
+    <item name="buttons_relative" type="id" />
+    <item name="screen_name_text" type="id" />
+    <item name="description_text" type="id" />
+    <item name="location_text" type="id" />
+    <item name="header_image" type="id" />
+    <item name="dummy_header2" type="id" />
     <!--/view id-->
 </resources>

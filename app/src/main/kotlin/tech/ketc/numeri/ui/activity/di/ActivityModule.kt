@@ -16,6 +16,8 @@ import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityComponent
 import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.activity.tweet.TweetActivityComponent
+import tech.ketc.numeri.ui.activity.user.UserInfoActivity
+import tech.ketc.numeri.ui.activity.user.UserInfoActivityComponent
 
 
 @Module
@@ -45,4 +47,9 @@ abstract class ActivityModule {
     @IntoMap
     @ActivityKey(ConversationActivity::class)
     internal abstract fun bindInjectorFactoryForConversationActivity(builder: ConversationActivityComponent.Builder): AndroidInjector.Factory<out Activity>
+
+    @Binds
+    @IntoMap
+    @ActivityKey(UserInfoActivity::class)
+    internal abstract fun bindInjectorFactoryForUserInfoActivity(builder: UserInfoActivityComponent.Builder): AndroidInjector.Factory<out Activity>
 }

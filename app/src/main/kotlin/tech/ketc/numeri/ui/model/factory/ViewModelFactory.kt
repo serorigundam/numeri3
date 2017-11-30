@@ -20,7 +20,8 @@ class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponen
         put(viewModelComponent::timelineManageViewModel)
         put(viewModelComponent::tweetViewModel)
         put(viewModelComponent::mediaViewModel)
-        put(viewModelComponent::convesationViewModel)
+        put(viewModelComponent::conversationViewModel)
+        put(viewModelComponent::userInfoViewmodel)
     }
 
     private inline fun <reified T : ViewModel> put(noinline provide: () -> T) {

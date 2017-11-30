@@ -66,6 +66,10 @@
             android:name=".ui.activity.conversation.ConversationActivity"
             android:label="@string/label_conversation"
             android:theme="@style/AppTheme" />
+
+        <activity
+            android:name=".ui.activity.user.UserInfoActivity"
+            android:theme="@style/AppTheme" />
         <!-- /activity -->
 
         <meta-data

@@ -15,6 +15,7 @@ import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.ui.activity.conversation.ConversationActivity
 import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.activity.tweet.TweetActivity
+import tech.ketc.numeri.ui.activity.user.UserInfoActivity
 import tech.ketc.numeri.ui.components.createBottomSheetUIComponent
 import tech.ketc.numeri.ui.components.createMenuItemUIComponent
 import tech.ketc.numeri.ui.model.delegate.HasTweetOperator
@@ -225,6 +226,7 @@ class OperationTweetDialogFragment : BottomSheetDialogFragment() {
             val view = createMenuItemUIComponent(ctx, userIconRes, user.first).componentRoot
             view.setOnClickListener {
                 toast("Unimplemented")//todo Unimplemented
+                UserInfoActivity.start(ctx, mClient, user.second)
                 dismiss()
             }
             return view
