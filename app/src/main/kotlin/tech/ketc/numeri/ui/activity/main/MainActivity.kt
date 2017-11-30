@@ -211,8 +211,8 @@ class MainActivity : AppCompatActivity(), AutoInject,
     }
 
     private fun showTimelineGroup(groupName: String) {
-        if (mShowingGroupName == groupName) return
         supportActBar.subtitle = groupName
+        if (mShowingGroupName == groupName) return
         val view = createOrGetTimelineGroupView(groupName)
         val viewId = view.id
         val fragment = supportFragmentManager.findFragmentById(viewId)
@@ -263,6 +263,9 @@ class MainActivity : AppCompatActivity(), AutoInject,
             previousList.filter { group -> !newGroupList.any { group.name == it.name } }
                     .also { Logger.v(logTag, "tlChange apply deletions ${it.joinToString(",") { it.name }}") }
                     .forEach { removeTimelineGroup(it.name) }
+        }
+        if (mCurrentGroupList.isNotEmpty() && mShowingGroupName == null) {
+            showFirstTimelineGroup()
         }
     }
 

@@ -42,10 +42,12 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     private val mPagerAdapter by lazy { ModifiablePagerAdapter<String, TimelineFragment>(childFragmentManager) }
     private val mGroupName by lazy { arg.getString(EXTRA_TIMELINE_GROUP) }
+    private var mInitialized = false
 
     companion object {
         private val EXTRA_TIMELINE_GROUP = "EXTRA_TIMELINE_GROUP"
         private val TAG_NO_CONTENT = "TAG_NO_CONTENT"
+        private val SAVED_INITIALIZED = "SAVED_INITIALIZED"
         fun create(groupName: String) = MainFragment().apply {
             arguments = Bundle().apply {
                 putString(EXTRA_TIMELINE_GROUP, groupName)
@@ -58,6 +60,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
 
     override fun onViewCreated(view: View, savedInstanceState: Bundle?) {
         super.onViewCreated(view, savedInstanceState)
+        savedInstanceState?.let(this::restore)
         setOwner(this)
         Logger.v(javaClass.name, "onViewCreated() restore:${savedInstanceState != null}")
         tab.setupWithViewPager(pager)
@@ -65,9 +68,7 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         tab.visibility = View.INVISIBLE
         tab.addOnTabSelectedListener(this)
         bindLaunch {
-            if (savedInstanceState == null) {
-                initializeTimeline()
-            }
+            if (!mInitialized) initializeTimeline()
             if (mPagerAdapter.count > 0)
                 tab.visibility = View.VISIBLE
             mModel.timelineChange(this@MainFragment) {
@@ -96,9 +97,19 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
                     TimelineFragment.create(info), names[i])
         }
         runOnActive {
+            mInitialized = true
             mPagerAdapter.setContents(contents)
             checkHasContent()
         }
+    }
+
+    private fun restore(savedInstanceState: Bundle) {
+        mInitialized = savedInstanceState.getBoolean(SAVED_INITIALIZED)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putBoolean(SAVED_INITIALIZED, mInitialized)
+        super.onSaveInstanceState(outState)
     }
 
     private fun showNoContentFragment() {
