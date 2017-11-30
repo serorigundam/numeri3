@@ -4,6 +4,7 @@ import android.arch.lifecycle.LifecycleOwner
 import tech.ketc.numeri.domain.twitter.model.Tweet
 import tech.ketc.numeri.util.android.ui.recycler.DataSource
 import tech.ketc.numeri.util.android.ui.recycler.DataSourceAdapter
+import tech.ketc.numeri.util.copy
 
 class TimeLineDataSourceAdapter(owner: LifecycleOwner,
                                 dataSource: DataSource<Long, Tweet>,
@@ -25,6 +26,7 @@ class TimeLineDataSourceAdapter(owner: LifecycleOwner,
         val items = items()
         if (items.any { it == value }) return
         items.add(0, value)
+        store()?.value = items.copy()
         notifyItemInserted(0)
     }
 

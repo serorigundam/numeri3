@@ -17,6 +17,7 @@ import tech.ketc.numeri.util.android.ui.enableRippleEffect
 import tech.ketc.numeri.util.arch.coroutine.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.response.response
+import tech.ketc.numeri.util.copy
 import tech.ketc.numeri.util.logTag
 import java.lang.ref.WeakReference
 
@@ -53,6 +54,8 @@ abstract class DataSourceAdapter
      */
     protected fun items() = mValues
 
+    protected fun store() = mStoreLiveData
+
     fun setStoreLiveData(store: MutableLiveData<List<Value>>) {
         mStoreLiveData = store
     }
@@ -82,7 +85,7 @@ abstract class DataSourceAdapter
             }.await()
             val list = listRes.orError(error) ?: return@bindLaunch
             mValues.addAll(0, list)
-            mStoreLiveData?.value = mValues
+            mStoreLiveData?.value = mValues.copy()
             notifyItemRangeInserted(0, list.size)
             complete()
             mIsProgress = false
@@ -101,7 +104,7 @@ abstract class DataSourceAdapter
             val list = listRes.orError(error) ?: return@bindLaunch
             val last = mValues.size
             mValues.addAll(list)
-            mStoreLiveData?.value = mValues
+            mStoreLiveData?.value = mValues.copy()
             notifyItemRangeInserted(last, list.size)
             complete()
             mIsProgress = false
@@ -117,7 +120,7 @@ abstract class DataSourceAdapter
             }.await()
             val list = listRes.orError(error) ?: return@bindLaunch
             mValues.addAll(list)
-            mStoreLiveData?.value = mValues
+            mStoreLiveData?.value = mValues.copy()
             notifyDataSetChanged()
             complete()
             mIsProgress = false
@@ -147,7 +150,7 @@ abstract class DataSourceAdapter
 
     private fun createOrGetProgressVH(context: Context): ProgressViewHolder {
         fun createRef(): WeakReference<ProgressViewHolder> = ProgressViewHolder(context).also { holder ->
-            Logger.v(logTag,"create ProgressViewHolder")
+            Logger.v(logTag, "create ProgressViewHolder")
             holder.itemView.setOnClickListener {
                 holder.change(true)
                 loadBefore { holder.change(false) }
