@@ -65,7 +65,7 @@ class UserInfoUI : IUserInfoUI {
         private set
     override lateinit var relationInfoText: TextView
         private set
-    override lateinit var profileEditButton: Button
+    override lateinit var followInfoText: TextView
         private set
 
     override fun createView(ui: AnkoContext<UserInfoActivity>) = ui.create {
@@ -102,6 +102,8 @@ class UserInfoUI : IUserInfoUI {
                             userProfileTabLayout = this
                             id = R.id.tab
                             tabMode = TabLayout.MODE_SCROLLABLE
+                            backgroundColor = color(resourceId(android.R.attr.colorBackground))
+                            elevation = dip(8).toFloat()
                         }.lparams(matchParent, wrapContent)
                         viewPager {
                             pager = this
@@ -130,17 +132,23 @@ class UserInfoUI : IUserInfoUI {
             id = R.id.buttons_relative
             imageButton {
                 followButton = this
+                id = R.id.follow_button
                 isClickable = false
                 background = drawable(R.drawable.ripple_frame)
                 scaleType = ImageView.ScaleType.CENTER_INSIDE
                 visibility = View.INVISIBLE
-            }.lparams(matchParent, matchParent)
-            button {
-                profileEditButton = this
-                visibility = View.GONE
-                text = string(R.string.edit_profile)
-            }.lparams(matchParent, matchParent)
-        }.lparams(dip(72), dip(40)) {
+            }.lparams(dip(72), dip(40)) {
+                centerHorizontally()
+            }
+            textView {
+                followInfoText = this
+                textSizeDimen = R.dimen.text_size_small
+            }.lparams(wrapContent, wrapContent) {
+                below(R.id.follow_button)
+                marginTop = dimen(R.dimen.margin_text_small)
+                centerHorizontally()
+            }
+        }.lparams(wrapContent, wrapContent) {
             marginTop = dimen(R.dimen.margin_medium)
             marginEnd = dimen(R.dimen.margin_medium)
             below(R.id.dummy_header)
@@ -232,7 +240,8 @@ class UserInfoUI : IUserInfoUI {
 
         }.lparams(matchParent, matchParent) {
             margin = dimen(R.dimen.margin_medium)
-            bottomOf(R.id.buttons_relative)
+            marginTop = dip(32)
+            below(R.id.dummy_header)
             alignParentStart()
         }
     }.collapsingToolbarlparams(matchParent, matchParent) {
@@ -264,12 +273,8 @@ class UserInfoUI : IUserInfoUI {
             iconRelative = this
             imageView {
                 iconImage = this
-                backgroundColor = color(R.color.image_background)
-            }.lparams(dip(53), dip(53)) { centerInParent() }
-
-            view {
-                background = drawable(R.drawable.image_frame)
-            }.lparams(dip(56), dip(56))
+                elevation = dip(8).toFloat()
+            }.lparams(dip(56), dip(56)) { centerInParent() }
         }.lparams(wrapContent, wrapContent) {
             sameBottom(R.id.dummy_header2)
             marginBottom = dimen(R.dimen.margin_large)

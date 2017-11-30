@@ -54,5 +54,6 @@
     <item name="location_text" type="id" />
     <item name="header_image" type="id" />
     <item name="dummy_header2" type="id" />
+    <item name="follow_button" type="id" />
     <!--/view id-->
 </resources>

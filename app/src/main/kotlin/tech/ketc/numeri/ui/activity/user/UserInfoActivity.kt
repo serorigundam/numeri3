@@ -4,7 +4,9 @@ import android.annotation.SuppressLint
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
 import android.graphics.Color
+import android.graphics.drawable.Animatable
 import android.os.Bundle
+import android.os.Handler
 import android.support.design.widget.AppBarLayout
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
@@ -15,11 +17,9 @@ import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
+import tech.ketc.numeri.domain.twitter.model.getIconUrl
 import tech.ketc.numeri.ui.model.UserInfoViewModel
-import tech.ketc.numeri.util.android.fadeIn
-import tech.ketc.numeri.util.android.fadeOut
-import tech.ketc.numeri.util.android.setFinishWithNavigationClick
-import tech.ketc.numeri.util.android.setUpSupportActionbar
+import tech.ketc.numeri.util.android.*
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.nullable
 import tech.ketc.numeri.util.arch.response.orError
@@ -40,6 +40,8 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         get() = mInfo.targetId
     private val mClient: TwitterClient
         get() = mInfo.client
+
+    private val mFollowButtonVisibleHandler = Handler()
 
     companion object {
         private val EXTRA_INFO = "EXTRA_INFO"
@@ -67,7 +69,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
     }
 
     private fun initialize() {
-        setTwitterUser()
+        loadTwitterUser()
     }
 
 
@@ -129,7 +131,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
 
 
     @SuppressLint("SetTextI18n")
-    private fun setTwitterUser() {
+    private fun loadTwitterUser() {
         fun ImageView.setUrl(url: String) {
             bindLaunch {
                 mModel.loadImage(url, false).await().nullable()?.let { (bitmap, _) ->
@@ -143,7 +145,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             } ?: return@bindLaunch
             supportActionBar!!.title = user.name
             supportActionBar!!.subtitle = user.screenName
-            iconImage.setUrl(user.originalIconUrl)
+            iconImage.setUrl(user.getIconUrl(true))
             headerImage.backgroundColor = Color.parseColor("#${user.profileBackgroundColor}")
             user.headerImageUrl?.let { headerImage.setUrl(it) }
             protectedImage.visibility = if (user.isProtected) View.VISIBLE else View.INVISIBLE
@@ -157,8 +159,78 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
                     "\nfavorites : ${user.favoriteCount}"
             if (mClient.id == mTargetId) {
                 relationInfoText.text = getString(R.string.myself)
+            } else {
+                loadRelation()
             }
         }
+    }
+
+    private fun visibleFollowButton() {
+        followButton.fadeIn()
+    }
+
+
+    private fun loadRelation() {
+        bindLaunch {
+            val relation = mModel.loadRelation(mClient, mTargetId).await().orError {
+                toast(R.string.message_failed_get_relation)
+            } ?: return@bindLaunch
+            setRelation(relation)
+        }
+    }
+
+    private fun setRelation(relation: UserInfoViewModel.Relation) {
+        fun animate(id: Int) {
+            val drawable = ctx.getDrawable(id)
+            val animatable = drawable as Animatable
+            followButton.setImageDrawable(drawable)
+            animatable.start()
+            if (followButton.visibility != View.VISIBLE) {
+                mFollowButtonVisibleHandler.postDelayed(this::visibleFollowButton, 300)
+            }
+        }
+
+        fun hide() {
+            followButton.visibility = View.INVISIBLE
+            followButton.fadeOut()
+            relationInfoText.text = ""
+            followInfoText.text = ""
+        }
+
+        when {
+            relation.isBlocking -> hide()
+            relation.isFollowing -> animate(R.drawable.vector_anim_person)
+            !relation.isFollowing -> animate(R.drawable.vector_anim_person_add)
+            else -> hide()
+        }
+
+        fun mutual() {
+            relationInfoText.text = getString(R.string.mutual)
+        }
+
+        fun oneSidedFollowing() {
+            relationInfoText.text = getString(R.string.one_sided_following)
+        }
+
+        fun oneSidedFollowed() {
+            relationInfoText.text = getString(R.string.one_sided_followed)
+        }
+
+        when {
+            relation.isMutual -> mutual()
+            relation.isFollowing && !relation.isFollowed -> oneSidedFollowing()
+            !relation.isFollowing && relation.isFollowed -> oneSidedFollowed()
+        }
+        when {
+            relation.isFollowing -> followInfoText.text = getString(R.string.following)
+            !relation.isFollowing -> followInfoText.text = getString(R.string.un_following)
+        }
+        followInfoText.fadeIn()
+    }
+
+    override fun onDestroy() {
+        mFollowButtonVisibleHandler.removeCallbacks(this::visibleFollowButton)
+        super.onDestroy()
     }
 
     data class Info(val client: TwitterClient, val targetId: Long) : Serializable

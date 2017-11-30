@@ -28,5 +28,5 @@ interface IUserInfoUI : AnkoComponent<UserInfoActivity> {
     val followButton: ImageButton
     val protectedImage: ImageView
     val relationInfoText: TextView
-    val profileEditButton: Button
+    val followInfoText:TextView
 }
