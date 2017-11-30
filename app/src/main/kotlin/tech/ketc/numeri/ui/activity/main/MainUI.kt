@@ -76,7 +76,7 @@ class MainUI : IMainUI {
                 floatingActionButton {
                     tweetFab = this
                     image = ctx.getDrawable(R.drawable.ic_mode_edit_white_24dp)
-                    size = FloatingActionButton.SIZE_AUTO
+                    size = FloatingActionButton.SIZE_NORMAL
                 }.lparams {
                     margin = dimen(R.dimen.margin_medium)
                     anchorGravity = Gravity.BOTTOM or Gravity.END
