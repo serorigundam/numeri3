@@ -9,6 +9,7 @@ import tech.ketc.numeri.util.anko.UIComponent
 
 interface ITweetUIComponent : UIComponent<FrameLayout> {
     val iconImage: ImageView
+    val iconBack: View
     val subInfoIcon: ImageView
     val subInfoText: TextView
     val screenNameText: TextView

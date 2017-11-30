@@ -17,6 +17,8 @@ class TweetUIComponent : ITweetUIComponent {
         private set
     override lateinit var iconImage: ImageView
         private set
+    override lateinit var iconBack: View
+        private set
     override lateinit var subInfoIcon: ImageView
         private set
     override lateinit var subInfoText: TextView
@@ -51,6 +53,7 @@ class TweetUIComponent : ITweetUIComponent {
             }
 
             frameLayout {
+                iconBack = this
                 backgroundColor = ctx.getColor(R.color.image_background_transparency)
                 id = R.id.icon_image
                 imageView {

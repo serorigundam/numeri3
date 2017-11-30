@@ -224,7 +224,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
         mCurrentClientId = clientUser.first.id
         val user = clientUser.second
         bindLaunch {
-            val content = mModel.loadImage(user.iconUrl).await().nullable() ?: return@bindLaunch
+            val content = mModel.loadImage(user.getIconUrl(true)).await().nullable() ?: return@bindLaunch
             userSelectButton.setImageBitmap(content.bitmap)
         }
     }
@@ -442,7 +442,7 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
                         val component = AccountUIComponent()
                         component(component) {
                             val user = clientUser.second
-                            component.iconImage.setUrl(user.iconUrl)
+                            component.iconImage.setUrl(user.getIconUrl(true))
                             component.screenNameText.text = user.screenName
                             component.userNameText.text = user.name
                             setOnClickListener {

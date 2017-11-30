@@ -114,4 +114,11 @@
     <string name="failed_tweet_delete">ツイートの削除に失敗しました</string>
     <string name="tweet_deleted">ツイートを削除しました</string>
     <string name="save_for_each_user">投稿ユーザー毎に画像を保存</string>
+    <string name="message_failed_get_relation">対象のユーザーとの関係の取得に失敗</string>
+    <string name="mutual">相互</string>
+    <string name="one_sided_following">片思い</string>
+    <string name="one_sided_followed">片思われ</string>
+    <string name="pref_key_use_orig_icon">pref_id_orig_icon</string>
+    <string name="pref_desc_use_orig_icon">高解像度のユーザーアイコンを使用します。これにより通信量が増えます。</string>
+    <string name="pref_use_orig_icon">大きなユーザーアイコンを使用する</string>
 </resources>

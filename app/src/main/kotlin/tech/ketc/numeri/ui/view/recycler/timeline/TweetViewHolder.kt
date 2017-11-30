@@ -1,7 +1,10 @@
 package tech.ketc.numeri.ui.view.recycler.timeline
 
 import android.annotation.SuppressLint
+import android.arch.lifecycle.Lifecycle
+import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
+import android.arch.lifecycle.OnLifecycleEvent
 import android.content.Context
 import android.graphics.Color
 import android.support.v7.widget.RecyclerView
@@ -13,18 +16,20 @@ import org.jetbrains.anko.image
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.isMention
-import tech.ketc.numeri.domain.twitter.model.MediaType
-import tech.ketc.numeri.domain.twitter.model.Tweet
-import tech.ketc.numeri.domain.twitter.model.toIntent
+import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.activity.user.UserInfoActivity
 import tech.ketc.numeri.ui.components.ITweetUIComponent
 import tech.ketc.numeri.ui.components.TweetUIComponent
 import tech.ketc.numeri.ui.model.delegate.IImageLoadable
+import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.fadeIn
+import tech.ketc.numeri.util.android.pref
 import tech.ketc.numeri.util.android.ui.enableRippleEffect
 import tech.ketc.numeri.util.arch.coroutine.bindLaunch
 import tech.ketc.numeri.util.coroutine.dispose
+import tech.ketc.numeri.util.logTag
+import java.lang.ref.WeakReference
 
 class TweetViewHolder(ctx: Context,
                       private val mClient: TwitterClient,
@@ -37,9 +42,15 @@ class TweetViewHolder(ctx: Context,
         , IImageLoadable by imageLoadable {
     private val mContext = itemView.context
     private val mImageLoadTasks = ArrayList<Job>()
+    private var mUseOrigIcon = mContext.pref.getBoolean(mContext.getString(R.string.pref_key_use_orig_icon), false)
 
     init {
         itemView.enableRippleEffect()
+        val observer = createLifecycleObserver()
+        mOwner.lifecycle.addObserver(observer)
+        observer.vhDestroyed = {
+            mOwner.lifecycle.removeObserver(observer)
+        }
     }
 
     fun bind(tweet: Tweet) {
@@ -53,11 +64,12 @@ class TweetViewHolder(ctx: Context,
         setThumbs(displayTweet)
     }
 
-    private fun ImageView.setImageUrl(url: String, cache: Boolean = true) {
+    private fun ImageView.setImageUrl(url: String, cache: Boolean = true, finish: () -> Unit = {}) {
         setImageBitmap(null)
         bindLaunch(mOwner) {
             val res = loadImage(url, cache).await()
             res.ifPresent { (b, _) -> setImageBitmap(b);fadeIn() }
+            finish()
         }.also { mImageLoadTasks.add(it) }
     }
 
@@ -78,7 +90,10 @@ class TweetViewHolder(ctx: Context,
         createdAtText.text = displayTweet.createdAt
         screenNameText.text = displayTweet.user.screenName
         userNameText.text = displayTweet.user.name
-        iconImage.setImageUrl(displayTweet.user.iconUrl)
+        iconBack.backgroundColor = mContext.getColor(R.color.image_background_transparency)
+        iconImage.setImageUrl(displayTweet.user.getIconUrl(mUseOrigIcon)) {
+            iconBack.backgroundColor = mContext.getColor(R.color.transparent)
+        }
         iconImage.setOnClickListener { UserInfoActivity.start(mContext, mClient, displayTweet.user) }
         contentText.text = displayTweet.text
         sourceText.text = displayTweet.source
@@ -118,6 +133,22 @@ class TweetViewHolder(ctx: Context,
             tweet.isMention(mClient) -> overlayRelative.backgroundColor = Color.parseColor("#60f46e42")
             tweet.retweetedTweet != null -> overlayRelative.backgroundColor = Color.parseColor("#6042dff4")
             else -> overlayRelative.backgroundColor = Color.parseColor("#00000000")
+        }
+    }
+
+    private fun createLifecycleObserver() = object : LifecycleObserver {
+        val ref = WeakReference<TweetViewHolder>(this@TweetViewHolder)
+        var vhDestroyed = {}
+        private fun dispose() {
+            Logger.v(logTag, "dispose")
+            vhDestroyed()
+        }
+
+        @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
+        fun onResume() {
+            ref.get()?.let { holder ->
+                holder.mUseOrigIcon = mContext.pref.getBoolean(mContext.getString(R.string.pref_key_use_orig_icon), false)
+            } ?: dispose()
         }
     }
 }

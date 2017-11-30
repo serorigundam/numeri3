@@ -24,6 +24,7 @@ import org.jetbrains.anko.support.v4.ctx
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
+import tech.ketc.numeri.domain.twitter.model.getIconUrl
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.setting.SettingsActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
@@ -168,7 +169,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             component.userNameText.text = user.name
             component.screenNameText.text = user.screenName
             bindLaunch {
-                val res = mModel.loadImage(user.iconUrl).await()
+                val res = mModel.loadImage(user.getIconUrl(true)).await()
                 res.ifPresent { (b, _) -> component.iconImage.setImageBitmap(b) }
             }
         }
