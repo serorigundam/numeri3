@@ -21,6 +21,7 @@ import tech.ketc.numeri.ui.model.delegate.ITweetOperator
 import tech.ketc.numeri.ui.view.recycler.timeline.TimeLineDataSourceAdapter
 import tech.ketc.numeri.ui.view.recycler.timeline.TweetViewHolder
 import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.Updatable
 import tech.ketc.numeri.util.android.arg
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
@@ -30,14 +31,20 @@ import tech.ketc.numeri.util.android.pref
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
+import java.io.Serializable
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent(),
-        HasTweetOperator {
+        HasTweetOperator, Updatable {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
     private val mModel: TimeLineViewModel by viewModel { mViewModelFactory }
 
-    private val mTlInfo by lazy { arg.getSerializable(EXTRA_TIMELINE_INFO) as TimelineInfo }
+    private val mInfo by lazy { arg.getSerializable(EXTRA_INFO) as Info }
+    private val mTlInfo: TimelineInfo
+        get() = mInfo.timelineInfo
+    private val mSwipeRefreshEnabled: Boolean
+        get() = mInfo.swipeRefreshEnabled
+
     private var mSavedTopChildAdapterPosition: Int? = null
     private var mAdapter: TimeLineDataSourceAdapter? = null
     private val mPref by lazy { act.pref }
@@ -49,13 +56,14 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         get() = mModel
 
     companion object {
-        private val EXTRA_TIMELINE_INFO = "EXTRA_TIMELINE_INFO"
+        private val EXTRA_INFO = "EXTRA_TIMELINE_INFO"
         private val DEFAULT_PAGE_SIZE = 30
         private val EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION = "RECYCLER_TOP_CHILD_ADAPTER_POSITION"
         private val TAG_OPERATION_TWEET = "TAG_OPERATE_TWEET"
-        fun create(info: TimelineInfo): TimelineFragment = TimelineFragment().apply {
+        fun create(timelineInfo: TimelineInfo, swipeRefreshEnabled: Boolean = true): TimelineFragment = TimelineFragment().apply {
             arguments = Bundle().apply {
-                putSerializable(EXTRA_TIMELINE_INFO, info)
+                val info = Info(timelineInfo, swipeRefreshEnabled)
+                putSerializable(EXTRA_INFO, info)
             }
         }
     }
@@ -98,13 +106,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             Logger.v(javaClass.name, "simpleInit adapter")
             initializeAdapter()
         }
-        swipeRefresh.setOnRefreshListener {
-            swipeRefresh.isRefreshing = true
-            adapter.loadAfter {
-                swipeRefresh.isRefreshing = false
-            }
-        }
-
+        swipeRefresh.setOnRefreshListener { update() }
         mModel.deleteObserve(this) {
             adapter.delete(it)
         }
@@ -138,8 +140,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             swipeRefresh.isEnabled = !mIsStreamEnabled
             Logger.v(logTag, "swipeRefresh isEnabled:${!mIsStreamEnabled}")
         } else {
-            swipeRefresh.isEnabled = true
-            Logger.v(logTag, "swipeRefresh isEnabled:true")
+            swipeRefresh.isEnabled = mSwipeRefreshEnabled
+            Logger.v(logTag, "swipeRefresh isEnabled:$mSwipeRefreshEnabled")
         }
     }
 
@@ -196,4 +198,15 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     }
 
     fun scrollToTop() = recycler.scrollToPosition(0)
+
+    override fun update(complete: () -> Unit) {
+        val adapter = mAdapter ?: return complete()
+        swipeRefresh.isRefreshing = true
+        adapter.loadAfter {
+            swipeRefresh.isRefreshing = false
+            complete()
+        }
+    }
+
+    data class Info(val timelineInfo: TimelineInfo, val swipeRefreshEnabled: Boolean) : Serializable
 }

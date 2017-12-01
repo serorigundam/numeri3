@@ -4,13 +4,16 @@ import android.arch.lifecycle.Lifecycle
 import android.arch.lifecycle.LifecycleObserver
 import android.arch.lifecycle.LifecycleOwner
 import android.arch.lifecycle.OnLifecycleEvent
-import android.os.Bundle
-import android.support.v7.app.AppCompatActivity
-import kotlinx.coroutines.experimental.android.UI
-import kotlinx.coroutines.experimental.launch
 
 interface IOnActiveRunner {
+    /**
+     * @param owner
+     */
     fun setOwner(owner: LifecycleOwner)
+
+    /**
+     * @param handle called when the [OnLifecycleEvent] onResume()
+     */
     fun runOnActive(handle: () -> Unit)
 }
 
@@ -32,7 +35,7 @@ class OnActiveRunner : IOnActiveRunner {
 
     class OnActiveLifeCycleObserver : LifecycleObserver {
 
-        private var isSafe = true
+        private var isSafe = false
         private val tasks = ArrayList<() -> Unit>()
 
         fun run(task: () -> Unit) {
@@ -50,9 +53,9 @@ class OnActiveRunner : IOnActiveRunner {
 
         @OnLifecycleEvent(Lifecycle.Event.ON_RESUME)
         fun onResume() {
-            isSafe = true
             tasks.forEach { it() }
             tasks.clear()
+            isSafe = true
         }
 
         @OnLifecycleEvent(Lifecycle.Event.ON_DESTROY)

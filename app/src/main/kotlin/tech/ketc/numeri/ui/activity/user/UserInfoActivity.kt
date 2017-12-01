@@ -8,43 +8,71 @@ import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.os.Handler
 import android.support.design.widget.AppBarLayout
+import android.support.design.widget.TabLayout
+import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.View
 import android.widget.ImageView
 import android.widget.TextView
+import dagger.android.DispatchingAndroidInjector
+import dagger.android.support.HasSupportFragmentInjector
 import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.domain.twitter.model.getIconUrl
+import tech.ketc.numeri.infra.element.TlType
+import tech.ketc.numeri.infra.entity.TimelineInfo
+import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
 import tech.ketc.numeri.ui.model.UserInfoViewModel
+import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
+import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter.Content
+import tech.ketc.numeri.util.Logger
+import tech.ketc.numeri.util.Updatable
 import tech.ketc.numeri.util.android.*
+import tech.ketc.numeri.util.android.ui.tab.SimpleOnTabSelectedListener
+import tech.ketc.numeri.util.arch.lifecycle.IOnActiveRunner
+import tech.ketc.numeri.util.arch.lifecycle.OnActiveRunner
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.nullable
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.arch.viewmodel.viewModel
 import tech.ketc.numeri.util.di.AutoInject
+import tech.ketc.numeri.util.logTag
 import java.io.Serializable
 import javax.inject.Inject
 
-class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInfoUI() {
+class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInfoUI(),
+        HasSupportFragmentInjector, IOnActiveRunner by OnActiveRunner() {
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
+    @Inject lateinit var mAndroidInjector: DispatchingAndroidInjector<Fragment>
+
     private val mModel: UserInfoViewModel by viewModel { mViewModelFactory }
-    private var mPreviousAppBarOffset = -1
+
+    private val mInfo by lazy { intent.getSerializableExtra(EXTRA_INFO) as Info }
+    private val mClient: TwitterClient
+        get() = mInfo.client
+    private val mFollowButtonVisibleHandler = Handler()
+    private val mTargetId: Long
+        get() = mInfo.targetId
+
     private var mTitleIsVisible = false
     private var mIconIsVisible = true
 
-    private val mInfo by lazy { intent.getSerializableExtra(EXTRA_INFO) as Info }
-    private val mTargetId: Long
-        get() = mInfo.targetId
-    private val mClient: TwitterClient
-        get() = mInfo.client
+    private val mPagerAdapter by lazy { ModifiablePagerAdapter<String, Fragment>(supportFragmentManager) }
 
-    private val mFollowButtonVisibleHandler = Handler()
+    private var mPreviousAppBarOffset = -1
+
+    private var mCurrentPagerPosition = 0
+    private var mSwipeRefreshEnabled = false
+    private var mIsAppBarExpansion = true
+
 
     companion object {
         private val EXTRA_INFO = "EXTRA_INFO"
+
+        private val SAVED_CURRENT_PAGER_POSITION = "SAVED_CURRENT_PAGER_POSITION"
 
         fun start(ctx: Context, client: TwitterClient, targetId: Long) {
             ctx.startActivity<UserInfoActivity>(EXTRA_INFO to Info(client, targetId))
@@ -55,9 +83,13 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         }
     }
 
+    override fun supportFragmentInjector() = mAndroidInjector
+
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setOwner(this)
         setContentView(this)
+        savedInstanceState?.run(this::restore)
         initializeUI()
         initialize()
     }
@@ -68,8 +100,10 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         toolbar.setFinishWithNavigationClick(this)
     }
 
+
     private fun initialize() {
         loadTwitterUser()
+        initializePager()
     }
 
 
@@ -96,12 +130,21 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
                     mIconIsVisible = true
                     iconRelative.fadeIn()
                 }
-                if (currentAppBarHeight == appBarHeight && !swipeRefresh.isEnabled) {
-                    swipeRefresh.isEnabled = true
+                if (currentAppBarHeight == appBarHeight) {
+                    //AppBar expansion
+                    mIsAppBarExpansion = true
+                    if (mSwipeRefreshEnabled)
+                        swipeRefresh.isEnabled = true
+                    Logger.v(logTag, "AppBarExpansion swipeRefreshable:${swipeRefresh.isEnabled}")
                 }
             } else {
-                if (swipeRefresh.isEnabled)
+                if (currentAppBarHeight == appBarHeight) return@addOnOffsetChangedListener
+                if (mIsAppBarExpansion) {
+                    //AppBar collapse
+                    mIsAppBarExpansion = false
                     swipeRefresh.isEnabled = false
+                    Logger.v(logTag, "AppBar collapse  swipeRefreshable:${swipeRefresh.isEnabled}")
+                }
                 if (currentAppBarHeight < headerHeight && !mTitleIsVisible) {
                     mTitleIsVisible = true
                     toolbar.setTitleVisibility(true)
@@ -114,6 +157,58 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             }
             mPreviousAppBarOffset = plusOffset
         }
+    }
+
+    private fun initializePager() {
+        val accountId = mClient.id
+        val publicInfo = TimelineInfo(type = TlType.PUBLIC, accountId = accountId, foreignId = mTargetId)
+        val favoriteInfo = TimelineInfo(type = TlType.FAVORITE, accountId = accountId, foreignId = mTargetId)
+        val public = TimelineFragment.create(publicInfo, false)
+        val favorite = TimelineFragment.create(favoriteInfo, false)
+        val contents = arrayListOf(Content("public", public, getString(R.string.tab_tweet)),
+                Content("favorite", favorite, getString(R.string.tab_favorite)))
+        runOnActive {
+            pager.adapter = mPagerAdapter
+            mPagerAdapter.setContents(contents)
+            userInfoTab.setupWithViewPager(pager)
+            pager.currentItem = mCurrentPagerPosition
+            userInfoTab.addOnTabSelectedListener(object : SimpleOnTabSelectedListener() {
+                override fun onTabSelected(tab: TabLayout.Tab) {
+                    mCurrentPagerPosition = tab.position
+                }
+
+                override fun onTabReselected(tab: TabLayout.Tab) {
+                    val fragment = mPagerAdapter.getContent(tab.position).fragment
+                    when (fragment) {
+                        is TimelineFragment -> fragment.scrollToTop()
+                    }
+                }
+            })
+            userInfoTab.visibility = View.VISIBLE
+            mSwipeRefreshEnabled = true
+            swipeRefresh.isEnabled = mIsAppBarExpansion
+            swipeRefresh.setOnRefreshListener {
+                val updatableList = contents.map { it.fragment as Updatable }
+                val updatableCount = updatableList.count()
+                var completedCount = 0
+                swipeRefresh.isRefreshing = true
+                updatableList.forEach {
+                    it.update {
+                        if (++completedCount == updatableCount)
+                            swipeRefresh.isRefreshing = false
+                    }
+                }
+            }
+        }
+    }
+
+    private fun restore(savedState: Bundle) {
+        mCurrentPagerPosition = savedState.getInt(SAVED_CURRENT_PAGER_POSITION)
+    }
+
+    override fun onSaveInstanceState(outState: Bundle) {
+        outState.putInt(SAVED_CURRENT_PAGER_POSITION, mCurrentPagerPosition)
+        super.onSaveInstanceState(outState)
     }
 
     private fun Toolbar.setTitleVisibility(isVisible: Boolean) {
@@ -240,6 +335,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             followButton.isClickable = true
         }
     }
+
 
     override fun onDestroy() {
         mFollowButtonVisibleHandler.removeCallbacks(this::visibleFollowButton)

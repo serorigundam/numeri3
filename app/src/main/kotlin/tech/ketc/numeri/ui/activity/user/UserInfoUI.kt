@@ -55,7 +55,7 @@ class UserInfoUI : IUserInfoUI {
         private set
     override lateinit var subInfoText: TextView
         private set
-    override lateinit var userProfileTabLayout: TabLayout
+    override lateinit var userInfoTab: TabLayout
         private set
     override lateinit var pager: ViewPager
         private set
@@ -99,10 +99,11 @@ class UserInfoUI : IUserInfoUI {
                 coordinatorLayout {
                     relativeLayout {
                         tabLayout {
-                            userProfileTabLayout = this
+                            userInfoTab = this
                             id = R.id.tab
                             tabMode = TabLayout.MODE_SCROLLABLE
                             backgroundColor = color(resourceId(android.R.attr.colorBackground))
+                            visibility = View.GONE
                             elevation = dip(8).toFloat()
                         }.lparams(matchParent, wrapContent)
                         viewPager {

@@ -23,7 +23,7 @@ interface IUserInfoUI : AnkoComponent<UserInfoActivity> {
     val descriptionText: TextView
     val locationText: TextView
     val subInfoText: TextView
-    val userProfileTabLayout: TabLayout
+    val userInfoTab: TabLayout
     val pager: ViewPager
     val followButton: ImageButton
     val protectedImage: ImageView
