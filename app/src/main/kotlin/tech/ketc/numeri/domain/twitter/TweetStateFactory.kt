@@ -7,10 +7,14 @@ import tech.ketc.numeri.domain.twitter.model.TweetState
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.logTag
 import twitter4j.Status
+import java.util.concurrent.locks.ReentrantLock
+import kotlin.concurrent.withLock
 
 class TweetStateFactory : ITweetStateFactory {
     private val clientToStateMap = ArrayMap<TwitterClient, HashMap<Long, TweetState>>()
     private val retweetIdMap = ArrayMap<TwitterClient, HashMap<Long, Long>>()
+    private val stateLock = HashMap<Long, ReentrantLock>()
+    private fun stateLock(id: Long) = stateLock.getOrPut(id) { ReentrantLock() }
 
     private fun stateMap(client: TwitterClient) = clientToStateMap.getOrPut(client) {
         Logger.v(logTag, "crate new stateMap")
@@ -31,16 +35,25 @@ class TweetStateFactory : ITweetStateFactory {
             rtIdMap(client).put(it, status.id)
             Logger.v(logTag, "getOrPutState currentUserRetweetId")
         }
-        return stateMap(client).getOrPut(status.id) { TweetState(status.isFavorited, status.isRetweeted) }
+        fun put(): TweetState {
+            val state = stateMap(client).getOrPut(status.id) { TweetState(status.isFavorited, status.isRetweeted) }
+            stateLock.remove(status.id)
+            return state
+        }
+        return stateLock(status.id).withLock(::put)
     }
 
 
     override fun updateState(client: TwitterClient, id: Long, isFav: Boolean, isRt: Boolean): TweetState {
         val map = (clientToStateMap[client] ?: throw IllegalStateException())
         map[id] ?: throw IllegalStateException()
-        val state = TweetState(isFav, isRt)
-        map.put(id, state)
-        return state
+        fun update(): TweetState {
+            val state = TweetState(isFav, isRt)
+            map.put(id, state)
+            stateLock.remove(id)
+            return state
+        }
+        return stateLock(id).withLock(::update)
     }
 
     override fun get(client: TwitterClient, tweet: Tweet): TweetState {
