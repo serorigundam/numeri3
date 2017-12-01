@@ -44,11 +44,11 @@ class TweetStateFactory : ITweetStateFactory {
     }
 
 
-    override fun updateState(client: TwitterClient, id: Long, isFav: Boolean, isRt: Boolean): TweetState {
+    override fun updateState(client: TwitterClient, id: Long, isFav: Boolean?, isRt: Boolean?): TweetState {
         val map = (clientToStateMap[client] ?: throw IllegalStateException())
-        map[id] ?: throw IllegalStateException()
+        val s = map[id] ?: throw IllegalStateException()
         fun update(): TweetState {
-            val state = TweetState(isFav, isRt)
+            val state = TweetState(isFav ?: s.isFavorited, isRt ?: s.isRetweeted)
             map.put(id, state)
             stateLock.remove(id)
             return state

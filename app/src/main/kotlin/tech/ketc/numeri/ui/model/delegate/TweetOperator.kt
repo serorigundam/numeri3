@@ -8,26 +8,24 @@ import tech.ketc.numeri.util.arch.coroutine.asyncResponse
 
 class TweetOperator(private val mTweetRepository: ITweetRepository) : ITweetOperator {
     override fun favorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val status = client.twitter.createFavorite(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
+        client.twitter.createFavorite(tweet.id)
+        mTweetRepository.updateState(client, tweet.id, isFav = true)
     }
 
     override fun unfavorite(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val status = client.twitter.destroyFavorite(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, status.isFavorited, status.isRetweeted)
+        client.twitter.destroyFavorite(tweet.id)
+        mTweetRepository.updateState(client, tweet.id, isFav = false)
     }
 
     override fun retweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
-        val state = mTweetRepository.getState(client, tweet)
         client.twitter.retweetStatus(tweet.id)
-        mTweetRepository.updateState(client, tweet.id, state.isFavorited, true)
+        mTweetRepository.updateState(client, tweet.id, isRt = true)
     }
 
     override fun unretweet(client: TwitterClient, tweet: Tweet) = asyncResponse {
         val destroyId = mTweetRepository.getRetweetedId(client, tweet) ?: throw IllegalStateException()
-        val state = mTweetRepository.getState(client, tweet)
         client.twitter.destroyStatus(destroyId)
-        mTweetRepository.updateState(client, tweet.id, state.isFavorited, false)
+        mTweetRepository.updateState(client, tweet.id, isRt = false)
     }
 
     override fun delete(client: TwitterClient, tweet: Tweet) = asyncResponse {

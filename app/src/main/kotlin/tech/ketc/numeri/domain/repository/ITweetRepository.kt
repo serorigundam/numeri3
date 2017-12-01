@@ -15,7 +15,7 @@ interface ITweetRepository {
     fun deleteById(id: Long)
     fun deleteByUser(user: TwitterUser)
     fun getState(client: TwitterClient, tweet: Tweet): TweetState
-    fun updateState(client: TwitterClient, id: Long, isFav: Boolean, isRt: Boolean): TweetState
+    fun updateState(client: TwitterClient, id: Long, isFav: Boolean? = null, isRt: Boolean? = null): TweetState
     fun getRetweetedId(client: TwitterClient, tweet: Tweet): Long?
     fun get(id: Long): Tweet?
 }

@@ -77,8 +77,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
                     target.toTwitterUser(),
                     tweet))
             if (source.id == client.id) {
-                val retweeted = tweetRepository.getState(client, tweet).isRetweeted
-                tweetRepository.updateState(client, favoritedStatus.id, true, retweeted)
+                tweetRepository.updateState(client, favoritedStatus.id, isFav = true)
             }
         }
 
@@ -114,8 +113,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
                     ?.let { tweet ->
                         Logger.v(logTag, "unretweet $tweet")
                         val retweetedTweet = tweet.retweetedTweet!!
-                        val favorited = tweetRepository.getState(client, retweetedTweet).isFavorited
-                        tweetRepository.updateState(client, retweetedTweet.id, favorited, false)
+                        tweetRepository.updateState(client, retweetedTweet.id, isRt = false)
                     }
             tweetRepository.deleteById(statusDeletionNotice.statusId)
             mLatestTweetDeletionNotice.post(statusDeletionNotice)
@@ -166,8 +164,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
                     target.toTwitterUser(),
                     tweet))
             if (source.id == client.id) {
-                val retweeted = tweetRepository.getState(client, tweet).isRetweeted
-                tweetRepository.updateState(client, unfavoritedStatus.id, false, retweeted)
+                tweetRepository.updateState(client, unfavoritedStatus.id, isFav = false)
             }
         }
 
@@ -185,8 +182,7 @@ class TwitterStreamFactory @Inject constructor(private val app: App) : ITwitterS
             val tweet = status.toTweet()
             mLatestTweet.post(tweet)
             if (status.user.id == client.id && status.isRetweet) {
-                val favorited = tweetRepository.getState(client, tweet).isFavorited
-                tweetRepository.updateState(client, status.retweetedStatus.id, favorited, true)
+                tweetRepository.updateState(client, status.retweetedStatus.id, isRt = true)
             }
 
         }

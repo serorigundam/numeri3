@@ -58,7 +58,7 @@ class TweetRepository @Inject constructor(private val mTweetFactory: ITweetFacto
         return mStateFactory.get(client, tweet)
     }
 
-    override fun updateState(client: TwitterClient, id: Long, isFav: Boolean, isRt: Boolean): TweetState {
+    override fun updateState(client: TwitterClient, id: Long, isFav: Boolean?, isRt: Boolean?): TweetState {
         return mStateFactory.updateState(client, id, isFav, isRt)
     }
 
