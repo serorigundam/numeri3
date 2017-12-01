@@ -52,7 +52,11 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
         private val SAVED_POSITION = "SAVED_POSITION"
         private val PREF_SAVE_FOR_EACH_USER = "tech:ketc:numer:media:PREF_SAVE_FOR_EACH_USER"
         fun start(ctx: Context, entities: List<MediaEntity>, screenName: String, position: Int = 0) {
-            ctx.startActivity<MediaActivity>(EXTRA_INFO to Info(entities, screenName, position))
+            ctx.startActivity<MediaActivity>(EXTRA_INFO to Info(entities.map { it.url + ":orig" }, screenName, position))
+        }
+
+        fun start(ctx: Context, mediaUrlList: List<String>, screenName: String) {
+            ctx.startActivity<MediaActivity>(EXTRA_INFO to Info(mediaUrlList, screenName, 0))
         }
     }
 
@@ -170,7 +174,7 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
         }
     }
 
-    data class Info(val entities: List<MediaEntity>, val screenName: String, val position: Int) : Serializable
+    data class Info(val entities: List<String>, val screenName: String, val position: Int) : Serializable
 
     private interface IMediaUIComponent : UIComponent<RelativeLayout> {
         val photoView: PhotoView
@@ -211,16 +215,16 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
             get() = mParentActivity.mModel
 
         private val mUrl
-            get() = mInfo.entity.url + ":orig"
+            get() = mInfo.url
 
         companion object {
             private val EXTRA_INFO = "EXTRA_INFO"
             private val REQUEST_SAVE = 100
             private val TAG_SAVE = "TAG_SAVE"
             private val SAVED_INITIALIZED = "SAVED_INITIALIZED"
-            fun create(screenName: String, entity: MediaEntity) = MediaFragment().apply {
+            fun create(screenName: String, url: String) = MediaFragment().apply {
                 arguments = Bundle().apply {
-                    putSerializable(EXTRA_INFO, Info(screenName, entity))
+                    putSerializable(EXTRA_INFO, Info(screenName, url))
                 }
             }
         }
@@ -242,14 +246,13 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
                         true
                     }
                     photoView.setOnSingleFlingListener { _, _, _, velocityY ->
-                        if (velocityY !in -5000..5000) {
+                        if (velocityY !in -2000..2000) {
                             mParentActivity.executeHideSystemUI()
                             mParentActivity.finish()
-                            if (velocityY > 0) {
+                            if (velocityY > 0)
                                 mParentActivity.overridePendingTransition(R.anim.fade_in, R.anim.bottom_out)
-                            } else {
+                            else
                                 mParentActivity.overridePendingTransition(R.anim.fade_in, R.anim.top_out)
-                            }
                         }
                         true
                     }
@@ -300,6 +303,6 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
             save()
         }
 
-        data class Info(val screenName: String, val entity: MediaEntity) : Serializable
+        data class Info(val screenName: String, val url: String) : Serializable
     }
 }
