@@ -12,7 +12,6 @@ import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
 import android.support.v7.widget.Toolbar
 import android.view.View
-import android.widget.ImageView
 import android.widget.TextView
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -20,9 +19,9 @@ import org.jetbrains.anko.*
 import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.TwitterUser
-import tech.ketc.numeri.domain.twitter.model.getIconUrl
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
+import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
 import tech.ketc.numeri.ui.model.UserInfoViewModel
 import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
@@ -229,10 +228,14 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
 
     @SuppressLint("SetTextI18n")
     private fun loadTwitterUser() {
-        fun ImageView.setUrl(url: String) {
+        fun loadProfileImage(user: TwitterUser) {
             bindLaunch {
-                mModel.loadImage(url).await().nullable()?.let { (bitmap, _) ->
-                    setImageBitmap(bitmap)
+                val iconUrl = user.originalIconUrl
+                val content = mModel.loadImage(iconUrl).await().nullable() ?: return@bindLaunch
+                iconImage.setImageBitmap(content.bitmap)
+                iconImage.setOnLongClickListener {
+                    MediaActivity.start(this@UserInfoActivity, listOf(iconUrl), user.screenName)
+                    true
                 }
             }
         }
@@ -241,17 +244,22 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             bindLaunch {
                 val content = mModel.loadHeaderImage(user)?.await()?.nullable() ?: return@bindLaunch
                 headerImage.setImageBitmap(content.bitmap)
+                headerImage.setOnLongClickListener {
+                    val url = user.headerImageUrl ?: return@setOnLongClickListener true
+                    MediaActivity.start(this@UserInfoActivity, listOf(url), user.screenName)
+                    true
+                }
             }
         }
         bindLaunch {
             val user = mModel.show(mClient, mTargetId).await().orError {
                 toast(R.string.message_failed_user_info)
             } ?: return@bindLaunch
+            loadProfileImage(user)
+            loadHeader(user)
             supportActionBar!!.title = user.name
             supportActionBar!!.subtitle = user.screenName
-            iconImage.setUrl(user.getIconUrl(true))
             headerImage.backgroundColor = Color.parseColor("#${user.profileBackgroundColor}")
-            loadHeader(user)
             protectedImage.visibility = if (user.isProtected) View.VISIBLE else View.INVISIBLE
             userNameText.text = user.name
             screenNameText.text = "@${user.screenName}"
