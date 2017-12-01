@@ -117,6 +117,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
                 .setOnClickListener { startAuthorization() }
         SimpleDoubleClickHelper(onDoubleClick = { onDoubleClickTweetFab() },
                 onClick = { onClickTweetFab() }).attachTo(tweetFab)
+        tweetFab.setOnLongClickListener { onDoubleClickTweetFab() }
         groupChangeFab.setOnClickListener { onClickGroupChangeFab() }
     }
 
