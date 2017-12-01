@@ -166,6 +166,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
     }
 
     private fun visibleFollowButton() {
+        followButton.visibility = View.VISIBLE
         followButton.fadeIn()
     }
 
@@ -179,7 +180,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         }
     }
 
-    private fun setRelation(relation: UserInfoViewModel.Relation) {
+    private fun setRelation(relation: UserInfoViewModel.IRelation) {
         fun animate(id: Int) {
             val drawable = ctx.getDrawable(id)
             val animatable = drawable as Animatable
@@ -226,6 +227,18 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             !relation.isFollowing -> followInfoText.text = getString(R.string.un_following)
         }
         followInfoText.fadeIn()
+        followButton.setOnClickListener { onClickFollowButton(relation) }
+    }
+
+    private fun onClickFollowButton(relation: UserInfoViewModel.IRelation) {
+        followButton.isClickable = false
+        bindLaunch {
+            val r = mModel.updateRelation(relation, mClient, mTargetId).await().orError {
+                toast(R.string.failed_update_relation)
+            } ?: return@bindLaunch
+            setRelation(r)
+            followButton.isClickable = true
+        }
     }
 
     override fun onDestroy() {

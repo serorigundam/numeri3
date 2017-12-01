@@ -123,4 +123,5 @@
     <string name="pref_use_orig_icon">大きなユーザーアイコンを使用する</string>
     <string name="following">フォロー中</string>
     <string name="un_following">フォローする</string>
+    <string name="failed_update_relation">対象との関係の更新に失敗しました</string>
 </resources>
