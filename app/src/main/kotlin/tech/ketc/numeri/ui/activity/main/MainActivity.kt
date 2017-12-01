@@ -11,11 +11,13 @@ import android.os.Bundle
 import android.support.design.widget.BottomSheetDialogFragment
 import android.support.design.widget.NavigationView
 import android.support.v4.app.Fragment
+import android.support.v4.view.animation.FastOutSlowInInterpolator
 import android.support.v7.app.ActionBarDrawerToggle
 import android.util.ArrayMap
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
+import android.view.animation.Interpolator
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector
@@ -409,12 +411,16 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
     private fun showFabMenu() {
         mIsFabMenuShowing = true
-        groupChangeFab.animate().translationY(-dip(58).toFloat())
+        groupChangeFab.animate()
+                .setInterpolator(FastOutSlowInInterpolator())
+                .translationY(-dip(58).toFloat())
     }
 
     private fun hideFabMenu() {
         mIsFabMenuShowing = false
-        groupChangeFab.animate().translationY(0f)
+        groupChangeFab.animate()
+                .setInterpolator(FastOutSlowInInterpolator())
+                .translationY(0f)
     }
 
     private fun onClickTweetFab() {
