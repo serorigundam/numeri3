@@ -7,7 +7,6 @@ import android.graphics.Color
 import android.graphics.drawable.Animatable
 import android.os.Bundle
 import android.os.Handler
-import android.support.design.widget.AppBarLayout
 import android.support.design.widget.TabLayout
 import android.support.v4.app.Fragment
 import android.support.v7.app.AppCompatActivity
@@ -66,13 +65,14 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
 
     private var mCurrentPagerPosition = 0
     private var mSwipeRefreshEnabled = false
-    private var mIsAppBarExpansion = true
+    private var mIsAppBarExpanded = true
 
 
     companion object {
         private val EXTRA_INFO = "EXTRA_INFO"
 
         private val SAVED_CURRENT_PAGER_POSITION = "SAVED_CURRENT_PAGER_POSITION"
+        private val SAVED_APPBAR_EXPANDED = "SAVED_APPBAR_EXPANDED"
 
         fun start(ctx: Context, client: TwitterClient, targetId: Long) {
             ctx.startActivity<UserInfoActivity>(EXTRA_INFO to Info(client, targetId))
@@ -95,7 +95,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
     }
 
     private fun initializeUI() {
-        appBar.initialize()
+        initializeAppBar()
         setUpSupportActionbar(toolbar)
         toolbar.setFinishWithNavigationClick(this)
     }
@@ -107,8 +107,8 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
     }
 
 
-    private fun AppBarLayout.initialize() {
-        this.addOnOffsetChangedListener { _, verticalOffset ->
+    private fun initializeAppBar() {
+        appBar.addOnOffsetChangedListener { _, verticalOffset ->
             val toolbarHeight = toolbar.height
             val appBarHeight = appBar.height
             if (mPreviousAppBarOffset == -1) {
@@ -132,16 +132,16 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
                 }
                 if (currentAppBarHeight == appBarHeight) {
                     //AppBar expansion
-                    mIsAppBarExpansion = true
+                    mIsAppBarExpanded = true
                     if (mSwipeRefreshEnabled)
                         swipeRefresh.isEnabled = true
                     Logger.v(logTag, "AppBarExpansion swipeRefreshable:${swipeRefresh.isEnabled}")
                 }
             } else {
                 if (currentAppBarHeight == appBarHeight) return@addOnOffsetChangedListener
-                if (mIsAppBarExpansion) {
+                if (mIsAppBarExpanded) {
                     //AppBar collapse
-                    mIsAppBarExpansion = false
+                    mIsAppBarExpanded = false
                     swipeRefresh.isEnabled = false
                     Logger.v(logTag, "AppBar collapse  swipeRefreshable:${swipeRefresh.isEnabled}")
                 }
@@ -186,7 +186,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             })
             userInfoTab.visibility = View.VISIBLE
             mSwipeRefreshEnabled = true
-            swipeRefresh.isEnabled = mIsAppBarExpansion
+            swipeRefresh.isEnabled = mIsAppBarExpanded
             swipeRefresh.setOnRefreshListener {
                 val updatableList = contents.map { it.fragment as Updatable }
                 val updatableCount = updatableList.count()
@@ -204,10 +204,12 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
 
     private fun restore(savedState: Bundle) {
         mCurrentPagerPosition = savedState.getInt(SAVED_CURRENT_PAGER_POSITION)
+        mIsAppBarExpanded = savedState.getBoolean(SAVED_APPBAR_EXPANDED)
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         outState.putInt(SAVED_CURRENT_PAGER_POSITION, mCurrentPagerPosition)
+        outState.putBoolean(SAVED_APPBAR_EXPANDED, mIsAppBarExpanded)
         super.onSaveInstanceState(outState)
     }
 
@@ -229,9 +231,16 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
     private fun loadTwitterUser() {
         fun ImageView.setUrl(url: String) {
             bindLaunch {
-                mModel.loadImage(url, false).await().nullable()?.let { (bitmap, _) ->
+                mModel.loadImage(url).await().nullable()?.let { (bitmap, _) ->
                     setImageBitmap(bitmap)
                 }
+            }
+        }
+
+        fun loadHeader(user: TwitterUser) {
+            bindLaunch {
+                val content = mModel.loadHeaderImage(user)?.await()?.nullable() ?: return@bindLaunch
+                headerImage.setImageBitmap(content.bitmap)
             }
         }
         bindLaunch {
@@ -242,7 +251,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             supportActionBar!!.subtitle = user.screenName
             iconImage.setUrl(user.getIconUrl(true))
             headerImage.backgroundColor = Color.parseColor("#${user.profileBackgroundColor}")
-            user.headerImageUrl?.let { headerImage.setUrl(it) }
+            loadHeader(user)
             protectedImage.visibility = if (user.isProtected) View.VISIBLE else View.INVISIBLE
             userNameText.text = user.name
             screenNameText.text = "@${user.screenName}"
@@ -257,6 +266,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             } else {
                 loadRelation()
             }
+            appBar.setExpanded(mIsAppBarExpanded, false)
         }
     }
 
