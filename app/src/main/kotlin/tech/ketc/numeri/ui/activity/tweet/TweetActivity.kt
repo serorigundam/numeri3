@@ -10,11 +10,13 @@ import android.content.*
 import android.content.pm.PackageManager
 import android.graphics.BitmapFactory
 import android.graphics.drawable.BitmapDrawable
+import android.os.Build
 import android.os.Bundle
 import android.os.IBinder
 import android.provider.DocumentsContract
 import android.provider.MediaStore
 import android.support.v4.app.DialogFragment
+import android.support.v4.content.FileProvider
 import android.support.v7.app.AlertDialog
 import android.support.v7.app.AppCompatActivity
 import android.text.Editable
@@ -271,10 +273,15 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
 
     private fun onClickCameraButton() {
         checkPermissions(READ_EXTERNAL_STORAGE, REQUEST_CODE_CAMERA_READ_STORAGE) {
-            val (uri, path) = reserveContentUri(ctx, "numetter/captcha", Date().time.toString(), MimeType.JPEG)
+            val (uri, path) = createSaveUri("numetter/captcha", Date().time.toString(), MimeType.JPEG)
             mPath = path
             val intent = Intent(MediaStore.ACTION_IMAGE_CAPTURE).apply {
-                putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.N) {
+                    val u = FileProvider.getUriForFile(this@TweetActivity, applicationContext.packageName + ".provider", File(path))
+                    putExtra(MediaStore.EXTRA_OUTPUT, u)
+                } else {
+                    putExtra(MediaStore.EXTRA_OUTPUT, uri)
+                }
             }
             startActivityForResult(intent, REQUEST_CODE_IMAGE_CAPTCHA)
         }

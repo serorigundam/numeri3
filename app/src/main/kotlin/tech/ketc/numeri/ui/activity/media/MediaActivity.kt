@@ -291,6 +291,7 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
                     asyncResponse {
                         bitmap.save(ctx, mimeType, directory, quality = 100)
                     }.await().orError {
+                        Logger.printStackTrace(logTag, it)
                         toast(R.string.save_failure)
                     } ?: return@bindLaunch
                     toast(R.string.save_complete)

@@ -77,6 +77,17 @@
             android:value="e54ae92d8ec83fbb6267d6e4d3b62dad5e0b6b9e" />
 
         <service android:name=".service.TweetService" />
+
+        <provider
+            android:name="android.support.v4.content.FileProvider"
+            android:authorities="${applicationId}.provider"
+            android:exported="false"
+            android:grantUriPermissions="true">
+            <meta-data
+                android:name="android.support.FILE_PROVIDER_PATHS"
+                android:resource="@xml/provider_paths" />
+        </provider>
+
     </application>
 
 </manifest>
