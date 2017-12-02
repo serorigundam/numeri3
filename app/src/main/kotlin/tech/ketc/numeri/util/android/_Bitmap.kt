@@ -19,7 +19,7 @@ fun Bitmap.save(ctx: Context, mimeType: MimeType, directory: String, fileName: S
     val values = ContentValues().apply {
         put(MediaStore.Images.Media.TITLE, name)
         put(MediaStore.Images.Media.DISPLAY_NAME, name)
-        put(MediaStore.Images.Media.MIME_TYPE, "image/jpeg")
+        put(MediaStore.Images.Media.MIME_TYPE, mimeType.toString())
         put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
         put(MediaStore.Images.Media.DATA, path)
     }
