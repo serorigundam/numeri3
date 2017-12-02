@@ -6,9 +6,11 @@ import android.content.SharedPreferences
 import android.content.pm.PackageManager
 import android.preference.PreferenceManager
 import android.support.v4.app.ActivityCompat
+import android.support.v4.app.Fragment
 import android.support.v4.content.ContextCompat
 import android.util.TypedValue
 import org.jetbrains.anko.startActivity
+import org.jetbrains.anko.support.v4.ctx
 import tech.ketc.numeri.R
 
 fun Context.getResourceId(resId: Int): Int {
@@ -30,9 +32,13 @@ fun Activity.checkPermissions(permissionStr: String, requestCode: Int? = null, g
             .takeIf { it == PackageManager.PERMISSION_GRANTED }
             ?.let {
                 granted()
-            } ?: requestCode?.let { requestPermissions(permissionStr, it) }
+            } ?: requestCode?.let { requestPermissions(arrayOf(permissionStr), it) }
 }
 
-fun Activity.requestPermissions(permissionStr: String, requestCode: Int) {
-    ActivityCompat.requestPermissions(this, arrayOf(permissionStr), requestCode)
+fun Fragment.checkPermissions(permissionStr: String, requestCode: Int? = null, granted: () -> Unit) {
+    ContextCompat.checkSelfPermission(ctx, permissionStr)
+            .takeIf { it == PackageManager.PERMISSION_GRANTED }
+            ?.let {
+                granted()
+            } ?: requestCode?.let { requestPermissions(arrayOf(permissionStr), it) }
 }

@@ -1,7 +1,9 @@
 package tech.ketc.numeri.ui.activity.media
 
+import android.Manifest
 import android.arch.lifecycle.ViewModelProvider
 import android.content.Context
+import android.content.pm.PackageManager
 import android.os.Bundle
 import android.os.Handler
 import android.support.v4.app.Fragment
@@ -222,6 +224,7 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
             private val REQUEST_SAVE = 100
             private val TAG_SAVE = "TAG_SAVE"
             private val SAVED_INITIALIZED = "SAVED_INITIALIZED"
+            private val REQUEST_CODE_MEDIA_WRITE_STORAGE = 100
             fun create(screenName: String, url: String) = MediaFragment().apply {
                 arguments = Bundle().apply {
                     putSerializable(EXTRA_INFO, Info(screenName, url))
@@ -281,6 +284,12 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
             }
         }
 
+        private fun saveAfterChecking() {
+            checkPermissions(Manifest.permission.WRITE_EXTERNAL_STORAGE, REQUEST_CODE_MEDIA_WRITE_STORAGE) {
+                save()
+            }
+        }
+
         private fun save() {
             mModel.observeBitmapContent(this, mUrl) { (bitmap, mimeType) ->
                 bindLaunch {
@@ -301,7 +310,16 @@ class MediaActivity : AppCompatActivity(), AutoInject, IMediaUI by MediaUI() {
 
         override fun onDialogItemSelected(requestCode: Int, itemId: Int) {
             if (requestCode != REQUEST_SAVE || itemId != R.string.save) return
-            save()
+            saveAfterChecking()
+        }
+
+        override fun onRequestPermissionsResult(requestCode: Int, permissions: Array<out String>, grantResults: IntArray) {
+            super.onRequestPermissionsResult(requestCode, permissions, grantResults)
+            if (grantResults.size != 1) return
+            if (grantResults[0] != PackageManager.PERMISSION_GRANTED) return
+            when (requestCode) {
+                REQUEST_CODE_MEDIA_WRITE_STORAGE -> saveAfterChecking()
+            }
         }
 
         data class Info(val screenName: String, val url: String) : Serializable
