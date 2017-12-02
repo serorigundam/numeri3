@@ -21,7 +21,8 @@ class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponen
         put(viewModelComponent::tweetViewModel)
         put(viewModelComponent::mediaViewModel)
         put(viewModelComponent::conversationViewModel)
-        put(viewModelComponent::userInfoViewmodel)
+        put(viewModelComponent::userInfoViewModel)
+        put(viewModelComponent::usersViewModel)
     }
 
     private inline fun <reified T : ViewModel> put(noinline provide: () -> T) {
@@ -38,6 +39,6 @@ class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponen
                 }
             }
         }
-        return (provider?.get() as T) ?: throw IllegalArgumentException("not exist VewModel " + viewModelClass)
+        return (provider?.get() as T) ?: throw IllegalStateException("not exist VewModel " + viewModelClass)
     }
 }
