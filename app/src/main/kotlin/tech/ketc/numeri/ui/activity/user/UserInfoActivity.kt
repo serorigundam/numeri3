@@ -198,12 +198,13 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             mSwipeRefreshEnabled = true
             swipeRefresh.isEnabled = mIsAppBarExpanded
             swipeRefresh.setOnRefreshListener {
-                val updatableList = contents.map { it.fragment as? Updatable }
+                val updatableList = contents.filter { it.fragment is Updatable }
+                        .map { it.fragment as Updatable }
                 val updatableCount = updatableList.count()
                 var completedCount = 0
                 swipeRefresh.isRefreshing = true
                 updatableList.forEach {
-                    it?.update {
+                    it.update {
                         if (++completedCount == updatableCount)
                             swipeRefresh.isRefreshing = false
                     }

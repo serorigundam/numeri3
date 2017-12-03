@@ -51,6 +51,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     private var mIsStreamEnabled = true
     private var mIsEnableAutoScroll = true
     private var mIsStreamStart = false
+    private var mIsInitialized = false
     private lateinit var mClient: TwitterClient
     override val operator: ITweetOperator
         get() = mModel
@@ -102,6 +103,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
                 recycler.scrollToPosition(it)
             }
             startStream()
+            mIsInitialized = true
         } else {
             Logger.v(javaClass.name, "simpleInit adapter")
             initializeAdapter()
@@ -120,6 +122,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             swipeRefresh.isRefreshing = false
             swipeRefresh.isEnabled = true
             startStream()
+            mIsInitialized = true
         }
     }
 
@@ -199,6 +202,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
     fun scrollToTop() = recycler.scrollToPosition(0)
 
     override fun update(complete: () -> Unit) {
+        if (!mIsInitialized) return complete()
         val adapter = mAdapter ?: return complete()
         swipeRefresh.isRefreshing = true
         adapter.loadAfter {

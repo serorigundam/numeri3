@@ -24,6 +24,7 @@ class SwipeRefreshRecyclerUIComponent : ISwipeRefreshRecyclerUIComponent {
         lparams(matchParent, matchParent)
         swipeRefreshLayout {
             swipeRefresh = this
+            isEnabled = false
             recyclerView {
                 recycler = this
                 id = R.id.recycler
