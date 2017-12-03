@@ -2,6 +2,7 @@ package tech.ketc.numeri.ui.components
 
 import android.content.Context
 import android.text.TextUtils
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -24,11 +25,14 @@ class UserUIComponent : IUserUIComponent {
         private set
     override lateinit var iconImage: ImageView
         private set
+    override lateinit var iconBack: View
+        private set
 
     override fun createView(ctx: Context) = ctx.relativeLayout {
         componentRoot = this
         frameLayout {
             id = R.id.icon_image
+            iconBack = this
             backgroundColor = ctx.getColor(R.color.image_background_transparency)
             imageView {
                 iconImage = this
@@ -85,6 +89,7 @@ class UserUIComponent : IUserUIComponent {
             endOf(R.id.icon_image)
             below(R.id.icon_image)
             marginTop = dimen(R.dimen.margin_text_small)
+            marginBottom = dimen(R.dimen.margin_medium)
         }
     }
 }

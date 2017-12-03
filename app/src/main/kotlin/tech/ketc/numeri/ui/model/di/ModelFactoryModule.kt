@@ -13,6 +13,7 @@ import tech.ketc.numeri.ui.fragment.main.MainFragmentComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimeLineFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinemanage.TimelineManageFragmentComponent
+import tech.ketc.numeri.ui.fragment.users.UsersFragmentComponent
 import tech.ketc.numeri.ui.model.factory.ViewModelFactory
 import javax.inject.Singleton
 
@@ -27,7 +28,8 @@ TweetActivityComponent::class,
 MediaActivityComponent::class,
 TimelineManageFragmentComponent::class,
 ConversationActivityComponent::class,
-UserInfoActivityComponent::class
+UserInfoActivityComponent::class,
+UsersFragmentComponent::class
 ])
 class ModelFactoryModule {
 

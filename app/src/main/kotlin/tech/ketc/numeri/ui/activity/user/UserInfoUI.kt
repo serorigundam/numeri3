@@ -164,8 +164,9 @@ class UserInfoUI : IUserInfoUI {
                 ellipsize = TextUtils.TruncateAt.END
                 textSizeDimen = R.dimen.text_size_large
                 textColor = color(resourceId(android.R.attr.textColorPrimary))
-            }.lparams(wrapContent, wrapContent) {
+            }.lparams(matchParent, wrapContent) {
                 marginBottom = dimen(R.dimen.margin_text_small)
+                marginEnd = dip(80)
             }
             relativeLayout {
                 imageView {

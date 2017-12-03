@@ -145,8 +145,8 @@ abstract class DataSourceAdapter
         fun createRef(): WeakReference<ProgressViewHolder> = ProgressViewHolder(context).also { holder ->
             Logger.v(logTag, "create ProgressViewHolder")
             holder.itemView.setOnClickListener {
-                holder.change(true)
-                loadBefore { holder.change(false) }
+                holder.setProgress(true)
+                loadBefore { holder.setProgress(false) }
             }
         }.let { WeakReference(it).also { mProgressViewHolderRef = it } }
 

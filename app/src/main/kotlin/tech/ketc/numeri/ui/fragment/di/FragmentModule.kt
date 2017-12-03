@@ -14,6 +14,8 @@ import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragment
 import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinemanage.TimelineManageFragment
 import tech.ketc.numeri.ui.fragment.timelinemanage.TimelineManageFragmentComponent
+import tech.ketc.numeri.ui.fragment.users.UsersFragment
+import tech.ketc.numeri.ui.fragment.users.UsersFragmentComponent
 
 @Module
 abstract class FragmentModule {
@@ -37,4 +39,9 @@ abstract class FragmentModule {
     @IntoMap
     @FragmentKey(TimelineManageFragment::class)
     abstract fun bindInjectorFactoryForTimelinManageFragment(builder: TimelineManageFragmentComponent.Builder): AndroidInjector.Factory<out Fragment>
+
+    @Binds
+    @IntoMap
+    @FragmentKey(UsersFragment::class)
+    abstract fun bindInjectorFactoryForUsersFragment(builder: UsersFragmentComponent.Builder): AndroidInjector.Factory<out Fragment>
 }

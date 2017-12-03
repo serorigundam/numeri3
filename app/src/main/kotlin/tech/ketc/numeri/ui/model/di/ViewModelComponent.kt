@@ -23,5 +23,7 @@ interface ViewModelComponent {
 
     fun conversationViewModel(): ConversationViewModel
 
-    fun userInfoViewmodel(): UserInfoViewModel
+    fun userInfoViewModel(): UserInfoViewModel
+
+    fun usersViewModel(): UsersViewModel
 }

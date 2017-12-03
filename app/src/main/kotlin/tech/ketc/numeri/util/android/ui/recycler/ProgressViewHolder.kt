@@ -39,7 +39,7 @@ class ProgressViewHolder(context: Context) : RecyclerView.ViewHolder(context.rel
         progress = itemView.findViewById(R.id.progress_bar)
     }
 
-    fun change(isProgress: Boolean) {
+    fun setProgress(isProgress: Boolean) {
         if (isProgress) {
             text.visibility = View.INVISIBLE
             progress.visibility = View.VISIBLE

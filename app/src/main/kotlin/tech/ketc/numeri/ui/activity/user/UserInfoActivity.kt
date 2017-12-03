@@ -23,7 +23,9 @@ import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.activity.media.MediaActivity
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
+import tech.ketc.numeri.ui.fragment.users.UsersFragment
 import tech.ketc.numeri.ui.model.UserInfoViewModel
+import tech.ketc.numeri.ui.model.UsersViewModel
 import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter
 import tech.ketc.numeri.ui.view.pager.ModifiablePagerAdapter.Content
 import tech.ketc.numeri.util.Logger
@@ -90,6 +92,10 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         setContentView(this)
         savedInstanceState?.run(this::restore)
         initializeUI()
+        if (savedInstanceState == null) {
+            toolbar.subtitle = " "
+            toolbar.setTitleVisibility(false)
+        }
         initialize()
     }
 
@@ -164,13 +170,18 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         val favoriteInfo = TimelineInfo(type = TlType.FAVORITE, accountId = accountId, foreignId = mTargetId)
         val public = TimelineFragment.create(publicInfo, false)
         val favorite = TimelineFragment.create(favoriteInfo, false)
+        val follows = UsersFragment.create(mClient, mTargetId, UsersViewModel.Type.FOLLOWS)
+        val followers = UsersFragment.create(mClient, mTargetId, UsersViewModel.Type.FOLLOWERS)
         val contents = arrayListOf(Content("public", public, getString(R.string.tab_tweet)),
-                Content("favorite", favorite, getString(R.string.tab_favorite)))
+                Content("favorite", favorite, getString(R.string.tab_favorite)),
+                Content("follows", follows, getString(R.string.tab_follow)),
+                Content("followers", followers, getString(R.string.tab_follower)))
         runOnActive {
             pager.adapter = mPagerAdapter
             mPagerAdapter.setContents(contents)
             userInfoTab.setupWithViewPager(pager)
             pager.currentItem = mCurrentPagerPosition
+
             userInfoTab.addOnTabSelectedListener(object : SimpleOnTabSelectedListener() {
                 override fun onTabSelected(tab: TabLayout.Tab) {
                     mCurrentPagerPosition = tab.position
@@ -187,12 +198,12 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             mSwipeRefreshEnabled = true
             swipeRefresh.isEnabled = mIsAppBarExpanded
             swipeRefresh.setOnRefreshListener {
-                val updatableList = contents.map { it.fragment as Updatable }
+                val updatableList = contents.map { it.fragment as? Updatable }
                 val updatableCount = updatableList.count()
                 var completedCount = 0
                 swipeRefresh.isRefreshing = true
                 updatableList.forEach {
-                    it.update {
+                    it?.update {
                         if (++completedCount == updatableCount)
                             swipeRefresh.isRefreshing = false
                     }

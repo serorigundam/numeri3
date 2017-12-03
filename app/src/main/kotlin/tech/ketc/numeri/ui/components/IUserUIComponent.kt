@@ -1,5 +1,6 @@
 package tech.ketc.numeri.ui.components
 
+import android.view.View
 import android.widget.ImageButton
 import android.widget.ImageView
 import android.widget.RelativeLayout
@@ -12,4 +13,5 @@ interface IUserUIComponent : UIComponent<RelativeLayout> {
     val descriptionText: TextView
     val followButton: ImageButton
     val iconImage: ImageView
+    val iconBack: View
 }
