@@ -169,9 +169,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
 
 
     override fun onSaveInstanceState(outState: Bundle) {
-        getChildAdapterPosition()?.let {
-            outState.putInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION, it)
-        }
+        outState.putInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION, getChildAdapterPosition() ?: -1)
         super.onSaveInstanceState(outState)
     }
 
@@ -195,6 +193,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
 
     private fun restoreInstanceState(savedInstanceState: Bundle) {
         mSavedTopChildAdapterPosition = savedInstanceState.getInt(EXTRA_RECYCLER_TOP_CHILD_ADAPTER_POSITION)
+                .takeIf { it != -1 }
     }
 
     fun scrollToTop() = recycler.scrollToPosition(0)

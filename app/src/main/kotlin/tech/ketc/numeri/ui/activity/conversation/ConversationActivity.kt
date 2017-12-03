@@ -34,7 +34,7 @@ class ConversationActivity : AppCompatActivity(), AutoInject, IConversationUI by
 
     override val operator: ITweetOperator
         get() = mModel
-    private var mPosition = -1
+    private var mPosition: Int? = null
 
     companion object {
         private val EXTRA_INFO = "EXTRA_INFO"
@@ -59,10 +59,11 @@ class ConversationActivity : AppCompatActivity(), AutoInject, IConversationUI by
             values.addAll(it)
             mAdapter.notifyDataSetChanged()
         }
-        if (mPosition != -1)
+        mPosition?.let { position ->
             values.takeIf { it.isNotEmpty() }?.let {
-                recycler.scrollToPosition(mPosition)
+                recycler.scrollToPosition(position)
             }
+        }
         mModel.stream.observe(this) {
             values.add(0, it)
             mAdapter.notifyItemInserted(0)
@@ -87,13 +88,13 @@ class ConversationActivity : AppCompatActivity(), AutoInject, IConversationUI by
     }
 
     private fun restore(savedInstanceState: Bundle) {
-        mPosition = savedInstanceState.getInt(SAVED_POSITION)
+        mPosition = savedInstanceState.getInt(SAVED_POSITION).takeIf { it != -1 }
     }
 
     override fun onSaveInstanceState(outState: Bundle) {
         if (recycler.childCount > 0)
             mPosition = recycler.getChildAdapterPosition(recycler.getChildAt(0))
-        outState.putInt(SAVED_POSITION, mPosition)
+        outState.putInt(SAVED_POSITION, mPosition ?: -1)
         super.onSaveInstanceState(outState)
     }
 
