@@ -1,5 +1,6 @@
 package tech.ketc.numeri.ui.activity.tweet
 
+import android.os.Build
 import android.support.v7.widget.Toolbar
 import android.text.InputType
 import android.text.TextUtils
@@ -75,6 +76,8 @@ class TweetUI : ITweetUI {
                             singleLine = false
                             hint = context.getString(R.string.tweet_input)
                             gravity = Gravity.TOP or Gravity.START
+                            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.O)
+                                importantForAutofill = EditText.IMPORTANT_FOR_AUTOFILL_NO_EXCLUDE_DESCENDANTS
                         }.textInputlparams(matchParent, wrapContent)
                     }.lparams(matchParent, matchParent) {
                         below(R.id.background_stream_text)
