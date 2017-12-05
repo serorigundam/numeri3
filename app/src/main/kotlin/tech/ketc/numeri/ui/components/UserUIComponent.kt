@@ -89,7 +89,7 @@ class UserUIComponent : IUserUIComponent {
             endOf(R.id.icon_image)
             below(R.id.icon_image)
             marginTop = dimen(R.dimen.margin_text_small)
-            marginBottom = dimen(R.dimen.margin_medium)
+            marginBottom = dimen(R.dimen.margin_small)
         }
     }
 }

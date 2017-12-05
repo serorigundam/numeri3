@@ -49,7 +49,10 @@ class TweetUIComponent : ITweetUIComponent {
         relativeLayout {
             overlayRelative = this
             lparams(matchParent, wrapContent) {
-                padding = dimen(R.dimen.margin_small)
+                setPadding(dimen(R.dimen.margin_medium),
+                        dimen(R.dimen.margin_medium),
+                        dimen(R.dimen.margin_medium),
+                        dimen(R.dimen.margin_small))
             }
 
             frameLayout {
