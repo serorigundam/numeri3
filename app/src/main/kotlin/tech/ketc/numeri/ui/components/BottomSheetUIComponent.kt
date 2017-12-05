@@ -23,7 +23,7 @@ class BottomSheetUIComponent : IBottomSheetUIComponent {
         textView {
             messageTextView = this
             id = R.id.message_text
-            maxLines = 2
+            maxLines = 1
             ellipsize = TextUtils.TruncateAt.END
             textSizeDimen = R.dimen.text_size_medium
             textColor = ctx.getColor(ctx.getResourceId(android.R.attr.textColorPrimary))

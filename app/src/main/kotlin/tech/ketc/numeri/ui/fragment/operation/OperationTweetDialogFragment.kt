@@ -73,7 +73,8 @@ class OperationTweetDialogFragment : BottomSheetDialogFragment() {
         menus.add(createLinkOpenMenu())
         createDeleteTweetMenu()?.let { menus.add(it) }
 
-        val component = createBottomSheetUIComponent(ctx, mTweet.text, *menus.toTypedArray())
+        val message = "@${stateHandleTweet.user.screenName} : ${stateHandleTweet.text}"
+        val component = createBottomSheetUIComponent(ctx, message, *menus.toTypedArray())
         dialog.setContentView(component.componentRoot)
         return dialog
     }
