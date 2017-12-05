@@ -37,7 +37,6 @@ abstract class DataSourceAdapter
     private val currentLatestPosition: Int
         get() = mItemCount - 1
 
-    private var mIsProgress = false
     private var mStoreLiveData: MutableLiveData<List<Value>>? = null
 
     private var mProgressViewHolderRef: WeakReference<ProgressViewHolder>? = null
@@ -61,15 +60,9 @@ abstract class DataSourceAdapter
         return true
     }
 
-    private fun checkProgress() {
-        if (mIsProgress) throw IllegalStateException()
-    }
-
     var error: (Throwable) -> Unit = {}
 
     fun loadAfter(complete: () -> Unit = {}) {
-        checkProgress()
-        mIsProgress = true
         val item = mValues.firstOrNull()
         if (item == null) loadInitial(complete)
         else bindLaunch(mOwner) {
@@ -84,13 +77,10 @@ abstract class DataSourceAdapter
             mStoreLiveData?.value = mValues.copy()
             notifyItemRangeInserted(0, list.size)
             complete()
-            mIsProgress = false
         }
     }
 
     fun loadBefore(complete: () -> Unit = {}) {
-        checkProgress()
-        mIsProgress = true
         val item = mValues.lastOrNull()
         if (item == null) loadInitial(complete)
         else bindLaunch(mOwner) {
@@ -106,13 +96,10 @@ abstract class DataSourceAdapter
             mStoreLiveData?.value = mValues.copy()
             notifyItemRangeInserted(last, list.size)
             complete()
-            mIsProgress = false
         }
     }
 
     fun loadInitial(complete: () -> Unit = {}) {
-        checkProgress()
-        mIsProgress = true
         bindLaunch(mOwner) {
             val listRes = async {
                 response { mDataSource.loadInitial(pageSize) }
@@ -125,7 +112,6 @@ abstract class DataSourceAdapter
             mStoreLiveData?.value = mValues.copy()
             notifyDataSetChanged()
             complete()
-            mIsProgress = false
         }
     }
 
