@@ -95,6 +95,7 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         recycler.adapter = adapter
         adapter.setStoreLiveData(mModel.storeTweetsLiveData)
         adapter.error = {
+            Logger.printStackTrace(logTag, it)
             toast(R.string.message_failure_acquire_tweet)
         }
         if (adapter.restore()) {

@@ -46,17 +46,17 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
         val group = TimelineGroup(groupName)
         mGroupDao.insert(group)
         mGroupToInfoListMap.put(groupName, ArrayList())
-        mGroupList.add(TimelineGroup(groupName))
+        mGroupList.add(group)
         return group
     }
 
     override fun joinToGroup(group: TimelineGroup, info: TimelineInfo) {
         initialize()
-        mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "group[${group.name}]")
+        val list = mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "group[${group.name}]")
         val count = mInfoDao.countInfoByGroupName(group.name)
         Logger.v(logTag, "join to ${group.name} position $count")
         mInfoDao.createOrUpdateGroupToInfo(TlGroupToTlInfo(group.name, info.id, count))
-        mGroupToInfoListMap[group.name]!!.add(info)
+        list.add(info)
     }
 
     override fun removeFromGroup(group: TimelineGroup, info: TimelineInfo) {
@@ -75,7 +75,9 @@ class TimelineInfoRepository @Inject constructor(private val mDatabase: AccountD
 
     override fun selectByGroup(group: TimelineGroup): List<TimelineInfo> {
         initialize()
-        return (mGroupToInfoListMap[group.name] ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]")).unmodifiableList()
+        return (mGroupToInfoListMap[group.name]
+                ?: throw NotExistsException("TimelineGroup", "loadGroupList[${group.name}]"))
+                .unmodifiableList()
     }
 
     override fun getInfo(type: TlType, accountId: Long, foreignId: Long): TimelineInfo {

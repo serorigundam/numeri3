@@ -76,7 +76,10 @@ abstract class DataSourceAdapter
             val listRes = async {
                 response { mDataSource.loadAfter(mDataSource.getKey(item), pageSize) }
             }.await()
-            val list = listRes.orError(error) ?: return@bindLaunch
+            val list = listRes.orError {
+                error(it)
+                complete()
+            } ?: return@bindLaunch
             mValues.addAll(0, list)
             mStoreLiveData?.value = mValues.copy()
             notifyItemRangeInserted(0, list.size)
@@ -94,7 +97,10 @@ abstract class DataSourceAdapter
             val listRes = async {
                 response { mDataSource.loadBefore(mDataSource.getKey(item), pageSize) }
             }.await()
-            val list = listRes.orError(error) ?: return@bindLaunch
+            val list = listRes.orError {
+                error(it)
+                complete()
+            } ?: return@bindLaunch
             val last = mValues.size
             mValues.addAll(list)
             mStoreLiveData?.value = mValues.copy()
@@ -111,7 +117,10 @@ abstract class DataSourceAdapter
             val listRes = async {
                 response { mDataSource.loadInitial(pageSize) }
             }.await()
-            val list = listRes.orError(error) ?: return@bindLaunch
+            val list = listRes.orError {
+                error(it)
+                complete()
+            } ?: return@bindLaunch
             mValues.addAll(list)
             mStoreLiveData?.value = mValues.copy()
             notifyDataSetChanged()
