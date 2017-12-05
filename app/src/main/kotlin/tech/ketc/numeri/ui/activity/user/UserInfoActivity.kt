@@ -22,6 +22,7 @@ import tech.ketc.numeri.domain.twitter.model.TwitterUser
 import tech.ketc.numeri.infra.element.TlType
 import tech.ketc.numeri.infra.entity.TimelineInfo
 import tech.ketc.numeri.ui.activity.media.MediaActivity
+import tech.ketc.numeri.ui.fragment.search.SearchFragment
 import tech.ketc.numeri.ui.fragment.timeline.TimelineFragment
 import tech.ketc.numeri.ui.fragment.users.UsersFragment
 import tech.ketc.numeri.ui.model.UserInfoViewModel
@@ -108,7 +109,6 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
 
     private fun initialize() {
         loadTwitterUser()
-        initializePager()
     }
 
 
@@ -164,16 +164,19 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
         }
     }
 
-    private fun initializePager() {
+    private fun initializePager(user: TwitterUser) {
         val accountId = mClient.id
         val publicInfo = TimelineInfo(type = TlType.PUBLIC, accountId = accountId, foreignId = mTargetId)
         val favoriteInfo = TimelineInfo(type = TlType.FAVORITE, accountId = accountId, foreignId = mTargetId)
         val public = TimelineFragment.create(publicInfo, false)
         val favorite = TimelineFragment.create(favoriteInfo, false)
+        val mediaQuery = "filter:images filter:media exclude:retweets from:${user.screenName}"
+        val media = SearchFragment.create(mClient, mediaQuery, false)
         val follows = UsersFragment.create(mClient, mTargetId, UsersViewModel.Type.FOLLOWS)
         val followers = UsersFragment.create(mClient, mTargetId, UsersViewModel.Type.FOLLOWERS)
         val contents = arrayListOf(Content("public", public, getString(R.string.tab_tweet)),
                 Content("favorite", favorite, getString(R.string.tab_favorite)),
+                Content("media", media, getString(R.string.tab_media)),
                 Content("follows", follows, getString(R.string.tab_follow)),
                 Content("followers", followers, getString(R.string.tab_follower)))
         runOnActive {
@@ -191,6 +194,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
                     val fragment = mPagerAdapter.getContent(tab.position).fragment
                     when (fragment) {
                         is TimelineFragment -> fragment.scrollToTop()
+                        is SearchFragment -> fragment.scrollToTop()
                     }
                 }
             })
@@ -267,6 +271,7 @@ class UserInfoActivity : AppCompatActivity(), AutoInject, IUserInfoUI by UserInf
             val user = mModel.show(mClient, mTargetId).await().orError {
                 toast(R.string.message_failed_user_info)
             } ?: return@bindLaunch
+            initializePager(user)
             loadProfileImage(user)
             loadHeader(user)
             supportActionBar!!.title = user.name

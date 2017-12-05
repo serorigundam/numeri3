@@ -17,7 +17,6 @@ import android.util.ArrayMap
 import android.view.KeyEvent
 import android.view.MenuItem
 import android.view.View
-import android.view.animation.Interpolator
 import dagger.android.AndroidInjector
 import dagger.android.DispatchingAndroidInjector
 import dagger.android.support.HasSupportFragmentInjector

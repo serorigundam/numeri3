@@ -10,6 +10,7 @@ import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivityCompone
 import tech.ketc.numeri.ui.activity.tweet.TweetActivityComponent
 import tech.ketc.numeri.ui.activity.user.UserInfoActivityComponent
 import tech.ketc.numeri.ui.fragment.main.MainFragmentComponent
+import tech.ketc.numeri.ui.fragment.search.SearchFragmentComponent
 import tech.ketc.numeri.ui.fragment.timeline.TimeLineFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinegroup.TimelineGroupManageFragmentComponent
 import tech.ketc.numeri.ui.fragment.timelinemanage.TimelineManageFragmentComponent
@@ -29,7 +30,8 @@ MediaActivityComponent::class,
 TimelineManageFragmentComponent::class,
 ConversationActivityComponent::class,
 UserInfoActivityComponent::class,
-UsersFragmentComponent::class
+UsersFragmentComponent::class,
+SearchFragmentComponent::class
 ])
 class ModelFactoryModule {
 

@@ -7,7 +7,8 @@ import twitter4j.Status
 
 
 interface ITweetFactory {
-    fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet
+
+    fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status, forceStateGet: Boolean = false): Tweet
 
     fun addUpdateListener(listener: TweetUpdateListener)
 
@@ -15,7 +16,7 @@ interface ITweetFactory {
 
     fun delete(tweet: Tweet)
 
-    fun deleteById(id:Long)
+    fun deleteById(id: Long)
 
     fun deleteByUser(user: TwitterUser)
 
@@ -23,5 +24,5 @@ interface ITweetFactory {
 
     fun removeListener(listener: TweetDeleteListener)
 
-    fun get(id: Long):Tweet?
+    fun get(id: Long): Tweet?
 }

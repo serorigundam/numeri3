@@ -23,6 +23,7 @@ class ViewModelFactory @Inject constructor(viewModelComponent: ViewModelComponen
         put(viewModelComponent::conversationViewModel)
         put(viewModelComponent::userInfoViewModel)
         put(viewModelComponent::usersViewModel)
+        put(viewModelComponent::searchViewModel)
     }
 
     private inline fun <reified T : ViewModel> put(noinline provide: () -> T) {

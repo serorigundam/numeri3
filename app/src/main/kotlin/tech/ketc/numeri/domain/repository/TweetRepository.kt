@@ -38,8 +38,8 @@ class TweetRepository @Inject constructor(private val mTweetFactory: ITweetFacto
     override val latestDeletedTweet: LiveData<Tweet>
         get() = mLatestDeletedTweet.map { it }
 
-    override fun createOrUpdate(client: TwitterClient, status: Status): Tweet {
-        return mTweetFactory.createOrGet(client, mUserFactory, status)
+    override fun createOrUpdate(client: TwitterClient, status: Status, forceStateGet: Boolean): Tweet {
+        return mTweetFactory.createOrGet(client, mUserFactory, status, forceStateGet)
     }
 
     override fun delete(tweet: Tweet) {

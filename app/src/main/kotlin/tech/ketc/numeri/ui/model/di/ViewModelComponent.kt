@@ -26,4 +26,6 @@ interface ViewModelComponent {
     fun userInfoViewModel(): UserInfoViewModel
 
     fun usersViewModel(): UsersViewModel
+
+    fun searchViewModel(): SearchViewModel
 }

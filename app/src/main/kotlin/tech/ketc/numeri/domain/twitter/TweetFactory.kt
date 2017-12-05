@@ -30,29 +30,34 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
     private fun showStatusUnLock(id: String) = showStatusLock.getOrPut(id) { ReentrantLock() }
 
 
-    override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status): Tweet {
+    override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status, forceStateGet: Boolean): Tweet {
         Logger.v(logTag, "createOrGet ${status.text}")
         val tweet = mMap[status.id]
-        mStateFactory.getOrPutState(client, status)
+        if (!forceStateGet) {
+            mStateFactory.getOrPutState(client, status)
+        } else {
+            getStateForcibly(client, status)
+        }
         status.retweetedStatus?.let {
-            checkInnerStatusState(client, it)
+            getStateForcibly(client, it)
         }
         status.quotedStatus?.let {
-            checkInnerStatusState(client, it)
+            getStateForcibly(client, it)
         }
+
         return tweet?.also { it.updateAndCallback(status) }
                 ?: tweetLock(status.id).withLock {
             TweetInternal(client, this, userFactory, status).also { mMap.put(it.id, it);tweetUnlock(status.id) }
         }
     }
 
-    private fun checkInnerStatusState(client: TwitterClient, innerStatus: Status) {
-        val statusId = innerStatus.id
-        val lockId = "${client.id}${innerStatus.id}"
+    private fun getStateForcibly(client: TwitterClient, status: Status) {
+        val statusId = status.id
+        val lockId = "${client.id}${status.id}"
         showStatusLock(lockId).withLock {
-            if (mStateFactory.get(client, innerStatus) == null) {
+            if (mStateFactory.get(client, status) == null) {
                 val s = client.twitter.showStatus(statusId)
-                Logger.v(logTag, "checkInnerStatusState ${client.id} show $statusId ${innerStatus.text}")
+                Logger.v(logTag, "getStateForcibly ${client.id} show $statusId ${status.text}")
                 mStateFactory.getOrPutState(client, s)
             }
             showStatusUnLock(lockId)

@@ -10,7 +10,7 @@ import twitter4j.Status
 interface ITweetRepository {
     val latestUpdatedTweet: LiveData<Tweet>
     val latestDeletedTweet: LiveData<Tweet>
-    fun createOrUpdate(client: TwitterClient, status: Status): Tweet
+    fun createOrUpdate(client: TwitterClient, status: Status, forceStateGet: Boolean = false): Tweet
     fun delete(tweet: Tweet)
     fun deleteById(id: Long)
     fun deleteByUser(user: TwitterUser)
