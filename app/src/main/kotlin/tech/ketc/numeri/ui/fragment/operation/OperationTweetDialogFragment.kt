@@ -226,7 +226,6 @@ class OperationTweetDialogFragment : BottomSheetDialogFragment() {
         fun create(user: Pair<String, Long>): View {
             val view = createMenuItemUIComponent(ctx, userIconRes, user.first).componentRoot
             view.setOnClickListener {
-                toast("Unimplemented")//todo Unimplemented
                 UserInfoActivity.start(ctx, mClient, user.second)
                 dismiss()
             }
@@ -235,8 +234,8 @@ class OperationTweetDialogFragment : BottomSheetDialogFragment() {
 
         val users = ArrayList<Pair<String, Long>>()
         val user = mTweet.user
-        users.add(user.screenName to user.id)
         mTweet.retweetedTweet?.user?.let { users.add(it.screenName to it.id) }
+        users.add(user.screenName to user.id)
         return (users + mTweet.userMentionEntities.map { it.screenName to it.id })
                 .distinctBy { it.second }.map(::create)
     }
