@@ -31,6 +31,7 @@ import tech.ketc.numeri.util.android.pref
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
 import tech.ketc.numeri.util.logTag
+import tech.ketc.numeri.util.twitter4j.showTwitterError
 import java.io.Serializable
 
 class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent(),
@@ -96,7 +97,8 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
         adapter.setStoreLiveData(mModel.storeTweetsLiveData)
         adapter.error = {
             Logger.printStackTrace(logTag, it)
-            toast(R.string.message_failure_acquire_tweet)
+            if (!showTwitterError(it))
+                toast(R.string.message_failure_acquire_tweet)
         }
         if (adapter.restore()) {
             Logger.v(javaClass.name, "restore adapter")
