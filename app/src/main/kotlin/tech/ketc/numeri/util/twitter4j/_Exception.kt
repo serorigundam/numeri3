@@ -23,18 +23,18 @@ val TwitterException.errorMessageId: Int
         else -> R.string.twitter_error_unknown
     }
 
-fun Fragment.showTwitterError(throwable: Throwable) {
-    context?.showTwitterError(throwable)
+fun Fragment.showTwitterError(throwable: Throwable): Boolean {
+    return context?.showTwitterError(throwable) ?: return false
 }
 
-fun Context.showTwitterError(throwable: Throwable) {
-    (throwable as? TwitterException)?.let {
-        val errorMessageId = it.errorMessageId
-        when (errorMessageId) {
-            R.string.twitter_error_unknown -> {
-                toast(getString(errorMessageId) + " code: ${it.errorCode}")
-            }
-            else -> toast(it.errorMessageId)
+fun Context.showTwitterError(throwable: Throwable): Boolean {
+    if (throwable !is TwitterException) return false
+    val errorMessageId = throwable.errorMessageId
+    when (errorMessageId) {
+        R.string.twitter_error_unknown -> {
+            toast(getString(errorMessageId) + " code: ${throwable.errorCode}")
         }
+        else -> toast(throwable.errorMessageId)
     }
+    return true
 }
