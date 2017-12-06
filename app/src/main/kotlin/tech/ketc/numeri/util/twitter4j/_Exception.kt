@@ -2,7 +2,6 @@ package tech.ketc.numeri.util.twitter4j
 
 import android.content.Context
 import android.support.v4.app.Fragment
-import org.jetbrains.anko.support.v4.toast
 import org.jetbrains.anko.toast
 import tech.ketc.numeri.R
 import twitter4j.TwitterException
@@ -25,13 +24,17 @@ val TwitterException.errorMessageId: Int
     }
 
 fun Fragment.showTwitterError(throwable: Throwable) {
-    (throwable as? TwitterException)?.let {
-        toast(it.errorMessageId)
-    }
+    context?.showTwitterError(throwable)
 }
 
 fun Context.showTwitterError(throwable: Throwable) {
     (throwable as? TwitterException)?.let {
-        toast(it.errorMessageId)
+        val errorMessageId = it.errorMessageId
+        when (errorMessageId) {
+            R.string.twitter_error_unknown -> {
+                toast(getString(errorMessageId) + " code: ${it.errorCode}")
+            }
+            else -> toast(it.errorMessageId)
+        }
     }
 }
