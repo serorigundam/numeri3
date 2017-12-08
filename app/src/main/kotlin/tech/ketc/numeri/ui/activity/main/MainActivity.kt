@@ -29,7 +29,6 @@ import tech.ketc.numeri.domain.twitter.model.getIconUrl
 import tech.ketc.numeri.infra.entity.TimelineGroup
 import tech.ketc.numeri.ui.activity.setting.SettingsActivity
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
-import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.components.AccountUIComponent
 import tech.ketc.numeri.ui.components.createBottomSheetUIComponent
 import tech.ketc.numeri.ui.components.createMenuItemUIComponent
@@ -69,6 +68,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private var mCurrentGroupList: MutableList<TimelineGroup> = ArrayList()
     private var mInitialized = false
     private var mIsFabMenuShowing = false
+    private var mOnClickTweetFabListenr: OnClickTweetFabListener? = null
 
 
     companion object {
@@ -235,6 +235,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
         view.fadeIn()
         supportFragmentManager.beginTransaction().show(fragment).commit()
+        mOnClickTweetFabListenr = (fragment as OnClickTweetFabListener)
         mShowingGroupName = groupName
     }
 
@@ -427,7 +428,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             toast(R.string.message_initialization_not_completed)
             return
         }
-        TweetActivity.start(ctx)
+        mOnClickTweetFabListenr?.onClickTweetFab()
     }
 
     private fun onDoubleClickTweetFab(): Boolean {

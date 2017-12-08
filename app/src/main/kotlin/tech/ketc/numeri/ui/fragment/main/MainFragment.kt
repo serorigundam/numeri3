@@ -15,6 +15,7 @@ import org.jetbrains.anko.*
 import org.jetbrains.anko.support.v4.ctx
 import org.jetbrains.anko.support.v4.toast
 import tech.ketc.numeri.R
+import tech.ketc.numeri.ui.activity.main.OnClickTweetFabListener
 import tech.ketc.numeri.ui.activity.timelinemanage.TimelineManageActivity
 import tech.ketc.numeri.ui.components.IScrollableTabPagerUIComponent
 import tech.ketc.numeri.ui.components.ScrollableTabPagerUIComponent
@@ -34,6 +35,7 @@ import tech.ketc.numeri.util.di.AutoInject
 import javax.inject.Inject
 
 class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
+        OnClickTweetFabListener,
         IScrollableTabPagerUIComponent by ScrollableTabPagerUIComponent(),
         IOnActiveRunner by OnActiveRunner() {
 
@@ -43,6 +45,8 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
     private val mPagerAdapter by lazy { ModifiablePagerAdapter<String, TimelineFragment>(childFragmentManager) }
     private val mGroupName by lazy { arg.getString(EXTRA_TIMELINE_GROUP) }
     private var mInitialized = false
+
+    private var mOnClickTweetFabListener: OnClickTweetFabListener? = null
 
     companion object {
         private val EXTRA_TIMELINE_GROUP = "EXTRA_TIMELINE_GROUP"
@@ -135,9 +139,14 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
         }
     }
 
+    override fun onClickTweetFab() {
+        mOnClickTweetFabListener?.onClickTweetFab()
+    }
+
     //interface impl
     override fun onTabReselected(tab: TabLayout.Tab) {
-        mPagerAdapter.getContent(tab.position).fragment.scrollToTop()
+        val fragment = mPagerAdapter.getContent(tab.position).fragment
+        fragment.scrollToTop()
     }
 
     override fun onTabUnselected(tab: TabLayout.Tab) {
@@ -145,7 +154,8 @@ class MainFragment : Fragment(), AutoInject, TabLayout.OnTabSelectedListener,
     }
 
     override fun onTabSelected(tab: TabLayout.Tab) {
-        //do nothing
+        val fragment = mPagerAdapter.getContent(tab.position).fragment
+        mOnClickTweetFabListener = fragment
     }
 
     class NoContentFragment : Fragment() {

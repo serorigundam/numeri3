@@ -12,6 +12,8 @@ import tech.ketc.numeri.R
 import tech.ketc.numeri.domain.twitter.client.TwitterClient
 import tech.ketc.numeri.domain.twitter.model.*
 import tech.ketc.numeri.infra.entity.TimelineInfo
+import tech.ketc.numeri.ui.activity.main.OnClickTweetFabListener
+import tech.ketc.numeri.ui.activity.tweet.TweetActivity
 import tech.ketc.numeri.ui.components.ISwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.components.SwipeRefreshRecyclerUIComponent
 import tech.ketc.numeri.ui.fragment.operation.OperationTweetDialogFragment
@@ -34,7 +36,8 @@ import tech.ketc.numeri.util.logTag
 import tech.ketc.numeri.util.twitter4j.showTwitterError
 import java.io.Serializable
 
-class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent(),
+class TimelineFragment : Fragment(), AutoInject, OnClickTweetFabListener,
+        ISwipeRefreshRecyclerUIComponent by SwipeRefreshRecyclerUIComponent(),
         HasTweetOperator, Updatable {
 
     @Inject lateinit var mViewModelFactory: ViewModelProvider.Factory
@@ -212,6 +215,11 @@ class TimelineFragment : Fragment(), AutoInject, ISwipeRefreshRecyclerUIComponen
             swipeRefresh.isRefreshing = false
             complete()
         }
+    }
+
+    override fun onClickTweetFab() {
+        if (!mIsInitialized) return
+        TweetActivity.start(ctx, client = mClient)
     }
 
     data class Info(val timelineInfo: TimelineInfo, val swipeRefreshEnabled: Boolean) : Serializable
