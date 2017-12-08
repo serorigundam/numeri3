@@ -84,7 +84,7 @@ class TimelineFragment : Fragment(), AutoInject, OnClickTweetFabListener,
         bindLaunch {
             val res = mModel.initialize(mTlInfo).await()
             val client = res.orError {
-                toast(R.string.message_failed_acquire_info_necessary_for_browsing_timeline)
+                toast(getString(R.string.message_failed_acquire_info_necessary_for_browsing_timeline) + " ${it.message ?: ""}")
             } ?: return@bindLaunch
             initialize(client)
         }

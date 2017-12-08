@@ -25,10 +25,16 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
     private val showStatusLock = ArrayMap<String, ReentrantLock>()
 
     private fun tweetLock(id: Long) = tweetLock.getOrPut(id) { ReentrantLock() }
-    private fun tweetUnlock(id: Long) = tweetLock.remove(id)
-    private fun showStatusLock(id: String) = showStatusLock.getOrPut(id) { ReentrantLock() }
-    private fun showStatusUnLock(id: String) = showStatusLock.getOrPut(id) { ReentrantLock() }
+    private fun tweetUnlock(id: Long) {
+        val holdCount = tweetLock(id).holdCount
+        if (holdCount == 1) tweetLock.remove(id)
+    }
 
+    private fun showStatusLock(id: String) = showStatusLock.getOrPut(id) { ReentrantLock() }
+    private fun showStatusUnLock(id: String) {
+        val holdCount = showStatusLock(id).holdCount
+        if (holdCount == 1) showStatusLock.remove(id)
+    }
 
     override fun createOrGet(client: TwitterClient, userFactory: ITwitterUserFactory, status: Status, forceStateGet: Boolean): Tweet {
         Logger.v(logTag, "createOrGet ${status.text}")
@@ -47,7 +53,10 @@ class TweetFactory @Inject constructor(private val mStateFactory: ITweetStateFac
 
         return tweet?.also { it.updateAndCallback(status) }
                 ?: tweetLock(status.id).withLock {
-            TweetInternal(client, this, userFactory, status).also { mMap.put(it.id, it);tweetUnlock(status.id) }
+            TweetInternal(client, this, userFactory, status).also {
+                mMap.put(it.id, it)
+                tweetUnlock(status.id)
+            }
         }
     }
 

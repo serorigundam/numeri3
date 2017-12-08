@@ -39,6 +39,8 @@ import tech.ketc.numeri.ui.model.MainViewModel
 import tech.ketc.numeri.util.Logger
 import tech.ketc.numeri.util.android.*
 import tech.ketc.numeri.util.android.ui.gesture.SimpleDoubleClickHelper
+import tech.ketc.numeri.util.arch.lifecycle.IOnActiveRunner
+import tech.ketc.numeri.util.arch.lifecycle.OnActiveRunner
 import tech.ketc.numeri.util.arch.livedata.observeIfNonnullOnly
 import tech.ketc.numeri.util.arch.owner.bindLaunch
 import tech.ketc.numeri.util.arch.response.orError
@@ -53,6 +55,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         HasSupportFragmentInjector,
         NavigationView.OnNavigationItemSelectedListener,
         OnDialogItemSelectedListener,
+        IOnActiveRunner by OnActiveRunner(),
         IMainUI by MainUI() {
 
     @Inject lateinit var mAndroidInjector: DispatchingAndroidInjector<Fragment>
@@ -68,7 +71,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
     private var mCurrentGroupList: MutableList<TimelineGroup> = ArrayList()
     private var mInitialized = false
     private var mIsFabMenuShowing = false
-    private var mOnClickTweetFabListenr: OnClickTweetFabListener? = null
+    private var mOnClickTweetFabListener: OnClickTweetFabListener? = null
 
 
     companion object {
@@ -92,6 +95,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
+        setOwner(this)
         setContentView(this)
         initializeUI()
         initializeUIBehavior()
@@ -162,7 +166,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         Logger.v(logTag, "initializeTimelineGroup")
         bindLaunch {
             val groupList = mModel.loadGroupListBlocking().await().result
-            apply(groupList)
+            runOnActive { apply(groupList) }
         }
     }
 
@@ -235,7 +239,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
         }
         view.fadeIn()
         supportFragmentManager.beginTransaction().show(fragment).commit()
-        mOnClickTweetFabListenr = (fragment as OnClickTweetFabListener)
+        mOnClickTweetFabListener = (fragment as OnClickTweetFabListener)
         mShowingGroupName = groupName
     }
 
@@ -278,7 +282,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             Logger.v(javaClass.name, "timelineChange")
             bindLaunch {
                 val result = mModel.loadGroupList().await().result
-                apply(result)
+                runOnActive { apply(result) }
             }
         }
     }
@@ -428,7 +432,7 @@ class MainActivity : AppCompatActivity(), AutoInject,
             toast(R.string.message_initialization_not_completed)
             return
         }
-        mOnClickTweetFabListenr?.onClickTweetFab()
+        mOnClickTweetFabListener?.onClickTweetFab()
     }
 
     private fun onDoubleClickTweetFab(): Boolean {

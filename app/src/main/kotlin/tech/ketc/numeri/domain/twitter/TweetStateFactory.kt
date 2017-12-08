@@ -15,6 +15,10 @@ class TweetStateFactory : ITweetStateFactory {
     private val retweetIdMap = ArrayMap<TwitterClient, HashMap<Long, Long>>()
     private val stateLock = HashMap<Long, ReentrantLock>()
     private fun stateLock(id: Long) = stateLock.getOrPut(id) { ReentrantLock() }
+    private fun stateUnLock(id: Long) {
+        val holdCount = stateLock(id).holdCount
+        if (holdCount == 1) stateLock.remove(id)
+    }
 
     private fun stateMap(client: TwitterClient) = clientToStateMap.getOrPut(client) {
         Logger.v(logTag, "crate new stateMap")
@@ -28,16 +32,17 @@ class TweetStateFactory : ITweetStateFactory {
 
 
     override fun getOrPutState(client: TwitterClient, status: Status): TweetState {
+        val statusId = status.id
         if (status.user.id == client.id && status.isRetweet) {
-            rtIdMap(client).put(status.retweetedStatus.id, status.id)
+            rtIdMap(client).put(status.retweetedStatus.id, statusId)
         }
         status.currentUserRetweetId.takeIf { it != -1L }?.let {
             rtIdMap(client).put(it, status.id)
             Logger.v(logTag, "getOrPutState currentUserRetweetId")
         }
         fun put(): TweetState {
-            val state = stateMap(client).getOrPut(status.id) { TweetState(status.isFavorited, status.isRetweeted) }
-            stateLock.remove(status.id)
+            val state = stateMap(client).getOrPut(statusId) { TweetState(status.isFavorited, status.isRetweeted) }
+            stateUnLock(statusId)
             return state
         }
         return stateLock(status.id).withLock(::put)
@@ -50,7 +55,7 @@ class TweetStateFactory : ITweetStateFactory {
         fun update(): TweetState {
             val state = TweetState(isFav ?: s.isFavorited, isRt ?: s.isRetweeted)
             map.put(id, state)
-            stateLock.remove(id)
+            stateUnLock(id)
             return state
         }
         return stateLock(id).withLock(::update)
