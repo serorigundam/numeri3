@@ -140,6 +140,8 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
     }
 
     private fun initialize(savedInstanceState: Bundle?) {
+        if (savedInstanceState == null)
+            mCurrentClientId = intent.getLongExtra(EXTRA_INITIAL_CLIENT_ID, -1L)
         bindLaunch {
             val clients = mModel.clients().await().orError {
                 toast(R.string.authentication_failure)
@@ -160,17 +162,10 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
 
             if (savedInstanceState != null) return@bindLaunch
             targetTweet()?.let { tweet ->
-                val clientUser = intent.getLongExtra(EXTRA_INITIAL_CLIENT_ID, -1L)
-                        .takeIf { it != -1L }?.let { id ->
-                    clientUsers.find { it.first.id == id }?.also { setTweetUser(it) }
-                }
-
                 fun mentions(): List<String> {
                     if (!mReplyAll) return emptyList()
-                    return tweet.userMentionEntities.map { it.screenName }.run {
-                        if (clientUser != null) filterNot { it == clientUser.second.screenName }
-                        else this
-                    }
+                    return tweet.userMentionEntities.filterNot { it.id == mCurrentClientId }
+                            .map { it.screenName }
                 }
 
                 val targetOwner = tweet.user.screenName
@@ -355,11 +350,11 @@ class TweetActivity : AppCompatActivity(), AutoInject, ITweetUI by TweetUI(), Te
             REQUEST_CODE_IMAGE_CAPTCHA -> {
                 val path = mPath.takeIf { it.isNotEmpty() } ?: return
                 val file = File(path)
-                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI,ContentValues().apply {
+                contentResolver.insert(MediaStore.Images.Media.EXTERNAL_CONTENT_URI, ContentValues().apply {
                     val name = file.name
                     put(MediaStore.Images.Media.TITLE, name)
                     put(MediaStore.Images.Media.DISPLAY_NAME, name)
-                    put(MediaStore.Images.Media.MIME_TYPE,  MimeType.JPEG.toString())
+                    put(MediaStore.Images.Media.MIME_TYPE, MimeType.JPEG.toString())
                     put(MediaStore.Images.Media.DATE_TAKEN, System.currentTimeMillis())
                     put(MediaStore.Images.Media.DATA, path)
                 })
