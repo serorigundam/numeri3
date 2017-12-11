@@ -329,7 +329,6 @@ class MainActivity : AppCompatActivity(), AutoInject,
             groupList.forEach {
                 createOrGetTimelineGroupView(it.name)
             }
-            mShowingGroupName?.let { showTimelineGroup(it) }
             mIsFabMenuShowing = savedInstanceState.getBoolean(EXTRA_IS_FAB_MENU_SHOWING)
             if (mIsFabMenuShowing) showFabMenu()
         }
@@ -343,6 +342,15 @@ class MainActivity : AppCompatActivity(), AutoInject,
     override fun onResume() {
         super.onResume()
         toggleNavigationState(mNavigationState)
+    }
+
+    override fun onRestoreInstanceState(savedInstanceState: Bundle?) {
+        super.onRestoreInstanceState(savedInstanceState)
+        mShowingGroupName?.let {
+            val id = mGroupNameToViewId[it]!!
+            val listener = supportFragmentManager.findFragmentById(id) as OnClickTweetFabListener
+            mOnClickTweetFabListener = listener
+        }
     }
 
     override fun onConfigurationChanged(newConfig: Configuration?) {
